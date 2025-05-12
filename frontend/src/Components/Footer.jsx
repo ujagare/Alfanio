@@ -12,7 +12,7 @@ import {
   FaFacebook,
   FaWhatsapp,
 } from "react-icons/fa";
-import Logo from "../assets/Logo.png";
+import logo from "../assets/logo.png";
 
 const Footer = () => {
   const socialMedias = [
@@ -46,7 +46,7 @@ const Footer = () => {
               to="/"
               className="block w-36 focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded"
             >
-              <img src={Logo} alt="Alfanio Logo" className="h-10 w-auto" />
+              <img src={logo} alt="Alfanio Logo" className="h-10 w-auto" />
             </Link>
             <div className="flex flex-col items-center lg:items-start">
               <p className="text-gray-400 text-sm leading-relaxed text-center lg:text-left max-w-xs">

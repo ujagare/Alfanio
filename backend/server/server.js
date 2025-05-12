@@ -18,9 +18,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
 const app = express();
-
 // Set trust proxy to fix express-rate-limit warning
 app.set('trust proxy', 1);
 
@@ -95,25 +93,62 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Allow all origins for development and testing
-app.use(cors({
-  origin: '*', // Allow all origins
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['*'], // Allow all headers
-  exposedHeaders: ['*'], // Expose all headers
-  maxAge: 86400 // 24 hours
-}));
+// Configure CORS based on environment
+const allowedOrigins = process.env.NODE_ENV === 'production'
+  ? ['https://alfanio.in', 'https://www.alfanio.in']
+  : ['http://localhost:3000', 'http://localhost:5001', 'http://localhost:5001', 'http://192.168.121.56:3000'];
+
+// In development mode, allow all origins
+if (process.env.NODE_ENV !== 'production') {
+  app.use(cors({
+    origin: '*', // Allow all origins in development
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
+    exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
+    maxAge: 86400 // 24 hours
+  }));
+} else {
+  // In production mode, use restricted origins
+  app.use(cors({
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, etc)
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.indexOf(origin) === -1) {
+        console.warn(`CORS blocked request from origin: ${origin}`);
+        return callback(new Error('CORS policy: Origin not allowed'), false);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
+    exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
+    maxAge: 86400 // 24 hours
+  }));
+}
 
 // Handle preflight requests for all routes
 app.options('*', cors());
 
 // Add custom CORS headers to all responses
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  // In development mode, allow all origins
+  if (process.env.NODE_ENV !== 'production') {
+    res.header('Access-Control-Allow-Origin', '*');
+  } else {
+    // In production mode, only allow specific origins
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+      res.header('Access-Control-Allow-Origin', origin);
+    }
+  }
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
-  res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
+  res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length, X-Request-ID');
+  res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
 app.use(express.json({ limit: '10mb' }));
@@ -141,23 +176,60 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSRF protection - enabled for production only
+// CSRF protection - enhanced for production
 const csrfProtection = (req, res, next) => {
   // In production, implement proper CSRF protection
   if (process.env.NODE_ENV === 'production') {
-    // Check for CSRF token in headers
-    const csrfToken = req.headers['x-csrf-token'];
+    // Check for CSRF token in headers or cookies
+    const csrfToken = req.headers['x-csrf-token'] || (req.cookies && req.cookies['_csrf']);
 
-    // Simple validation - in a real app, you'd validate against a stored token
+    // Get the request origin
+    const origin = req.headers.origin || req.headers.referer;
+
+    // Check if the request is coming from our allowed origins
+    const allowedOrigins = ['https://alfanio.in', 'https://www.alfanio.in'];
+    const isAllowedOrigin = !origin || allowedOrigins.some(allowed => origin.startsWith(allowed));
+
+    // Skip CSRF check for specific conditions:
+    // 1. If it's a GET request (should be idempotent)
+    // 2. If it's a preflight OPTIONS request
+    if (req.method === 'GET' || req.method === 'OPTIONS') {
+      return next();
+    }
+
+    // Validate the token
     if (!csrfToken) {
+      console.warn(`CSRF token missing in ${req.method} request to ${req.originalUrl}`);
       return res.status(403).json({
         success: false,
-        message: 'CSRF token missing'
+        message: 'CSRF token missing',
+        code: 'CSRF_TOKEN_MISSING'
+      });
+    }
+
+    // Check if the origin is allowed
+    if (!isAllowedOrigin) {
+      console.warn(`CSRF origin check failed: ${origin} not in allowed list`);
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid request origin',
+        code: 'INVALID_ORIGIN'
       });
     }
 
     // For a more secure implementation, validate the token against a stored value
-    // This is a simplified version for demonstration
+    // This is a simplified version that checks if the token is at least properly formatted
+    if (!/^[a-zA-Z0-9_-]{16,64}$/.test(csrfToken)) {
+      console.warn(`CSRF token format invalid: ${csrfToken.substring(0, 10)}...`);
+      return res.status(403).json({
+        success: false,
+        message: 'Invalid CSRF token format',
+        code: 'INVALID_CSRF_TOKEN'
+      });
+    }
+
+    // In a real implementation, you would validate against a stored token
+    // For now, we're just checking format and presence
   }
 
   // Always allow in development mode
@@ -168,10 +240,10 @@ const csrfProtection = (req, res, next) => {
 app.use('/api/contact', csrfProtection);
 app.use('/api/contact/brochure', csrfProtection);
 
-// Rate limiting with improved configuration
+// Rate limiting with production-ready configuration
 const apiLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per windowMs for API endpoints
+  windowMs: process.env.NODE_ENV === 'production' ? 5 * 60 * 1000 : 15 * 60 * 1000, // 5 minutes in production, 15 in dev
+  max: process.env.NODE_ENV === 'production' ? 60 : 100, // Stricter limits in production
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: JSON.stringify({
@@ -179,27 +251,79 @@ const apiLimiter = rateLimit({
     code: 'RATE_LIMIT_EXCEEDED'
   }),
   keyGenerator: (req) => {
-    // Use IP address as default
-    return req.ip || req.connection.remoteAddress;
+    // Use a combination of IP and user agent for better rate limiting
+    const ip = req.ip || req.connection.remoteAddress;
+
+    // In production, use IP only to avoid bypassing rate limits with different user agents
+    if (process.env.NODE_ENV === 'production') {
+      return ip;
+    }
+
+    // In development, use a combination for testing
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    return `${ip}-${userAgent.substring(0, 20)}`;
   },
   skip: (req, res) => {
-    // Skip rate limiting for health checks
-    return req.path === '/api/health';
-  }
+    // Skip rate limiting for health checks and OPTIONS requests
+    return req.path === '/api/health' || req.method === 'OPTIONS';
+  },
+  // Add handler for when rate limit is exceeded
+  handler: (req, res, next, options) => {
+    console.warn(`Rate limit exceeded: ${req.ip} - ${req.method} ${req.originalUrl}`);
+
+    res.status(429).json({
+      success: false,
+      message: 'Too many requests, please try again later.',
+      code: 'RATE_LIMIT_EXCEEDED',
+      retryAfter: Math.ceil(options.windowMs / 1000)
+    });
+  },
+  // Add draft-7 headers
+  draft_polli_ratelimit_headers: true
 });
 
-const staticLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: 300, // 300 requests per minute for static assets
+// Separate limiter for contact form submissions to prevent spam
+const contactFormLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: process.env.NODE_ENV === 'production' ? 5 : 20, // 5 submissions per hour in production
   standardHeaders: true,
   legacyHeaders: false,
+  message: JSON.stringify({
+    error: 'Too many form submissions, please try again later.',
+    code: 'FORM_SUBMISSION_LIMIT_EXCEEDED'
+  }),
   keyGenerator: (req) => {
     return req.ip || req.connection.remoteAddress;
   }
 });
 
+const staticLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: process.env.NODE_ENV === 'production' ? 200 : 300, // 200 requests per minute in production
+  standardHeaders: true,
+  legacyHeaders: false,
+  keyGenerator: (req) => {
+    return req.ip || req.connection.remoteAddress;
+  },
+  skip: (req, res) => {
+    // Skip rate limiting for common static assets in production
+    if (process.env.NODE_ENV === 'production') {
+      const path = req.path.toLowerCase();
+      return path.endsWith('.css') ||
+             path.endsWith('.js') ||
+             path.endsWith('.png') ||
+             path.endsWith('.jpg') ||
+             path.endsWith('.svg') ||
+             path.endsWith('.ico');
+    }
+    return false;
+  }
+});
+
 // Apply rate limiting
 app.use('/api', apiLimiter); // Stricter limits for API endpoints
+app.use('/api/contact', contactFormLimiter); // Specific limits for contact form
+app.use('/api/contact/brochure', contactFormLimiter); // Specific limits for brochure requests
 app.use(staticLimiter); // More lenient limits for static assets
 
 // We'll implement a simpler response time tracking later
@@ -456,6 +580,15 @@ app.use(express.static(path.join(__dirname, '../dist'), {
   }
 }));
 
+// Serve static files from the frontend build directory
+// Using path.resolve to get absolute path from root directory
+app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
+
+// For any other route, serve the index.html file
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
+});
+
 // MongoDB connection with improved retry logic and production readiness
 const connectWithRetry = async (retries = 5, delay = 5000) => {
   let currentRetry = 0;
@@ -464,7 +597,13 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
   const getMongoURI = () => {
     // For production, use MongoDB Atlas
     if (process.env.NODE_ENV === 'production') {
-      // Make sure to set these environment variables in production
+      // First check if a complete MONGODB_URI is provided
+      if (process.env.MONGODB_URI && process.env.MONGODB_URI.includes('mongodb+srv://')) {
+        console.log('Using complete MongoDB URI from environment variables');
+        return process.env.MONGODB_URI;
+      }
+
+      // Otherwise, construct from individual components
       const username = encodeURIComponent(process.env.MONGO_USERNAME || '');
       const password = encodeURIComponent(process.env.MONGO_PASSWORD || '');
       const cluster = process.env.MONGO_CLUSTER || '';
@@ -475,11 +614,15 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       }
 
       // MongoDB Atlas connection string
-      return `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
+      const uri = `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
+      console.log(`Constructed MongoDB URI: ${uri.replace(password, '********')}`);
+      return uri;
     }
 
     // For development, use local MongoDB or specified URI
-    return process.env.MONGODB_URI || 'mongodb://localhost:27017/alfanio';
+    const devUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/alfanio';
+    console.log(`Using development MongoDB URI: ${devUri.includes('mongodb+srv://') ? devUri.replace(/mongodb\+srv:\/\/.*?@/, 'mongodb+srv://******@') : devUri}`);
+    return devUri;
   };
 
   while (currentRetry < retries) {
@@ -489,26 +632,25 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       const mongoURI = getMongoURI();
       console.log(`Connecting to MongoDB ${process.env.NODE_ENV === 'production' ? 'Atlas' : 'local'} database...`);
 
-      // Use modern MongoDB connection options
-      await mongoose.connect(mongoURI, {
-        serverSelectionTimeoutMS: 10000, // 10 seconds timeout
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        // Modern options for better performance and reliability
-        maxPoolSize: 10, // Maintain up to 10 socket connections
-        minPoolSize: 5,  // Maintain at least 5 socket connections
-        retryWrites: true,
-        w: 'majority'    // Write to the primary and wait for acknowledgment from a majority of members
-      });
+      // Connect with no options - this is the most compatible approach
+      console.log('Connecting to MongoDB with no options (most compatible approach)...');
+      await mongoose.connect(mongoURI);
 
       console.log('MongoDB connected successfully');
 
-      // Add connection event listeners
+      // Add connection event listeners with improved error handling
       mongoose.connection.on('error', (err) => {
         console.error('MongoDB connection error:', err);
-        if (err.name === 'MongoNetworkError') {
-          console.log('Attempting to reconnect to MongoDB...');
+
+        // Handle specific error types
+        if (err.name === 'MongoNetworkError' ||
+            err.name === 'MongoServerSelectionError' ||
+            err.message.includes('topology was destroyed')) {
+          console.log('Attempting to reconnect to MongoDB due to network or server selection error...');
           setTimeout(() => connectWithRetry(retries, delay), delay);
+        } else {
+          // Log other errors but don't automatically reconnect to avoid infinite loops
+          console.error('MongoDB error (not automatically reconnecting):', err.message);
         }
       });
 
@@ -520,16 +662,54 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       // Add more robust connection monitoring
       mongoose.connection.on('connected', () => {
         console.log('MongoDB connection established');
+
+        // Log connection details in development
+        if (process.env.NODE_ENV !== 'production') {
+          console.log(`Connected to: ${mongoose.connection.host}/${mongoose.connection.name}`);
+        }
       });
 
       mongoose.connection.on('reconnected', () => {
         console.log('MongoDB reconnected successfully');
       });
 
+      // Add graceful shutdown handling
+      process.on('SIGINT', async () => {
+        try {
+          await mongoose.connection.close();
+          console.log('MongoDB connection closed due to application termination');
+          process.exit(0);
+        } catch (err) {
+          console.error('Error during MongoDB connection close:', err);
+          process.exit(1);
+        }
+      });
+
       return;
     } catch (error) {
       currentRetry++;
-      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);
+
+      // Log detailed error information
+      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`);
+      console.error(`- Error message: ${error.message}`);
+      console.error(`- Error name: ${error.name}`);
+      console.error(`- Error code: ${error.code || 'N/A'}`);
+
+      // Check for specific error types and provide more helpful messages
+      if (error.name === 'MongoParseError') {
+        console.error('This appears to be an issue with the MongoDB connection string format.');
+        console.error('Please check your MONGODB_URI environment variable.');
+      } else if (error.name === 'MongoServerSelectionError') {
+        console.error('Unable to connect to any MongoDB server in the cluster.');
+        console.error('Please check your network connection and MongoDB Atlas status.');
+      } else if (error.message.includes('option') && error.message.includes('not supported')) {
+        console.error('Using an unsupported MongoDB driver option. Please check your connection options.');
+        // Log the specific option that's causing the problem
+        const optionMatch = error.message.match(/option (\w+) is not supported/);
+        if (optionMatch && optionMatch[1]) {
+          console.error(`The problematic option is: ${optionMatch[1]}`);
+        }
+      }
 
       if (currentRetry >= retries) {
         console.error('Maximum MongoDB connection retries reached. Exiting retry loop.');
@@ -597,19 +777,63 @@ const createMailTransport = () => {
     transportConfig.maxConnections = 5;
     transportConfig.maxMessages = 100;
 
+    // Set connection timeout
+    transportConfig.connectionTimeout = 10000; // 10 seconds
+
+    // Set greeting timeout
+    transportConfig.greetingTimeout = 10000; // 10 seconds
+
+    // Set socket timeout
+    transportConfig.socketTimeout = 30000; // 30 seconds
+
     // Add TLS options for better security
     transportConfig.tls = {
       rejectUnauthorized: true,
-      minVersion: 'TLSv1.2'
+      minVersion: 'TLSv1.2',
+      ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256'
+    };
+
+    // Add retry configuration
+    transportConfig.retry = {
+      retries: 3,
+      factor: 2,
+      minTimeout: 1000,
+      maxTimeout: 10000,
+      randomize: true
     };
 
     // Check if credentials are properly set
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.warn('Email credentials not fully configured. Check environment variables.');
     }
+
+    // Log successful configuration
+    console.log('Email transport configured for production with enhanced security and reliability settings');
+  } else {
+    // Development-specific settings
+    console.log('Email transport configured for development environment');
   }
 
-  return nodemailer.createTransport(transportConfig);
+  // Create and return the transport
+  try {
+    const transport = nodemailer.createTransport(transportConfig);
+    console.log('Email transport created successfully');
+    return transport;
+  } catch (error) {
+    console.error('Failed to create email transport:', error.message);
+    // Return a dummy transport in development to prevent crashes
+    if (!isProduction) {
+      console.warn('Using dummy email transport for development');
+      return {
+        sendMail: (options) => {
+          console.log('DUMMY EMAIL TRANSPORT:', options);
+          return Promise.resolve({ messageId: 'dummy-id-' + Date.now() });
+        },
+        verify: () => Promise.resolve(true)
+      };
+    }
+    throw error;
+  }
 };
 
 // Create mail transport

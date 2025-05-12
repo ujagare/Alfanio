@@ -5,16 +5,28 @@ import compression from 'vite-plugin-compression2'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
-    react(),
+    react({
+      // Add fast refresh options for better development experience
+      fastRefresh: true,
+      // Optimize JSX transformation
+      jsxRuntime: 'automatic',
+    }),
+    // Gzip compression
     compression({
       algorithm: 'gzip',
       exclude: [/\.(br)$/, /\.(gz)$/],
       threshold: 10240, // Only compress files larger than 10kb
+      deleteOriginalAssets: false, // Keep original files
     }),
+    // Brotli compression (better than gzip)
     compression({
       algorithm: 'brotliCompress',
       exclude: [/\.(br)$/, /\.(gz)$/],
       threshold: 10240,
+      deleteOriginalAssets: false, // Keep original files
+      compressionOptions: {
+        level: 11, // Maximum compression level
+      },
     }),
   ],
   // Force all JavaScript files to be treated as ES modules
@@ -31,8 +43,21 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: true, // Remove console.log in production
-        drop_debugger: true
-      }
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug', 'console.warn'],
+        passes: 2, // Run compression twice for better results
+        ecma: 2020, // Use modern ECMAScript features
+        toplevel: true, // Enable top level variable and function name mangling
+        unsafe_arrows: true, // More aggressive optimizations for arrow functions
+        unsafe_methods: true, // More aggressive optimizations for method calls
+      },
+      mangle: {
+        safari10: true, // Safari 10 compatibility
+      },
+      format: {
+        comments: false, // Remove comments
+        ascii_only: true, // Use ASCII characters only
+      },
     },
     rollupOptions: {
       output: {
@@ -40,7 +65,16 @@ export default defineConfig({
           vendor: ['react', 'react-dom', 'react-router-dom'],
           animations: ['framer-motion', 'gsap'],
           ui: ['@headlessui/react', '@heroicons/react'],
-          forms: ['react-hook-form', 'yup']
+          forms: ['react-hook-form', 'yup'],
+          utils: ['axios'],
+          icons: ['react-icons'],
+          sentry: ['@sentry/react', '@sentry/tracing'],
+          // Split large libraries into separate chunks
+          swiper: ['swiper'],
+          leaflet: ['leaflet'],
+          // Split by feature
+          motion: ['@studio-freight/lenis', 'locomotive-scroll'],
+          analytics: ['posthog-js']
         },
         format: 'es', // Ensure ES module format
         entryFileNames: 'assets/js/[name]-[hash].js',
@@ -51,6 +85,8 @@ export default defineConfig({
             extType = 'img';
           } else if (/woff|woff2|ttf|otf/i.test(extType)) {
             extType = 'fonts';
+          } else if (/mp4|webm|ogg/i.test(extType)) {
+            extType = 'video';
           }
           return `assets/${extType}/[name]-[hash][extname]`;
         }
@@ -59,6 +95,7 @@ export default defineConfig({
     cssCodeSplit: true,
     assetsInlineLimit: 4096, // 4kb - inline smaller assets as base64
     reportCompressedSize: false, // Improve build speed
+    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit to 1000kb
   },
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
