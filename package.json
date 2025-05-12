@@ -1,0 +1,20 @@
+{
+  "name": "alfanio-ltd",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Alfanio LTD Website",
+  "scripts": {
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "frontend:preview": "cd frontend && npm run preview",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:start": "cd backend && npm run start",
+    "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
+    "start": "concurrently \"npm run frontend:preview\" \"npm run backend:start\"",
+    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
+    "build": "npm run frontend:build && powershell -Command \"Copy-Item -Path ./frontend/dist/* -Destination ./backend/dist/ -Recurse -Force\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

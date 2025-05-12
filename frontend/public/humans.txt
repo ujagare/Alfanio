@@ -1,0 +1,22 @@
+/* TEAM */
+	Company: Alfanio LTD
+	Site: https://alfanio.com
+	Location: India
+
+/* SITE */
+	Last update: 2024/04/25
+	Language: English
+	Doctype: HTML5
+	IDE: Visual Studio Code
+	Technology: React, Vite, Express, MongoDB, Tailwind CSS
+	
+/* THANKS */
+	React Team: https://reactjs.org
+	Tailwind CSS: https://tailwindcss.com
+	Vite: https://vitejs.dev
+	
+/* SITE STANDARDS */
+	HTML5, CSS3, ES6+
+	Progressive Web App
+	Responsive Design
+	Accessibility: WCAG 2.1 AA

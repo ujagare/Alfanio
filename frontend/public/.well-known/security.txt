@@ -1,0 +1,7 @@
+# Security Policy for Alfanio LTD
+Contact: mailto:security@alfanio.com
+Expires: 2025-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://alfanio.com/.well-known/security.txt
+Policy: https://alfanio.com/security-policy
+Hiring: https://alfanio.com/careers

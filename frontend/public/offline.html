@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Offline - Alfanio LTD</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background-color: #f5f5f5;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      background-color: white;
+      border-radius: 8px;
+      padding: 30px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .logo {
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 20px;
+    }
+    p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      background-color: #FECC00;
+      color: #333;
+      padding: 12px 24px;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: bold;
+      margin-top: 10px;
+      transition: background-color 0.3s;
+    }
+    .button:hover {
+      background-color: #e6b800;
+    }
+    .icon {
+      font-size: 60px;
+      margin-bottom: 20px;
+      color: #FECC00;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📶</div>
+    <h1>You're Offline</h1>
+    <p>It seems you're not connected to the internet right now. Some features of Alfanio LTD website may not be available while you're offline.</p>
+    <p>Please check your connection and try again.</p>
+    <a href="/" class="button">Try Again</a>
+  </div>
+  <script>
+    // Check if we're back online
+    window.addEventListener('online', () => {
+      window.location.reload();
+    });
+    
+    // Try to reload the page when the button is clicked
+    document.querySelector('.button').addEventListener('click', (e) => {
+      e.preventDefault();
+      window.location.reload();
+    });
+  </script>
+</body>
+</html>

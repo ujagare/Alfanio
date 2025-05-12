@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alfanio Diagnostic Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Alfanio Website Diagnostic Tool</h1>
+    
+    <div class="test-section">
+        <h2>API Health Check</h2>
+        <button id="checkHealth">Check API Health</button>
+        <div id="healthResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>API Test Endpoint</h2>
+        <button id="testApi">Test API</button>
+        <div id="apiResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Static Assets Test</h2>
+        <button id="testAssets">Test Static Assets</button>
+        <div id="assetsResult"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Network Requests Log</h2>
+        <button id="clearLog">Clear Log</button>
+        <pre id="networkLog"></pre>
+    </div>
+
+    <script>
+        // Function to log results
+        function logResult(elementId, success, message, data) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            
+            const statusDiv = document.createElement('div');
+            statusDiv.className = success ? 'success' : 'error';
+            statusDiv.textContent = message;
+            element.appendChild(statusDiv);
+            
+            if (data) {
+                const pre = document.createElement('pre');
+                pre.textContent = typeof data === 'object' ? JSON.stringify(data, null, 2) : data;
+                element.appendChild(pre);
+            }
+        }
+        
+        // Function to log network activity
+        function logNetwork(url, status, message) {
+            const log = document.getElementById('networkLog');
+            const timestamp = new Date().toISOString();
+            log.textContent += `[${timestamp}] ${url} - Status: ${status} - ${message}\n`;
+        }
+        
+        // Clear network log
+        document.getElementById('clearLog').addEventListener('click', () => {
+            document.getElementById('networkLog').textContent = '';
+        });
+        
+        // Health check test
+        document.getElementById('checkHealth').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                logResult('healthResult', response.ok, 
+                    response.ok ? 'Health check successful!' : 'Health check failed!', 
+                    data);
+                logNetwork('/api/health', response.status, response.ok ? 'Success' : 'Failed');
+            } catch (error) {
+                logResult('healthResult', false, 'Health check error: ' + error.message);
+                logNetwork('/api/health', 'ERROR', error.message);
+            }
+        });
+        
+        // API test
+        document.getElementById('testApi').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/test');
+                const data = await response.json();
+                logResult('apiResult', response.ok, 
+                    response.ok ? 'API test successful!' : 'API test failed!', 
+                    data);
+                logNetwork('/api/test', response.status, response.ok ? 'Success' : 'Failed');
+            } catch (error) {
+                logResult('apiResult', false, 'API test error: ' + error.message);
+                logNetwork('/api/test', 'ERROR', error.message);
+            }
+        });
+        
+        // Static assets test
+        document.getElementById('testAssets').addEventListener('click', async () => {
+            const assetsToTest = [
+                '/assets/Alfanio.pdf',
+                '/images/logo.png',
+                '/vite.svg'
+            ];
+            
+            const results = document.getElementById('assetsResult');
+            results.innerHTML = '';
+            
+            for (const asset of assetsToTest) {
+                try {
+                    const response = await fetch(asset);
+                    const success = response.ok;
+                    
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = success ? 'success' : 'error';
+                    resultDiv.textContent = `${asset}: ${success ? 'Found' : 'Not Found (404)'}`;
+                    results.appendChild(resultDiv);
+                    
+                    logNetwork(asset, response.status, success ? 'Success' : 'Failed');
+                } catch (error) {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'error';
+                    resultDiv.textContent = `${asset}: Error - ${error.message}`;
+                    results.appendChild(resultDiv);
+                    
+                    logNetwork(asset, 'ERROR', error.message);
+                }
+            }
+        });
+        
+        // Log initial page load
+        window.addEventListener('load', () => {
+            logNetwork('diagnostic.html', 200, 'Page loaded successfully');
+        });
+    </script>
+</body>
+</html>

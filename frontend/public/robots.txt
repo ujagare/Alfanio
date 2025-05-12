@@ -1,0 +1,44 @@
+# Robots.txt for Alfanio LTD
+# https://alfanio.com
+
+# Allow all standard crawlers
+User-agent: *
+Allow: /
+
+# Disallow admin and api routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /login
+Disallow: /logout
+Disallow: /register
+Disallow: /reset-password
+Disallow: /error
+Disallow: /offline.html
+
+# Allow static assets
+Allow: /assets/
+Allow: /images/
+Allow: /fonts/
+Allow: /icons/
+
+# Specific rules for major crawlers
+# Google
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Crawl-delay: 1
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Disallow: /api/
+Crawl-delay: 5
+
+# Sitemap location
+Sitemap: https://alfanio.com/sitemap.xml
+
+# Crawl delay for other bots
+Crawl-delay: 10
+
+# Host
+Host: alfanio.com

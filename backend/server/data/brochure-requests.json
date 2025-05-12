@@ -1,0 +1,50 @@
+[
+  {
+    "name": "Test User",
+    "email": "alfanioindia@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T12:38:48.525Z",
+    "emailSent": true,
+    "messageId": "<f11626e5-126c-79f9-6e3d-8efa91873440@gmail.com>"
+  },
+  {
+    "name": "Test User",
+    "email": "alfanioindia@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T12:39:21.757Z",
+    "emailSent": true,
+    "messageId": "<ea8582e1-0c86-105f-a0ab-80b1da0af125@gmail.com>"
+  },
+  {
+    "name": "sunny ujagare",
+    "email": "ujagare.sunny@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T12:40:00.959Z",
+    "emailSent": true,
+    "messageId": "<1ee7fb75-d9f2-0d02-ffa4-0872df1ee6cc@gmail.com>"
+  },
+  {
+    "name": "sunny ujagare",
+    "email": "ujagare.sunny@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T12:47:59.409Z",
+    "emailSent": true,
+    "messageId": "<72a1e132-99ae-9144-e904-0a6828ab858b@gmail.com>"
+  },
+  {
+    "name": "sunny ujagare",
+    "email": "ujagare.sunny@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T13:02:40.887Z",
+    "emailSent": true,
+    "messageId": "<edda28a3-e55e-81d3-0801-2705cd3b0e42@gmail.com>"
+  },
+  {
+    "name": "sunny ujagare",
+    "email": "ujagare.sunny@gmail.com",
+    "phone": "8975805789",
+    "timestamp": "2025-03-22T13:19:56.141Z",
+    "emailSent": true,
+    "messageId": "<aa78d011-559e-c113-39ec-34762c2f80fb@gmail.com>"
+  }
+]

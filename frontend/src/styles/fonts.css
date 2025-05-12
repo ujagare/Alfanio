@@ -1,0 +1,7 @@
+@font-face {
+  font-family: 'Cocon-Bold';
+  src: url('../assets/Cocon-Bold-Font/Cocon-Bold-Font.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+  font-display: swap;
+}

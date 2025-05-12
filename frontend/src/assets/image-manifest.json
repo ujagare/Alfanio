@@ -1,0 +1,14 @@
+{
+    "about":  {
+                  "mixer":  "/assets/alaf-images/about/mixer.webp",
+                  "factory":  "/assets/alaf-images/about/factory.webp",
+                  "machine1":  "/assets/alaf-images/about/machine-1.webp",
+                  "pump1":  "/assets/alaf-images/about/pump-1.webp",
+                  "hero":  "/assets/alaf-images/about/hero.webp",
+                  "pump2":  "/assets/alaf-images/about/pump-2.webp"
+              },
+    "products":  {
+                     "twinShaftMixer":  "/assets/alaf-images/products/twin-shaft-mixer.jpg",
+                     "planetaryMixer":  "/assets/alaf-images/products/planetary-mixer.jpg"
+                 }
+}

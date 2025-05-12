@@ -1,0 +1,184 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Reset scrollbar styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  scrollbar-width: auto;
+  scrollbar-color: #FECC00 #27272A;
+}
+
+/* Basic smooth scroll */
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 80px; /* Height of your fixed navbar */
+  overflow-y: scroll; /* Always show scrollbar to prevent layout shift */
+}
+
+/* Simple scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #27272A;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #FECC00;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e3b700;
+}
+
+body {
+  scroll-padding-top: 80px; /* Height of your fixed navbar */
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed layout styles */
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+}
+
+.main-content {
+  margin-top: 64px; /* Adjust based on your navbar height */
+  flex: 1;
+}
+
+/* Masonry Grid Layout */
+.masonry-grid {
+  column-count: 1;
+  column-gap: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .masonry-grid {
+    column-count: 2;
+  }
+}
+
+@media (min-width: 768px) {
+  .masonry-grid {
+    column-count: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .masonry-grid {
+    column-count: 4;
+  }
+}
+
+.masonry-item {
+  break-inside: avoid;
+  margin-bottom: 1.5rem;
+}
+
+/* Image hover effects */
+.image-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  transform: translateZ(0);
+}
+
+.image-card img {
+  transition: transform 0.3s ease;
+  will-change: transform;
+}
+
+.image-card:hover img {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+  padding: 1.5rem 1rem;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.image-card:hover .image-overlay {
+  transform: translateY(0);
+}
+
+/* Loading animation */
+.image-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.image-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transform: translateX(-100%);
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Background Decorations */
+.bg-pattern {
+  position: relative;
+}
+
+.bg-pattern::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('../assets/Alfanio.png');
+  background-size: 100px;
+  background-repeat: repeat;
+  opacity: 0.02;
+  z-index: -1;
+}
+
+/* Gallery Background */
+.gallery-background {
+  background-image: url('../assets/Alfanio.png');
+  background-size: 100px auto;
+  background-repeat: repeat;
+  background-position: center;
+  opacity: 0.1;
+}
+
+/* Card Styles */
+.card-glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}

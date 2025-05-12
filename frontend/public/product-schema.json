@@ -1,0 +1,24 @@
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://alfanio.com"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Products",
+      "item": "https://alfanio.com/products"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Twin Shaft Mixer",
+      "item": "https://alfanio.com/product/twin-shaft-mixer"
+    }
+  ]
+}
