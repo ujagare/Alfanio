@@ -37,6 +37,28 @@ dist-ssr
 /frontend/dist
 /backend/dist
 
+# Large files
+*.mp4
+*.mov
+*.avi
+*.wmv
+*.flv
+*.psd
+*.ai
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.iso
+*.dmg
+*.exe
+*.dll
+*.pdf
+*.db
+*.sqlite
+*.sqlite3
+
 # misc
 .DS_Store
 .env
