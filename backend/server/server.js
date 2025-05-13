@@ -850,6 +850,12 @@ const mailTransport = createMailTransport();
 
 // Verify email transport with retry logic
 const verifyEmailTransport = async (retries = 3, delay = 3000) => {
+  // Skip email verification if explicitly configured or in development
+  if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
+    console.log('Skipping email verification as configured by SKIP_EMAIL_VERIFICATION');
+    return true;
+  }
+
   let currentRetry = 0;
 
   while (currentRetry < retries) {
@@ -863,7 +869,9 @@ const verifyEmailTransport = async (retries = 3, delay = 3000) => {
 
       if (currentRetry >= retries) {
         console.error('Maximum email verification retries reached.');
-        return false;
+        console.log('Continuing despite email verification failure. Emails may not send correctly.');
+        // Return true anyway to allow the server to continue
+        return true;
       }
 
       // Wait before next retry
@@ -872,7 +880,7 @@ const verifyEmailTransport = async (retries = 3, delay = 3000) => {
     }
   }
 
-  return false;
+  return true; // Always return true to allow server to continue
 };
 
 // Start email verification
@@ -880,6 +888,14 @@ verifyEmailTransport();
 
 // Enhanced email sending function with retry and fallback
 const sendEmail = async (mailOptions, retries = 2) => {
+  // Skip email sending if configured
+  if (process.env.SKIP_EMAIL_SENDING === 'true') {
+    console.log('Skipping email sending as configured by SKIP_EMAIL_SENDING');
+    console.log('Email would have been sent to:', mailOptions.to);
+    console.log('Subject:', mailOptions.subject);
+    return { messageId: 'dummy-id-' + Date.now(), skipped: true };
+  }
+
   let currentRetry = 0;
 
   // Add default email template styling
@@ -938,7 +954,14 @@ const sendEmail = async (mailOptions, retries = 2) => {
             error: error.message
           });
         }
-        throw error;
+
+        // Instead of throwing error, return a dummy response
+        console.log('Continuing despite email sending failure');
+        return {
+          messageId: 'error-' + Date.now(),
+          error: error.message,
+          failed: true
+        };
       }
 
       // Wait before retry
