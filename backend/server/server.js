@@ -12,7 +12,6 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
-import mime from 'mime';
 
 dotenv.config();
 
@@ -394,7 +393,7 @@ app.use('/manifest.json', (req, res) => {
 
 // Configure proper MIME types with enhanced handling for JavaScript modules
 // Add JSX to the list of extensions for JavaScript
-mime.define('application/javascript', ['js', 'mjs', 'jsx']);
+// mime.define('application/javascript', ['js', 'mjs', 'jsx']);
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -580,13 +579,9 @@ app.use(express.static(path.join(__dirname, '../dist'), {
   }
 }));
 
-// Serve static files from the frontend build directory
-// Using path.resolve to get absolute path from root directory
-app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
-
-// For any other route, serve the index.html file
+app.use(express.static(path.join(__dirname, '/frontend/dist')));
 app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
+  res.sendFile(path.join(__dirname, '/frontend/dist/index.html'));
 });
 
 // MongoDB connection with improved retry logic and production readiness
