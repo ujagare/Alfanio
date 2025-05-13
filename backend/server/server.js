@@ -768,10 +768,10 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-  // Get email configuration from environment variables with defaults
-  const emailHost = process.env.EMAIL_HOST || 'smtp.gmail.com';
-  const emailPort = parseInt(process.env.EMAIL_PORT || '587'); // Changed default to 587 for TLS
-  const emailSecure = process.env.EMAIL_SECURE === 'true'; // Default is false for TLS
+  // Email configuration with hardcoded values for Gmail
+  const emailHost = 'smtp.gmail.com';
+  const emailPort = 587; // Using 587 for TLS
+  const emailSecure = false; // Using TLS instead of SSL
   const emailUser = process.env.EMAIL_USER || 'alfanioindia@gmail.com';
   const emailPass = process.env.EMAIL_PASS || ''; // Should be set in environment variables
 
@@ -939,17 +939,36 @@ const sendEmail = async (mailOptions, retries = 2) => {
 
   while (currentRetry <= retries) {
     try {
+      // Log detailed information before sending
+      console.log('Attempting to send email:');
+      console.log('- To:', mailOptions.to);
+      console.log('- Subject:', mailOptions.subject);
+      console.log('- Using transport:', mailTransport.transporter?.options?.host || 'unknown host');
+
       // Use from address from environment variables
-      const info = await mailTransport.sendMail({
+      const emailOptions = {
         ...mailOptions,
         from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
-      });
+      };
 
-      console.log('Email sent successfully:', info.messageId);
+      // Send the email
+      const info = await mailTransport.sendMail(emailOptions);
+
+      console.log('Email sent successfully!');
+      console.log('- Message ID:', info.messageId);
+      console.log('- Response:', info.response);
       return info;
     } catch (error) {
       currentRetry++;
-      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
+      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`);
+      console.error('- Error name:', error.name);
+      console.error('- Error message:', error.message);
+      console.error('- Error code:', error.code || 'N/A');
+
+      // Log stack trace in development
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('- Stack trace:', error.stack);
+      }
 
       if (currentRetry > retries) {
         // Log to database or monitoring system in production
@@ -970,8 +989,10 @@ const sendEmail = async (mailOptions, retries = 2) => {
         };
       }
 
-      // Wait before retry
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait before retry with increasing delay
+      const delay = 2000 * Math.pow(1.5, currentRetry - 1);
+      console.log(`Waiting ${delay}ms before next attempt...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
 };
