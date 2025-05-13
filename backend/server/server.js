@@ -579,9 +579,23 @@ app.use(express.static(path.join(__dirname, '../dist'), {
   }
 }));
 
-app.use(express.static(path.join(__dirname, '/frontend/dist')));
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '/frontend/dist/index.html'));
+// API routes are defined elsewhere in this file
+
+// For any non-API routes, return a JSON response
+// This is because we're using a separate frontend service
+app.use('*', (req, res) => {
+  // Check if the request is for an API endpoint
+  if (req.originalUrl.startsWith('/api')) {
+    // Let the request continue to the API routes
+    return;
+  }
+
+  // For non-API routes, return a JSON response
+  res.status(404).json({
+    success: false,
+    message: 'API endpoint not found. Please use the frontend URL for web pages.',
+    frontendUrl: process.env.FRONTEND_URL || 'https://alfanio-frontend.onrender.com'
+  });
 });
 
 // MongoDB connection with improved retry logic and production readiness
