@@ -768,16 +768,34 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
+  // Get email configuration from environment variables with defaults
+  const emailHost = process.env.EMAIL_HOST || 'smtp.gmail.com';
+  const emailPort = parseInt(process.env.EMAIL_PORT || '587'); // Changed default to 587 for TLS
+  const emailSecure = process.env.EMAIL_SECURE === 'true'; // Default is false for TLS
+  const emailUser = process.env.EMAIL_USER || 'alfanioindia@gmail.com';
+  const emailPass = process.env.EMAIL_PASS || ''; // Should be set in environment variables
+
+  console.log(`Email configuration: Host=${emailHost}, Port=${emailPort}, Secure=${emailSecure}, User=${emailUser}`);
+
   // Set up email transport configuration
   const transportConfig = {
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '465'),
-    secure: process.env.EMAIL_SECURE === 'true', // use SSL
+    host: emailHost,
+    port: emailPort,
+    secure: emailSecure,
     auth: {
-      user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-      pass: process.env.EMAIL_PASS || '' // Password should be set in environment variables only
+      user: emailUser,
+      pass: emailPass
     }
   };
+
+  // For Gmail, use TLS instead of SSL
+  if (emailHost.includes('gmail.com') && !emailSecure) {
+    console.log('Using TLS configuration for Gmail');
+    transportConfig.requireTLS = true;
+    transportConfig.tls = {
+      rejectUnauthorized: false // Allow self-signed certificates
+    };
+  }
 
   // Add production-specific settings
   if (isProduction) {
@@ -786,38 +804,18 @@ const createMailTransport = () => {
     transportConfig.maxConnections = 5;
     transportConfig.maxMessages = 100;
 
-    // Set connection timeout
-    transportConfig.connectionTimeout = 10000; // 10 seconds
-
-    // Set greeting timeout
-    transportConfig.greetingTimeout = 10000; // 10 seconds
-
-    // Set socket timeout
-    transportConfig.socketTimeout = 30000; // 30 seconds
-
-    // Add TLS options for better security
-    transportConfig.tls = {
-      rejectUnauthorized: true,
-      minVersion: 'TLSv1.2',
-      ciphers: 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256'
-    };
-
-    // Add retry configuration
-    transportConfig.retry = {
-      retries: 3,
-      factor: 2,
-      minTimeout: 1000,
-      maxTimeout: 10000,
-      randomize: true
-    };
+    // Set timeouts
+    transportConfig.connectionTimeout = 30000; // 30 seconds (increased)
+    transportConfig.greetingTimeout = 30000; // 30 seconds (increased)
+    transportConfig.socketTimeout = 60000; // 60 seconds (increased)
 
     // Check if credentials are properly set
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (!emailUser || !emailPass) {
       console.warn('Email credentials not fully configured. Check environment variables.');
     }
 
     // Log successful configuration
-    console.log('Email transport configured for production with enhanced security and reliability settings');
+    console.log('Email transport configured for production with enhanced settings');
   } else {
     // Development-specific settings
     console.log('Email transport configured for development environment');
@@ -827,6 +825,14 @@ const createMailTransport = () => {
   try {
     const transport = nodemailer.createTransport(transportConfig);
     console.log('Email transport created successfully');
+
+    // Log detailed configuration for debugging (without password)
+    const debugConfig = { ...transportConfig };
+    if (debugConfig.auth) {
+      debugConfig.auth = { ...debugConfig.auth, pass: '********' };
+    }
+    console.log('Transport configuration:', JSON.stringify(debugConfig, null, 2));
+
     return transport;
   } catch (error) {
     console.error('Failed to create email transport:', error.message);
