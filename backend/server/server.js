@@ -1238,11 +1238,32 @@ app.get('/api/brochure/download', (req, res) => {
   fileStream.pipe(res);
 });
 
-// Serve React app for all other routes
+// Handle API 404 errors
+app.use('/api/*', (req, res) => {
+  console.log(`API endpoint not found: ${req.originalUrl}`);
+  return res.status(404).json({
+    success: false,
+    message: 'API endpoint not found',
+    path: req.originalUrl
+  });
+});
+
+// In Render deployment, we don't need to serve frontend files from backend
+// The frontend is served by a separate static service
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api')) {
-    return res.status(404).json({ error: 'API endpoint not found' });
+  // Check if we're running on Render
+  const isRender = process.env.RENDER === 'true' ||
+                  process.env.RENDER_EXTERNAL_URL ||
+                  process.env.RENDER_SERVICE_ID;
+
+  if (isRender) {
+    // On Render, redirect to the frontend service
+    console.log(`Redirecting to frontend service: ${req.originalUrl}`);
+    return res.redirect(`https://alfanio.onrender.com${req.originalUrl}`);
   }
+
+  // For local development, try to serve frontend files
+  console.log(`Attempting to serve frontend for: ${req.originalUrl}`);
 
   // Try multiple possible paths for the frontend files
   const possiblePaths = [
@@ -1253,9 +1274,9 @@ app.get('*', (req, res) => {
   ];
 
   // Find the first existing file
-  const indexPath = possiblePaths.find(path => {
+  const indexPath = possiblePaths.find(p => {
     try {
-      return fs.existsSync(path);
+      return fs.existsSync(p);
     } catch (err) {
       return false;
     }
