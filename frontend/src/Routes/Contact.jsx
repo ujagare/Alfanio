@@ -12,9 +12,9 @@ import {
   FaIndustry,
   FaPhoneAlt,
 } from "react-icons/fa";
-import alfanioLogo from "..\assets\Alfanio.png";
-import { API_URL, API_ENDPOINTS } from "..\config"; // Ensure API_URL is from environment variables
-import CountryCodeSelect from "..\Components\CountryCodeSelect";
+import alfanioLogo from "../assets/Alfanio.png";
+import { API_URL, API_ENDPOINTS } from "../config"; // Ensure API_URL is from environment variables
+import CountryCodeSelect from "../Components/CountryCodeSelect";
 
 const heroImage =
   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop";
@@ -54,7 +54,7 @@ const Contact = () => {
   const phone = watch("phone");
   const formatPhoneNumber = useCallback(() => {
     if (phone) {
-      const formatted = phone.replace(/\D/g, "").slice(0, 10);
+      const formatted = phone.replace(//D/g, "").slice(0, 10);
       if (formatted !== phone) {
         reset({ phone: formatted });
       }
@@ -298,7 +298,7 @@ const Contact = () => {
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+/.[A-Z]{2,}$/i,
                     message: "Invalid email address",
                   },
                 })}
@@ -329,7 +329,7 @@ const Contact = () => {
                   {...register("phone", {
                     required: "Phone number is required",
                     pattern: {
-                      value: /^\d{10}$/,
+                      value: /^/d{10}$/,
                       message: "Please enter a valid 10-digit phone number",
                     },
                   })}

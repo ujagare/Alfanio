@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getOptimizedImageUrl, generateSrcSet, getImageSizes, supportsWebP } from '..\utils\imageUtils';
+import { getOptimizedImageUrl, generateSrcSet, getImageSizes, supportsWebP } from '../utils/imageUtils';
 
 const useIntersectionObserver = (ref, options) => {
   const [isIntersecting, setIntersecting] = useState(false);

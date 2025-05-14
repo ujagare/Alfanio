@@ -1,13 +1,13 @@
-import mixerImage1 from '..\assets\product Reang\Planetary-Concrete-Mixer\APM-Series-Planetary-Concrete-Mixer.jpg';
-import mixerImage2 from '..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920029.jpg';
-import mixerImage3 from '..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920027.jpg';
-import twinShaftMain from '..\assets\product Reang\Twine shaft Mixer\Twin-Shaft-Concrete-Mixer.jpg';
-import twinShaftImage1 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (6).webp';
-import twinShaftImage2 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (7).webp';
-import twinShaftImage3 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (12).webp';
-import pumpImg1 from '..\assets\alafa-images\(16).webp';
-import pumpImg2 from '..\assets\alafa-images\(21).webp';
-import pumpImg3 from '..\assets\alafa-images\White-Pump.webp';
+import mixerImage1 from '../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg';
+import mixerImage2 from '../assets/product Reang/Planetary-Concrete-Mixer/extra-08920029.jpg';
+import mixerImage3 from '../assets/product Reang/Planetary-Concrete-Mixer/extra-08920027.jpg';
+import twinShaftMain from '../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg';
+import twinShaftImage1 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (6).webp';
+import twinShaftImage2 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (7).webp';
+import twinShaftImage3 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (12).webp';
+import pumpImg1 from '../assets/alafa-images/(16).webp';
+import pumpImg2 from '../assets/alafa-images/(21).webp';
+import pumpImg3 from '../assets/alafa-images/White-Pump.webp';
 
 const products = [
   {
@@ -15,7 +15,7 @@ const products = [
     name: "APM Series Planetary Concrete Mixer",
     image: "/images/products/planetary-mixer.jpg",
     images: [mixerImage1, mixerImage2, mixerImage3],
-    description: "The APM Series Planetary Concrete Mixer is an advanced and reliable concrete mixer designed for construction and industrial applications. This mixer is designed to provide superior performance and reliability for a wide range of applications.\n\nIdeal for small concrete batching plants up to 30m³, these mixers are particularly popular in paver block and precast pipe manufacturing plants. They are preferred by OEMs due to their extensive mixing capability even with a low water content of @30% in concrete.\n\nThe mixers feature a unique design that allows easy access to the mixer tank for cleaning purposes after the shift is over, making maintenance and cleaning highly efficient.",
+    description: "The APM Series Planetary Concrete Mixer is an advanced and reliable concrete mixer designed for construction and industrial applications. This mixer is designed to provide superior performance and reliability for a wide range of applications./n/nIdeal for small concrete batching plants up to 30m³, these mixers are particularly popular in paver block and precast pipe manufacturing plants. They are preferred by OEMs due to their extensive mixing capability even with a low water content of @30% in concrete./n/nThe mixers feature a unique design that allows easy access to the mixer tank for cleaning purposes after the shift is over, making maintenance and cleaning highly efficient.",
     technicalDetails: "The APM Series features a unique planetary mixing action where mixing tools rotate about their own axes while revolving around the pan center. This dual mixing action ensures thorough and uniform mixing of all materials, producing high-quality concrete consistently.",
     features: [
       "Planetary mixing action for superior mix quality",
@@ -167,7 +167,7 @@ const products = [
     name: "Twin Shaft Concrete Mixer",
     image: twinShaftMain,
     images: [twinShaftMain, twinShaftImage1, twinShaftImage2],
-    description: "The ATM series of Twin Shaft Concrete Mixer is a high-performance concrete mixer designed to deliver superior mixing performance for a wide range of applications. It is constructed from premium grade steel and features high-speed rotating twin shafts for fast and efficient mixing.\n\nThe Twin Shaft Concrete Mixer is the perfect choice for any grade of concrete requirement and ideal for mixing a variety of concrete mixes, including lightweight concrete, heavy-duty concrete, and high-strength concrete. The mixer is also suitable for mixing pre-cast concrete, pre-stressed concrete, and reinforced concrete.\n\nKey Features:\n- Dual shaft technology\n- High mixing efficiency\n- Durable construction\n- Easy maintenance",
+    description: "The ATM series of Twin Shaft Concrete Mixer is a high-performance concrete mixer designed to deliver superior mixing performance for a wide range of applications. It is constructed from premium grade steel and features high-speed rotating twin shafts for fast and efficient mixing./n/nThe Twin Shaft Concrete Mixer is the perfect choice for any grade of concrete requirement and ideal for mixing a variety of concrete mixes, including lightweight concrete, heavy-duty concrete, and high-strength concrete. The mixer is also suitable for mixing pre-cast concrete, pre-stressed concrete, and reinforced concrete./n/nKey Features:/n- Dual shaft technology/n- High mixing efficiency/n- Durable construction/n- Easy maintenance",
     technicalDetails: "Features two counter-rotating shafts with specially designed mixing arms and paddles. The synchronized shaft rotation creates an intense mixing action that produces homogeneous concrete in short cycle times. Equipped with a hydraulic oil cooling system and computerized control system for precise monitoring of the mixing process.",
     features: [
       "High-intensity twin shaft mixing action",
@@ -475,7 +475,7 @@ const products = [
     name: "Concrete Pump",
     image: pumpImg1,
     images: [pumpImg1, pumpImg2, pumpImg3],
-    description: "The CPH series concrete pumps include:\n\n❖ CPH50 – compact pump for output up to 50m3 per hour and 100m vertical.\n❖ CPH70 – compact pump for output of up to 70m3 per hour and 150m vertical.\n❖ CPH70 HRX – very compact pump for output up to 70m3 per hour and 200m vertical.\n\nAll pumps are manufactured to handle harsh working conditions and can also be supplied with specialize wear parts for longer life in the regions where there is a history of high wear and tear.\n\nThese pumps have been performing non-stop for the past 4 years all over the world and proven their reliability globally.",
+    description: "The CPH series concrete pumps include:/n/n❖ CPH50 – compact pump for output up to 50m3 per hour and 100m vertical./n❖ CPH70 – compact pump for output of up to 70m3 per hour and 150m vertical./n❖ CPH70 HRX – very compact pump for output up to 70m3 per hour and 200m vertical./n/nAll pumps are manufactured to handle harsh working conditions and can also be supplied with specialize wear parts for longer life in the regions where there is a history of high wear and tear./n/nThese pumps have been performing non-stop for the past 4 years all over the world and proven their reliability globally.",
     technicalDetails: "The CPH70 is designed for maximum efficiency and has a long service life. It is easy to operate and can be used in a variety of applications. The machine is designed to provide uniform and efficient pumping action, and the PLC control system allows for precise control of the machine.",
     modelSpecs: [
       {

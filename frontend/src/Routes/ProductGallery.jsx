@@ -4,34 +4,34 @@ import { Helmet } from "react-helmet-async";
 import { motion } from "framer-motion";
 import { FaArrowLeft } from "react-icons/fa";
 // Import product data
-import products from "..\Data\products";
-import { fadeInUp } from "..\Animation\animation";
+import products from "../Data/products";
+import { fadeInUp } from "../Animation/animation";
 import "../styles/ProductGallery.css";
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import ContactForm from "..\Components\ContactForm";
+import ContactForm from "../Components/ContactForm";
 
 // Import product images
-import twinShaftMixer from "..\assets\product Reang\Twine shaft Mixer\Twin-Shaft-Concrete-Mixer.jpg";
-import planetaryMixer from "..\assets\product Reang\Planetary-Concrete-Mixer\APM-Series-Planetary-Concrete-Mixer.jpg";
-import apmImg1 from "..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920027.jpg";
-import apmImg2 from "..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920028.jpg";
-import apmImg3 from "..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920029.jpg";
-import twinShaftMixer2 from "..\assets\product Reang\Twine shaft Mixer\Twin-Shaft-Concrete-Mixer.jpg";
-import pumpImg1 from "..\assets\alafa-images\IMG_20211119_115836 (8).webp";
-import pumpImg2 from "..\assets\alafa-images\20211116_114205 (2) - Copy.webp";
-import pumpImg3 from "..\assets\alafa-images\IMG_20211119_115836 (3).webp";
-import twinShaftImg1 from "..\assets\alafa-images\Twin-Shaft-Concrete-Mixer.jpg";
-import twinShaftImg2 from "..\assets\alafa-images\20211127_151512 (7).webp";
-import twinShaftImg3 from "..\assets\alafa-images\20211127_151512 (12).webp";
-import concreteMixer1 from "..\assets\concret-mixer\1.jpg";
-import concreteMixer2 from "..\assets\concret-mixer\2.jpg";
-import concreteMixer3 from "..\assets\concret-mixer\3.jpg";
-import concreteMixer4 from "..\assets\concret-mixer\4.jpg";
-import concreteMixer5 from "..\assets\concret-mixer\5.jpg";
+import twinShaftMixer from "../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg";
+import planetaryMixer from "../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg";
+import apmImg1 from "../assets/product Reang/Planetary-Concrete-Mixer/extra-08920027.jpg";
+import apmImg2 from "../assets/product Reang/Planetary-Concrete-Mixer/extra-08920028.jpg";
+import apmImg3 from "../assets/product Reang/Planetary-Concrete-Mixer/extra-08920029.jpg";
+import twinShaftMixer2 from "../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg";
+import pumpImg1 from "../assets/alafa-images/IMG_20211119_115836 (8).webp";
+import pumpImg2 from "../assets/alafa-images/20211116_114205 (2) - Copy.webp";
+import pumpImg3 from "../assets/alafa-images/IMG_20211119_115836 (3).webp";
+import twinShaftImg1 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
+import twinShaftImg2 from "../assets/alafa-images/20211127_151512 (7).webp";
+import twinShaftImg3 from "../assets/alafa-images/20211127_151512 (12).webp";
+import concreteMixer1 from "../assets/concret-mixer/1.jpg";
+import concreteMixer2 from "../assets/concret-mixer/2.jpg";
+import concreteMixer3 from "../assets/concret-mixer/3.jpg";
+import concreteMixer4 from "../assets/concret-mixer/4.jpg";
+import concreteMixer5 from "../assets/concret-mixer/5.jpg";
 
 const productImages = {
   "concrete-pump": [
@@ -271,7 +271,7 @@ const ProductGallery = () => {
 
   const renderDescription = () => {
     if (typeof description === "string") {
-      return description.split("\n").map(
+      return description.split("/n").map(
         (paragraph, index) =>
           paragraph.trim() && (
             <p key={index} className="mb-4">

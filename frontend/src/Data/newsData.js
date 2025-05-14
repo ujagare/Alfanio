@@ -1,22 +1,22 @@
-import constroImage1 from '..\assets\alafa-images\Constro 2023.jpeg';
-import constroImage2 from '..\assets\alafa-images\(10).webp';
-import constroImage3 from '..\assets\alafa-images\(19).webp';
-import southKorea from '..\assets\alafa-images\(9).webp';
-import southKorea2 from '..\assets\alafa-images\(28).webp';
-import southKorea3 from '..\assets\alafa-images\20211116_114205 (2).webp';
-import southKorea4 from '..\assets\alafa-images\97843  (10).webp';
-import usaVideo from '..\assets\videos\usa1.mp4';
-import usa2 from '..\assets\videos\usa2.mp4';
-import usa from '..\assets\alafa-images\usa.jpeg';
-import whitePump from '..\assets\alafa-images\White-Pump.webp';
-import heighRisePump from '..\assets\videos\heigh-rise pump.mp4';
-import heighRisePump3 from '..\assets\alafa-images\(23).webp';
-import heighRisePump2 from '..\assets\alafa-images\IMG_20211119_115836 (6).webp';
-import tier4 from '..\assets\videos\tier4.mp4';
-import Tier5 from '..\assets\alafa-images\(24).webp';
-import Tier6 from '..\assets\alafa-images\Remote.jpeg';
-import first from '..\assets\videos\first in india.mp4';
-import firstImage from '..\assets\alafa-images\IMG_20211119_115836 (6).webp';
+import constroImage1 from '../assets/alafa-images/Constro 2023.jpeg';
+import constroImage2 from '../assets/alafa-images/(10).webp';
+import constroImage3 from '../assets/alafa-images/(19).webp';
+import southKorea from '../assets/alafa-images/(9).webp';
+import southKorea2 from '../assets/alafa-images/(28).webp';
+import southKorea3 from '../assets/alafa-images/20211116_114205 (2).webp';
+import southKorea4 from '../assets/alafa-images/97843  (10).webp';
+import usaVideo from '../assets/videos/usa1.mp4';
+import usa2 from '../assets/videos/usa2.mp4';
+import usa from '../assets/alafa-images/usa.jpeg';
+import whitePump from '../assets/alafa-images/White-Pump.webp';
+import heighRisePump from '../assets/videos/heigh-rise pump.mp4';
+import heighRisePump3 from '../assets/alafa-images/(23).webp';
+import heighRisePump2 from '../assets/alafa-images/IMG_20211119_115836 (6).webp';
+import tier4 from '../assets/videos/tier4.mp4';
+import Tier5 from '../assets/alafa-images/(24).webp';
+import Tier6 from '../assets/alafa-images/Remote.jpeg';
+import first from '../assets/videos/first in india.mp4';
+import firstImage from '../assets/alafa-images/IMG_20211119_115836 (6).webp';
 
 
 

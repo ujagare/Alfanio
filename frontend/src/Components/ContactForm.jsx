@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { API_URL, API_ENDPOINTS, COMPANY_INFO } from "..\config"; // Update this import
+import { API_URL, API_ENDPOINTS, COMPANY_INFO } from "../config"; // Update this import
 import * as yup from "yup";
 
 const formSchema = yup.object().shape({
@@ -124,7 +124,7 @@ const ContactForm = ({
   const phone = watch("phone");
   useEffect(() => {
     if (phone) {
-      const formatted = phone.replace(/\D/g, "").slice(0, 10);
+      const formatted = phone.replace(//D/g, "").slice(0, 10);
       if (formatted !== phone) {
         reset({ ...getValues(), phone: formatted });
       }
@@ -258,7 +258,7 @@ const ContactForm = ({
               {...register("email", {
                 required: "Email is required",
                 pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+/.[A-Z]{2,}$/i,
                   message: "Invalid email address",
                 },
               })}
@@ -301,7 +301,7 @@ const ContactForm = ({
                 required: "Phone number is required",
                 // More flexible phone validation for international numbers
                 pattern: {
-                  value: /^[+]?[0-9\s\-()]{8,20}$/,
+                  value: /^[+]?[0-9/s/-()]{8,20}$/,
                   message: "Please enter a valid phone number",
                 },
               })}

@@ -17,19 +17,19 @@ import {
   FaUsers,
   FaWrench,
 } from "react-icons/fa";
-import heroImage from "..\assets\alafa-images\CPH50-3 (16).webp";
-import factoryImage from "..\assets\alafa-images\97843  (11).webp";
-import machineImage1 from "..\assets\alafa-images\20211116_114205 (2).webp";
-import pumpImage1 from "..\assets\alafa-images\97843  (10).webp";
-import pumpImage2 from "..\assets\alafa-images\Twin-Shaft-Concrete-Mixer.jpg";
-import mixerImage from "..\assets\alafa-images\Planetary-Concrete-Mixer.jpg";
-import mixerImage2 from "..\assets\alafa-images\White-Pump.webp";
-import profileAbhijeet from "..\assets\Profile\Abhijeet.jpg";
-import profileAnand from "..\assets\Profile\Anand Sali.jpg";
-import profileSachin from "..\assets\Profile\Sachin Jagtap.jpg";
-import profileSudhakar from "..\assets\Profile\Sudhakar WAGGH.jpg";
-import profileRavindra from "..\assets\Profile\Ravindra Vyas.jpg";
-import AlfanioLogo from "..\assets\Alfanio.png";
+import heroImage from "../assets/alafa-images/CPH50-3 (16).webp";
+import factoryImage from "../assets/alafa-images/97843  (11).webp";
+import machineImage1 from "../assets/alafa-images/20211116_114205 (2).webp";
+import pumpImage1 from "../assets/alafa-images/97843  (10).webp";
+import pumpImage2 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
+import mixerImage from "../assets/alafa-images/Planetary-Concrete-Mixer.jpg";
+import mixerImage2 from "../assets/alafa-images/White-Pump.webp";
+import profileAbhijeet from "../assets/Profile/Abhijeet.jpg";
+import profileAnand from "../assets/Profile/Anand Sali.jpg";
+import profileSachin from "../assets/Profile/Sachin Jagtap.jpg";
+import profileSudhakar from "../assets/Profile/Sudhakar WAGGH.jpg";
+import profileRavindra from "../assets/Profile/Ravindra Vyas.jpg";
+import AlfanioLogo from "../assets/Alfanio.png";
 
 const About = () => {
   const [projectCount, setProjectCount] = useState(0);
