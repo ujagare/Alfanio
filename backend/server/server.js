@@ -94,7 +94,7 @@ app.use(compression({
 }));
 // Configure CORS based on environment
 const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://alfanio.in', 'https://www.alfanio.in']
+  ? ['https://alfanio.in', 'https://www.alfanio.in', 'https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com']
   : ['http://localhost:3000', 'http://localhost:5001', 'http://localhost:5001', 'http://192.168.121.56:3000'];
 
 // In development mode, allow all origins
@@ -129,7 +129,30 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Handle preflight requests for all routes
-app.options('*', cors());
+app.options('*', (req, res) => {
+  // Get the origin from the request
+  const origin = req.headers.origin;
+
+  // Check if the origin is allowed
+  if (origin && allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  } else if (!origin) {
+    // Allow requests with no origin (like mobile apps, curl, etc)
+    res.header('Access-Control-Allow-Origin', '*');
+  } else if (process.env.NODE_ENV !== 'production') {
+    // In development, allow all origins
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+
+  // Set other CORS headers
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '86400'); // 24 hours
+
+  // Respond with 204 No Content
+  res.status(204).end();
+});
 
 // Add custom CORS headers to all responses
 app.use((req, res, next) => {
@@ -186,7 +209,7 @@ const csrfProtection = (req, res, next) => {
     const origin = req.headers.origin || req.headers.referer;
 
     // Check if the request is coming from our allowed origins
-    const allowedOrigins = ['https://alfanio.in', 'https://www.alfanio.in'];
+    const allowedOrigins = ['https://alfanio.in', 'https://www.alfanio.in', 'https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com'];
     const isAllowedOrigin = !origin || allowedOrigins.some(allowed => origin.startsWith(allowed));
 
     // Skip CSRF check for specific conditions:
