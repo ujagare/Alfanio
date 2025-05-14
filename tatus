@@ -1,0 +1,40 @@
+warning: in the working copy of 'backend/server/server.js', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/backend/server/server.js b/backend/server/server.js[m
+[1mindex ad3bd36..71ef05b 100644[m
+[1m--- a/backend/server/server.js[m
+[1m+++ b/backend/server/server.js[m
+[36m@@ -581,21 +581,23 @@[m [mapp.use(express.static(path.join(__dirname, '../dist'), {[m
+ [m
+ // API routes are defined elsewhere in this file[m
+ [m
+[31m-// For any non-API routes, return a JSON response[m
+[31m-// This is because we're using a separate frontend service[m
+[31m-app.use('*', (req, res) => {[m
+[32m+[m[32m// Serve static files from the frontend/dist directory[m
+[32m+[m[32mapp.use(express.static(path.resolve(__dirname, '../../frontend/dist')));[m
+[32m+[m
+[32m+[m[32m// For any routes that don't match an API route or static file, serve the index.html[m
+[32m+[m[32mapp.get('*', (req, res) => {[m
+   // Check if the request is for an API endpoint[m
+   if (req.originalUrl.startsWith('/api')) {[m
+[31m-    // Let the request continue to the API routes[m
+[31m-    return;[m
+[32m+[m[32m    // Return 404 for unknown API endpoints[m
+[32m+[m[32m    return res.status(404).json({[m
+[32m+[m[32m      success: false,[m
+[32m+[m[32m      message: 'API endpoint not found'[m
+[32m+[m[32m    });[m
+   }[m
+ [m
+[31m-  // For non-API routes, return a JSON response[m
+[31m-  res.status(404).json({[m
+[31m-    success: false,[m
+[31m-    message: 'API endpoint not found. Please use the frontend URL for web pages.',[m
+[31m-    frontendUrl: process.env.FRONTEND_URL || 'https://alfanio-frontend.onrender.com'[m
+[31m-  });[m
+[32m+[m[32m  // For all other routes, serve the frontend index.html file[m
+[32m+[m[32m  // This enables client-side routing[m
+[32m+[m[32m  res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));[m
+ });[m
+ [m
+ // MongoDB connection with improved retry logic and production readiness[m

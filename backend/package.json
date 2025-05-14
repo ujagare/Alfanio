@@ -31,7 +31,6 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "mailgun.js": "^12.0.1",
-    "mime": "^4.0.7",
     "mongo-sanitize": "^1.1.0",
     "mongoose": "^7.0.3",
     "morgan": "^1.10.0",

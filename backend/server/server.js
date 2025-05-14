@@ -581,21 +581,23 @@ app.use(express.static(path.join(__dirname, '../dist'), {
 
 // API routes are defined elsewhere in this file
 
-// For any non-API routes, return a JSON response
-// This is because we're using a separate frontend service
-app.use('*', (req, res) => {
+// Serve static files from the frontend/dist directory
+app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
+
+// For any routes that don't match an API route or static file, serve the index.html
+app.get('*', (req, res) => {
   // Check if the request is for an API endpoint
   if (req.originalUrl.startsWith('/api')) {
-    // Let the request continue to the API routes
-    return;
+    // Return 404 for unknown API endpoints
+    return res.status(404).json({
+      success: false,
+      message: 'API endpoint not found'
+    });
   }
 
-  // For non-API routes, return a JSON response
-  res.status(404).json({
-    success: false,
-    message: 'API endpoint not found. Please use the frontend URL for web pages.',
-    frontendUrl: process.env.FRONTEND_URL || 'https://alfanio-frontend.onrender.com'
-  });
+  // For all other routes, serve the frontend index.html file
+  // This enables client-side routing
+  res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
 });
 
 // MongoDB connection with improved retry logic and production readiness

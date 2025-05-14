@@ -3,9 +3,18 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import Masonry from "react-masonry-css";
 import alfanioPng from "../assets/Alfanio.png";
-import Loader from "../components/Loader";
 import heroImage from "../assets/alafa-images/20211116_114205 (2).webp";
 import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
+
+// Simple loading spinner component
+const SimpleLoader = () => {
+  return (
+    <div className="flex flex-col items-center justify-center">
+      <div className="w-16 h-16 border-4 border-[#FECC00] border-t-transparent rounded-full animate-spin"></div>
+      <p className="mt-4 text-gray-600">Loading...</p>
+    </div>
+  );
+};
 
 const galleryImages = import.meta.glob(
   "../assets/alafa-images/*.(webp|jpg|jpeg|png)",
@@ -262,10 +271,7 @@ const Gallery = () => {
             {isLoading ? (
               <div className="flex justify-center items-center min-h-[50vh]">
                 <div className="relative">
-                  <Loader />
-                  <p className="mt-8 text-gray-500 text-center">
-                    Loading gallery images...
-                  </p>
+                  <SimpleLoader />
                 </div>
               </div>
             ) : loadedImages.length === 0 ? (
@@ -558,7 +564,7 @@ const Gallery = () => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center bg-white"
           >
-            <Loader />
+            <SimpleLoader />
           </motion.div>
         )}
       </AnimatePresence>
