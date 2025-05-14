@@ -1,14 +1,17 @@
-import React from 'react';
-import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
-import ProductRange from '..\Components\ProductRange';
+import React from "react";
+import { motion } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import ProductRange from "../Components/ProductRange";
 
 const ProductRangePage = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       <Helmet>
         <title>Our Products - Alfanio LTD</title>
-        <meta name="description" content="Explore our range of high-quality construction equipment including concrete pumps, mixers, and more." />
+        <meta
+          name="description"
+          content="Explore our range of high-quality construction equipment including concrete pumps, mixers, and more."
+        />
       </Helmet>
 
       {/* Hero Section */}
@@ -25,7 +28,8 @@ const ProductRangePage = () => {
               Our Product Range
             </h1>
             <p className="text-lg md:text-xl text-white/90 max-w-2xl">
-              Discover our comprehensive range of construction equipment engineered for excellence and reliability.
+              Discover our comprehensive range of construction equipment
+              engineered for excellence and reliability.
             </p>
           </motion.div>
         </div>
