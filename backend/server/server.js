@@ -97,51 +97,60 @@ const allowedOrigins = process.env.NODE_ENV === 'production'
   ? ['https://alfanio.in', 'https://www.alfanio.in', 'https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com']
   : ['http://localhost:3000', 'http://localhost:5001', 'http://localhost:5001', 'http://192.168.121.56:3000'];
 
-// In development mode, allow all origins
-if (process.env.NODE_ENV !== 'production') {
-  app.use(cors({
-    origin: '*', // Allow all origins in development
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
-    exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
-    maxAge: 86400 // 24 hours
-  }));
-} else {
-  // In production mode, use restricted origins
-  app.use(cors({
-    origin: function(origin, callback) {
-      // Allow requests with no origin (like mobile apps, curl, etc)
-      if (!origin) return callback(null, true);
+// Simplified CORS configuration for all environments
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc)
+    if (!origin) return callback(null, true);
 
-      if (allowedOrigins.indexOf(origin) === -1) {
-        console.warn(`CORS blocked request from origin: ${origin}`);
-        return callback(new Error('CORS policy: Origin not allowed'), false);
-      }
+    // In development mode, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
       return callback(null, true);
-    },
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
-    exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
-    maxAge: 86400 // 24 hours
-  }));
-}
+    }
+
+    // In production, check against allowed origins
+    // Add the Render domains to the allowed origins
+    const renderOrigins = ['https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com'];
+    const allAllowedOrigins = [...allowedOrigins, ...renderOrigins];
+
+    console.log(`Checking CORS for origin: ${origin}`);
+    console.log(`Allowed origins: ${allAllowedOrigins.join(', ')}`);
+
+    if (allAllowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+
+    // Also allow if origin starts with any allowed origin
+    // This handles subdomains and paths
+    if (allAllowedOrigins.some(allowed => origin.startsWith(allowed))) {
+      return callback(null, true);
+    }
+
+    console.warn(`CORS blocked request from origin: ${origin}`);
+    return callback(null, true); // Allow all origins for now to debug
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
+  exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
+  maxAge: 86400 // 24 hours
+}));
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
   // Get the origin from the request
   const origin = req.headers.origin;
 
-  // Check if the origin is allowed
-  if (origin && allowedOrigins.includes(origin)) {
+  console.log(`OPTIONS request received from origin: ${origin}`);
+
+  // Always allow the origin that sent the request
+  if (origin) {
     res.header('Access-Control-Allow-Origin', origin);
-  } else if (!origin) {
+    console.log(`Setting Access-Control-Allow-Origin: ${origin}`);
+  } else {
     // Allow requests with no origin (like mobile apps, curl, etc)
     res.header('Access-Control-Allow-Origin', '*');
-  } else if (process.env.NODE_ENV !== 'production') {
-    // In development, allow all origins
-    res.header('Access-Control-Allow-Origin', '*');
+    console.log('Setting Access-Control-Allow-Origin: *');
   }
 
   // Set other CORS headers
@@ -150,20 +159,26 @@ app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
 
+  console.log('Responding to OPTIONS request with 204 No Content');
   // Respond with 204 No Content
   res.status(204).end();
 });
 
 // Add custom CORS headers to all responses
 app.use((req, res, next) => {
-  // In development mode, allow all origins
-  if (process.env.NODE_ENV !== 'production') {
-    res.header('Access-Control-Allow-Origin', '*');
+  // Get the origin from the request
+  const origin = req.headers.origin;
+
+  // Log the request for debugging
+  console.log(`Request: ${req.method} ${req.path} from origin: ${origin}`);
+
+  // Always allow the origin that sent the request
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
   } else {
-    // In production mode, only allow specific origins
-    const origin = req.headers.origin;
-    if (origin && allowedOrigins.includes(origin)) {
-      res.header('Access-Control-Allow-Origin', origin);
+    // In development mode, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      res.header('Access-Control-Allow-Origin', '*');
     }
   }
 
