@@ -6,6 +6,7 @@ import imageOptimizer from './vite.config.image.js'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base: '/', // Explicitly set base path
   plugins: [
     react({
       // Add fast refresh options for better development experience
