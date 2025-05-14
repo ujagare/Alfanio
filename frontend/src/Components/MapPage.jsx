@@ -40,7 +40,7 @@ const CountingNumber = ({ endNumber, duration = 2000 }) => {
     if (!isVisible) return;
 
     let startNumber = 0;
-    const endNum = parseInt(endNumber.replace(//D/g, ""));
+    const endNum = parseInt(endNumber.replace(/\D/g, ""));
     const increment = endNum / (duration / 16);
     const startTime = Date.now();
 
