@@ -6,28 +6,12 @@ const FONT_CACHE = 'font-cache-v5';
 const IMAGE_CACHE = 'image-cache-v5';
 const API_CACHE = 'api-cache-v5';
 
+// Minimal set of assets to cache initially
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/offline.html',
-  '/manifest.json',
-  '/assets/index.css',
-  '/assets/index.js',
-  '/assets/vendor/lenis/lenis.min.js',
-  '/assets/vendor/lenis/lenis.css',
-  '/brochure.pdf',
-  '/Alfanio.pdf',
-  '/icons/icon-72x72.png',
-  '/icons/icon-96x96.png',
-  '/icons/icon-128x128.png',
-  '/icons/icon-144x144.png',
-  '/icons/icon-152x152.png',
-  '/icons/icon-192x192.png',
-  '/icons/icon-384x384.png',
-  '/icons/icon-512x512.png',
-  '/product-schema.json',
-  '/assets/Alfanio.png',
-  '/assets/logo.png'
+  '/manifest.json'
 ];
 
 // Font files to cache
@@ -52,9 +36,23 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        return cache.addAll(STATIC_ASSETS);
+        // Try to cache each asset individually to prevent failure of the entire batch
+        return Promise.all(
+          STATIC_ASSETS.map(url => {
+            return cache.add(url).catch(error => {
+              console.error(`Failed to cache ${url}:`, error);
+              // Continue despite the error
+              return Promise.resolve();
+            });
+          })
+        );
       })
       .then(() => self.skipWaiting())
+      .catch(error => {
+        console.error('Service worker installation failed:', error);
+        // Continue despite the error
+        return self.skipWaiting();
+      })
   );
 });
 
@@ -107,9 +105,9 @@ async function syncForms() {
 
         // Determine the endpoint based on form type
         if (submission.formType === 'contact') {
-          endpoint = '/api/contact';
+          endpoint = 'https://alfanio-backend.onrender.com/api/contact';
         } else if (submission.formType === 'brochure') {
-          endpoint = '/api/contact/brochure';
+          endpoint = 'https://alfanio-backend.onrender.com/api/contact/brochure';
         } else {
           continue; // Skip unknown form types
         }
@@ -118,7 +116,8 @@ async function syncForms() {
         const response = await fetch(endpoint, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Origin': 'https://alfanio.onrender.com'
           },
           body: JSON.stringify(submission.formData)
         });
@@ -153,84 +152,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle API requests with network-first strategy
+  // Handle API requests - always go to network for API requests
   if (event.request.url.includes('/api/')) {
-    // Only cache GET requests, pass through other methods
-    if (event.request.method !== 'GET') {
-      return;
-    }
-
-    event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          // Clone the response for caching
-          const responseToCache = response.clone();
-          caches.open(API_CACHE)
-            .then(cache => {
-              // Cache successful API responses for offline use
-              if (response.status === 200) {
-                // Set a cache expiration time (24 hours)
-                const headers = new Headers(responseToCache.headers);
-                headers.append('sw-fetched-on', new Date().toISOString());
-
-                // Create a new response with the added headers
-                const cachedResponse = new Response(responseToCache.body, {
-                  status: responseToCache.status,
-                  statusText: responseToCache.statusText,
-                  headers: headers
-                });
-
-                cache.put(event.request, cachedResponse);
-
-                // Clean up old API cache entries
-                cache.keys().then(keys => {
-                  keys.forEach(key => {
-                    cache.match(key).then(response => {
-                      if (response) {
-                        const fetchedOn = response.headers.get('sw-fetched-on');
-                        if (fetchedOn) {
-                          const fetchDate = new Date(fetchedOn);
-                          const expirationDate = new Date(fetchDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
-
-                          if (expirationDate < new Date()) {
-                            cache.delete(key);
-                          }
-                        }
-                      }
-                    });
-                  });
-                });
-              }
-            });
-          return response;
-        })
-        .catch(() => {
-          // If network fails, try to get from cache
-          return caches.match(event.request).then(cachedResponse => {
-            if (cachedResponse) {
-              // Check if the cached response has expired
-              const fetchedOn = cachedResponse.headers.get('sw-fetched-on');
-              if (fetchedOn) {
-                const fetchDate = new Date(fetchedOn);
-                const expirationDate = new Date(fetchDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours
-
-                if (expirationDate < new Date()) {
-                  // Expired response, remove from cache
-                  caches.open(API_CACHE).then(cache => cache.delete(event.request));
-                  return new Response(JSON.stringify({ error: 'Offline data expired' }), {
-                    headers: { 'Content-Type': 'application/json' }
-                  });
-                }
-              }
-              return cachedResponse;
-            }
-
-            return new Response(JSON.stringify({ error: 'You are offline and no cached data is available' }), {
-              headers: { 'Content-Type': 'application/json' }
-            });
-          });
-        })
-    );
+    // For API requests, don't use service worker caching
+    // Just pass through to the network
     return;
   }
 

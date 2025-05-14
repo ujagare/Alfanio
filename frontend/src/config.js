@@ -27,9 +27,9 @@ export const COMPANY_INFO = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  contact: `/api/contact`,
-  brochure: `/api/contact/brochure`,
-  health: `/api/health`
+  contact: `${API_URL}/api/contact`,
+  brochure: `${API_URL}/api/contact/brochure`,
+  health: `${API_URL}/api/health`
 };
 
 // Environment settings
