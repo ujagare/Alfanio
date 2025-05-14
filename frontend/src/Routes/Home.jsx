@@ -12,7 +12,7 @@ import alfanioLogo from "../assets/Alfanio.png";
 
 // Import mixer images
 import slide1 from "../assets/alafa-images/97843  (10).webp";
-import slide2 from "../assets/alafa-images/white-pump.webp";
+import slide2 from "../assets/alafa-images/White-Pump.webp";
 import slide3 from "../assets/alafa-images/97843.webp";
 import slide4 from "../assets/alafa-images/97843  (16).webp";
 import slide5 from "../assets/alafa-images/97843  (15).webp";
