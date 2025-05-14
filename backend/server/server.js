@@ -92,43 +92,9 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Configure CORS based on environment
-const allowedOrigins = process.env.NODE_ENV === 'production'
-  ? ['https://alfanio.in', 'https://www.alfanio.in', 'https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com']
-  : ['http://localhost:3000', 'http://localhost:5001', 'http://localhost:5001', 'http://192.168.121.56:3000'];
-
-// Simplified CORS configuration for all environments
+// Super simple CORS configuration - allow all origins
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc)
-    if (!origin) return callback(null, true);
-
-    // In development mode, allow all origins
-    if (process.env.NODE_ENV !== 'production') {
-      return callback(null, true);
-    }
-
-    // In production, check against allowed origins
-    // Add the Render domains to the allowed origins
-    const renderOrigins = ['https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com'];
-    const allAllowedOrigins = [...allowedOrigins, ...renderOrigins];
-
-    console.log(`Checking CORS for origin: ${origin}`);
-    console.log(`Allowed origins: ${allAllowedOrigins.join(', ')}`);
-
-    if (allAllowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
-    }
-
-    // Also allow if origin starts with any allowed origin
-    // This handles subdomains and paths
-    if (allAllowedOrigins.some(allowed => origin.startsWith(allowed))) {
-      return callback(null, true);
-    }
-
-    console.warn(`CORS blocked request from origin: ${origin}`);
-    return callback(null, true); // Allow all origins for now to debug
-  },
+  origin: '*',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
@@ -138,20 +104,8 @@ app.use(cors({
 
 // Handle preflight requests for all routes
 app.options('*', (req, res) => {
-  // Get the origin from the request
-  const origin = req.headers.origin;
-
-  console.log(`OPTIONS request received from origin: ${origin}`);
-
-  // Always allow the origin that sent the request
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-    console.log(`Setting Access-Control-Allow-Origin: ${origin}`);
-  } else {
-    // Allow requests with no origin (like mobile apps, curl, etc)
-    res.header('Access-Control-Allow-Origin', '*');
-    console.log('Setting Access-Control-Allow-Origin: *');
-  }
+  // Always allow all origins
+  res.header('Access-Control-Allow-Origin', '*');
 
   // Set other CORS headers
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -159,29 +113,14 @@ app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
 
-  console.log('Responding to OPTIONS request with 204 No Content');
   // Respond with 204 No Content
   res.status(204).end();
 });
 
 // Add custom CORS headers to all responses
 app.use((req, res, next) => {
-  // Get the origin from the request
-  const origin = req.headers.origin;
-
-  // Log the request for debugging
-  console.log(`Request: ${req.method} ${req.path} from origin: ${origin}`);
-
-  // Always allow the origin that sent the request
-  if (origin) {
-    res.header('Access-Control-Allow-Origin', origin);
-  } else {
-    // In development mode, allow all origins
-    if (process.env.NODE_ENV !== 'production') {
-      res.header('Access-Control-Allow-Origin', '*');
-    }
-  }
-
+  // Always allow all origins
+  res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
   res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length, X-Request-ID');
@@ -273,9 +212,9 @@ const csrfProtection = (req, res, next) => {
   next();
 };
 
-// Apply CSRF protection to all POST endpoints
-app.use('/api/contact', csrfProtection);
-app.use('/api/contact/brochure', csrfProtection);
+// Disable CSRF protection for now to debug CORS issues
+// app.use('/api/contact', csrfProtection);
+// app.use('/api/contact/brochure', csrfProtection);
 
 // Rate limiting with production-ready configuration
 const apiLimiter = rateLimit({
