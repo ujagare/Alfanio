@@ -516,6 +516,19 @@ app.use((req, res, next) => {
     return next();
   }
 
+  // On Render, redirect to frontend service
+  const isRender = process.env.RENDER === 'true' ||
+                  process.env.RENDER_EXTERNAL_URL ||
+                  process.env.RENDER_SERVICE_ID;
+
+  if (isRender) {
+    console.log(`Static file request on Render, redirecting: ${filePath}`);
+    return res.redirect(`https://alfanio.onrender.com${filePath}`);
+  }
+
+  // For local development, continue with static file serving
+  console.log(`Attempting to serve static file: ${filePath}`);
+
   // Handle root path
   if (filePath === '/') {
     filePath = '/index.html';
@@ -662,8 +675,19 @@ app.get('*', (req, res) => {
     });
   }
 
-  // For all other routes, serve the frontend index.html file
+  // On Render, redirect to frontend service
+  const isRender = process.env.RENDER === 'true' ||
+                  process.env.RENDER_EXTERNAL_URL ||
+                  process.env.RENDER_SERVICE_ID;
+
+  if (isRender) {
+    console.log(`Non-API request on Render, redirecting: ${req.originalUrl}`);
+    return res.redirect(`https://alfanio.onrender.com${req.originalUrl}`);
+  }
+
+  // For local development, serve the frontend index.html file
   // This enables client-side routing
+  console.log(`Serving frontend index.html for: ${req.originalUrl}`);
   res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
 });
 
@@ -1248,53 +1272,47 @@ app.use('/api/*', (req, res) => {
   });
 });
 
-// In Render deployment, we don't need to serve frontend files from backend
-// The frontend is served by a separate static service
+// For all other routes, return a simple message
+// This is a backend-only server on Render
 app.get('*', (req, res) => {
-  // Check if we're running on Render
-  const isRender = process.env.RENDER === 'true' ||
-                  process.env.RENDER_EXTERNAL_URL ||
-                  process.env.RENDER_SERVICE_ID;
+  console.log(`Non-API request received: ${req.originalUrl}`);
 
-  if (isRender) {
-    // On Render, redirect to the frontend service
-    console.log(`Redirecting to frontend service: ${req.originalUrl}`);
-    return res.redirect(`https://alfanio.onrender.com${req.originalUrl}`);
-  }
-
-  // For local development, try to serve frontend files
-  console.log(`Attempting to serve frontend for: ${req.originalUrl}`);
-
-  // Try multiple possible paths for the frontend files
-  const possiblePaths = [
-    path.join(__dirname, '../dist/index.html'),
-    path.join(__dirname, '../../frontend/dist/index.html'),
-    path.join(__dirname, '../../../frontend/dist/index.html'),
-    path.join(__dirname, '../../../../frontend/dist/index.html')
-  ];
-
-  // Find the first existing file
-  const indexPath = possiblePaths.find(p => {
-    try {
-      return fs.existsSync(p);
-    } catch (err) {
-      return false;
-    }
-  });
-
-  if (indexPath) {
-    console.log('Serving frontend from:', indexPath);
-    res.sendFile(indexPath);
-  } else {
-    console.error('Frontend files not found in any location', possiblePaths);
-    res.status(404).send('Frontend files not found. Please check deployment configuration.');
-  }
+  // Just return a simple message
+  res.status(200).send(`
+    <html>
+      <head>
+        <title>Alfanio Backend API</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+          h1 { color: #FECC00; }
+          a { color: #FECC00; }
+        </style>
+      </head>
+      <body>
+        <h1>Alfanio Backend API Server</h1>
+        <p>This is the backend API server for Alfanio. The frontend website is available at:</p>
+        <p><a href="https://alfanio.onrender.com">https://alfanio.onrender.com</a></p>
+        <p>You will be redirected to the frontend website in 5 seconds...</p>
+        <script>
+          setTimeout(function() {
+            window.location.href = "https://alfanio.onrender.com";
+          }, 5000);
+        </script>
+      </body>
+    </html>
+  `);
 });
 
 // Error handling middleware with improved logging and security
 app.use((err, req, res, next) => {
   // Log the error with request ID for better debugging
   console.error(`[Error ${req.id}] Global error handler:`, err);
+
+  // Check if this is a "file not found" error for frontend files
+  if (err.code === 'ENOENT' && err.path && err.path.includes('/frontend/dist/')) {
+    console.log('Frontend file not found error - redirecting to frontend service');
+    return res.redirect('https://alfanio.onrender.com');
+  }
 
   // Don't expose error details in production
   const isProduction = process.env.NODE_ENV === 'production';
