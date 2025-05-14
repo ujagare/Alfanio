@@ -10,6 +10,8 @@ export default defineConfig({
       fastRefresh: true,
       // Optimize JSX transformation
       jsxRuntime: 'automatic',
+      // Allow JSX in .js files
+      include: '**/*.{jsx,js}',
     }),
     // Gzip compression
     compression({
@@ -129,7 +131,7 @@ export default defineConfig({
   },
   // Ensure proper MIME types for all files
   esbuild: {
-    loader: { '.js': 'jsx', '.jsx': 'jsx' },
+    loader: 'jsx',
     include: /src\/.*\.(js|jsx)$/,
     exclude: []
   },
