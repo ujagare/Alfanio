@@ -21,8 +21,8 @@ import heroImage from "../assets/alafa-images/CPH50-3 (16).webp";
 import factoryImage from "../assets/alafa-images/97843  (11).webp";
 import machineImage1 from "../assets/alafa-images/20211116_114205 (2).webp";
 import pumpImage1 from "../assets/alafa-images/97843  (10).webp";
-import pumpImage2 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.JPG";
-import mixerImage from "../assets/alafa-images/Planetary-Concrete-Mixer.JPG";
+import pumpImage2 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
+import mixerImage from "../assets/alafa-images/Planetary-Concrete-Mixer.jpg";
 import mixerImage2 from "../assets/alafa-images/White-Pump.webp";
 import profileAbhijeet from "../assets/Profile/Abhijeet.jpg";
 import profileAnand from "../assets/Profile/Anand Sali.jpg";
@@ -119,13 +119,13 @@ const About = () => {
       year: "2022",
       title: "Launched Twin-Shaft And Planetary Mixers",
       description:
-        "In 2022, we strengthened our presence in the vibrant construction landscape with the launch of our new twin shaft and planetary range of concrete mixers. These locally-focused solutions are designed to address the specific demands and challenges faced by construction professionals due to the harsh conditions prevailing in India. Furthermore, we started exports of concrete pump units to major OEM in construction equipment from South Korea and customized shotcrete pumps to Australia."
+        "In 2022, we strengthened our presence in the vibrant construction landscape with the launch of our new twin shaft and planetary range of concrete mixers. These locally-focused solutions are designed to address the specific demands and challenges faced by construction professionals due to the harsh conditions prevailing in India. Furthermore, we started exports of concrete pump units to major OEM in construction equipment from South Korea and customized shotcrete pumps to Australia.",
     },
     {
       year: "2023",
       title: "Launch Of Color Dosing System & Expansion Of Exports",
       description:
-        "In 2023, we marked a significant milestone with the launch of our innovative Color (pigment) Dosing System. This was natural as a forward integration of products inline with our concrete mixers. We also exported our pumps to African countries viz Ghana, Tanzania, Somalia, Kenya etc. and expanded our reach to Latin American countries."
+        "In 2023, we marked a significant milestone with the launch of our innovative Color (pigment) Dosing System. This was natural as a forward integration of products inline with our concrete mixers. We also exported our pumps to African countries viz Ghana, Tanzania, Somalia, Kenya etc. and expanded our reach to Latin American countries.",
     },
     {
       year: "2024",
@@ -213,18 +213,27 @@ const About = () => {
             <div>
               <h2 className="text-3xl font-bold text-gray-900 mb-6">
                 WHO WE ARE
-
               </h2>
               <p className="text-gray-600 mb-6">
-              Alfanio India Pvt Ltd. is a 100% Indian manufacturing company in the field of Modern Construction Equipment.
-              It was conceptualized and born after the founders came together and thought of  offering better products to customers than the presently available ones in the Indian market. <br />
-              All the five directors of Alfanio are technocrats and individually having experience of more than 25 years in the field of construction equipment manufacturing and service giving them a unique perspective to upgrade the equipment to make them trouble free and reliable.
+                Alfanio India Pvt Ltd. is a 100% Indian manufacturing company in
+                the field of Modern Construction Equipment. It was
+                conceptualized and born after the founders came together and
+                thought of offering better products to customers than the
+                presently available ones in the Indian market. <br />
+                All the five directors of Alfanio are technocrats and
+                individually having experience of more than 25 years in the
+                field of construction equipment manufacturing and service giving
+                them a unique perspective to upgrade the equipment to make them
+                trouble free and reliable.
               </p>
               <p className="text-gray-600 mb-6">
-              We are based in Pune, the second most industrialized city of Maharashtra next to Mumbai.
-The Company's production facility is located at industrial township of Chakan, Pune. <br />
-
-Alfanio is engaged in manufacturing of various world class construction equipment including special purpose construction machines and customized systems to satisfy customer requirements.
+                We are based in Pune, the second most industrialized city of
+                Maharashtra next to Mumbai. The Company's production facility is
+                located at industrial township of Chakan, Pune. <br />
+                Alfanio is engaged in manufacturing of various world class
+                construction equipment including special purpose construction
+                machines and customized systems to satisfy customer
+                requirements.
               </p>
 
               <div className="space-y-8 mt-8">
@@ -235,20 +244,20 @@ Alfanio is engaged in manufacturing of various world class construction equipmen
                   <ul className="space-y-3">
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Offer world class reliable construction equipment to our clients worldwide.
-
+                        ❖ Offer world class reliable construction equipment to
+                        our clients worldwide.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Help customers meet their requirements with customized solutions at reasonable prices.
-.
+                        ❖ Help customers meet their requirements with customized
+                        solutions at reasonable prices. .
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖ Make Alfanio, a trusted name in the field of construction equipment. 
-.
+                        ❖ Make Alfanio, a trusted name in the field of
+                        construction equipment. .
                       </span>
                     </li>
                   </ul>
@@ -261,16 +270,16 @@ Alfanio is engaged in manufacturing of various world class construction equipmen
                   <ul className="space-y-3">
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖ To fulfil customers' requirements in terms of quality, delivery and cost.
+                        ❖ To fulfil customers' requirements in terms of quality,
+                        delivery and cost.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	To be preferred as one of the most trusted resource in manufacturing of modern construction equipment. 
-
+                        ❖ To be preferred as one of the most trusted resource in
+                        manufacturing of modern construction equipment.
                       </span>
                     </li>
-                  
                   </ul>
                 </div>
 
@@ -282,31 +291,33 @@ Alfanio is engaged in manufacturing of various world class construction equipmen
                   <ul className="space-y-3">
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	To establish Alfanio as a sustainable and reliable source of construction equipment and OEM spare parts.
-
+                        ❖ To establish Alfanio as a sustainable and reliable
+                        source of construction equipment and OEM spare parts.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Make user-friendly construction equipment in line with operational requirements on site.
-
+                        ❖ Make user-friendly construction equipment in line with
+                        operational requirements on site.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Offer fair competitive pricing to our customers with the most trusted products.
-
+                        ❖ Offer fair competitive pricing to our customers with
+                        the most trusted products.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Achieve customer satisfaction through prompt response, quality performance and adherence to customer expectations.
-
+                        ❖ Achieve customer satisfaction through prompt response,
+                        quality performance and adherence to customer
+                        expectations.
                       </span>
                     </li>
                     <li className="flex items-start">
                       <span className="text-gray-600">
-                      ❖	Build long lasting partnership with customers and vendors.
+                        ❖ Build long lasting partnership with customers and
+                        vendors.
                       </span>
                     </li>
                   </ul>
