@@ -4,7 +4,9 @@ export const API_URL = import.meta.env.VITE_API_URL ||
     ? 'http://localhost:5001'
     : window.location.hostname.includes('devtunnels.ms')
       ? `${window.location.protocol}//${window.location.hostname}`
-      : `http://${window.location.hostname}:5001`);
+      : window.location.hostname.includes('onrender.com')
+        ? 'https://alfanio-backend.onrender.com'
+        : `${window.location.protocol}//${window.location.hostname}`);
 export const BROCHURE_URL = import.meta.env.VITE_BROCHURE_URL || '/api/contact/brochure';
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
 
