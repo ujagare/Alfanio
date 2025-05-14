@@ -319,6 +319,16 @@ const staticLimiter = rateLimit({
   }
 });
 
+// Health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Server is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development'
+  });
+});
+
 // Apply rate limiting
 app.use('/api', apiLimiter); // Stricter limits for API endpoints
 app.use('/api/contact', contactFormLimiter); // Specific limits for contact form
