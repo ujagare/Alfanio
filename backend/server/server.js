@@ -483,14 +483,34 @@ app.use((req, res, next) => {
     filePath = '/index.html';
   }
 
-  // Resolve the full file path
-  const fullPath = path.join(__dirname, '../dist', filePath);
+  // Try multiple possible paths for static files
+  const possiblePaths = [
+    path.join(__dirname, '../dist', filePath),
+    path.join(__dirname, '../../frontend/dist', filePath),
+    path.join(__dirname, '../../../frontend/dist', filePath),
+    path.join(__dirname, '../../../../frontend/dist', filePath)
+  ];
 
-  // Check if the file exists
-  fs.stat(fullPath, (err, stats) => {
-    if (err || !stats.isFile()) {
-      return next(); // File doesn't exist, let Express handle it
+  // Find the first existing file
+  let fullPath = null;
+  for (const p of possiblePaths) {
+    try {
+      const stats = fs.statSync(p);
+      if (stats.isFile()) {
+        fullPath = p;
+        break;
+      }
+    } catch (err) {
+      // File doesn't exist, try next path
     }
+  }
+
+  // Check if any file was found
+  if (!fullPath) {
+    return next(); // No file found, let Express handle it
+  }
+
+  // File exists, serve it with proper MIME type
 
     // Set appropriate MIME type based on file extension
     const ext = path.extname(filePath).toLowerCase();
@@ -540,7 +560,6 @@ app.use((req, res, next) => {
     const stream = fs.createReadStream(fullPath);
     stream.pipe(res);
   });
-});
 
 // Fallback to standard static file serving
 app.use(express.static(path.join(__dirname, '../dist'), {
@@ -1186,7 +1205,31 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+
+  // Try multiple possible paths for the frontend files
+  const possiblePaths = [
+    path.join(__dirname, '../dist/index.html'),
+    path.join(__dirname, '../../frontend/dist/index.html'),
+    path.join(__dirname, '../../../frontend/dist/index.html'),
+    path.join(__dirname, '../../../../frontend/dist/index.html')
+  ];
+
+  // Find the first existing file
+  const indexPath = possiblePaths.find(path => {
+    try {
+      return fs.existsSync(path);
+    } catch (err) {
+      return false;
+    }
+  });
+
+  if (indexPath) {
+    console.log('Serving frontend from:', indexPath);
+    res.sendFile(indexPath);
+  } else {
+    console.error('Frontend files not found in any location', possiblePaths);
+    res.status(404).send('Frontend files not found. Please check deployment configuration.');
+  }
 });
 
 // Error handling middleware with improved logging and security
