@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import compression from 'vite-plugin-compression2'
+import path from 'path'
+import imageOptimizer from './vite.config.image.js'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,6 +15,7 @@ export default defineConfig({
       // Allow JSX in .js files
       include: '**/*.{jsx,js}',
     }),
+    imageOptimizer,
     // Gzip compression
     compression({
       algorithm: 'gzip',
