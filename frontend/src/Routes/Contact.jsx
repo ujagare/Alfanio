@@ -329,8 +329,8 @@ const Contact = () => {
                   {...register("phone", {
                     required: "Phone number is required",
                     pattern: {
-                      value: /^\d{10}$/,
-                      message: "Please enter a valid 10-digit phone number",
+                      value: /^[+]?[0-9\s\-()]{8,20}$/,
+                      message: "Please enter a valid phone number",
                     },
                   })}
                   className="flex-grow px-4 py-3 border border-gray-300 rounded-r-md focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base border-l-0"

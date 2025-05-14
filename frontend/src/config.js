@@ -19,7 +19,7 @@ export const COMPANY_INFO = {
     instagram: import.meta.env.VITE_SOCIAL_INSTAGRAM || 'https://www.instagram.com/alfanioindia',
     linkedin: import.meta.env.VITE_SOCIAL_LINKEDIN || 'https://www.linkedin.com/company/alfanioindia',
     youtube: import.meta.env.VITE_SOCIAL_YOUTUBE || 'https://www.youtube.com/channel/alfanioindia',
-    whatsapp: `https://wa.me/${import.meta.env.VITE_CONTACT_PHONE?.replace(//+|/s/g, '') || '919822055367'}`
+    whatsapp: `https://wa.me/${import.meta.env.VITE_CONTACT_PHONE?.replace(/\+|\s/g, '') || '919822055367'}`
   }
 };
 
