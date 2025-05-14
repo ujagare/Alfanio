@@ -12,7 +12,7 @@ import {
   FaTwitter,
 } from "react-icons/fa";
 import { FiClock, FiTag, FiExternalLink } from "react-icons/fi";
-import { newsData } from "../data/newsData";
+import { newsData } from "../Data/newsData";
 import heroImage from "../assets/alafa-images/(10).webp";
 import Logo from "../assets/Alfanio.png";
 
