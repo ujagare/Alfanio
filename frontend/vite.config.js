@@ -129,8 +129,8 @@ export default defineConfig({
   },
   // Ensure proper MIME types for all files
   esbuild: {
-    loader: 'jsx',
-    include: /src\/.*\.jsx?$/,
+    loader: { '.js': 'jsx', '.jsx': 'jsx' },
+    include: /src\/.*\.(js|jsx)$/,
     exclude: []
   },
   // Ensure proper content type headers
