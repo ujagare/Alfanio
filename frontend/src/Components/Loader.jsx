@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import alfanioLogo from '../assets/Alfanio.png';
+import alfanioLogo from '..\assets\Alfanio.png';
 import '../styles/fonts.css';
 
 const Loader = ({ onAnimationComplete }) => {

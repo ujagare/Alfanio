@@ -2,9 +2,9 @@ import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import Masonry from "react-masonry-css";
-import alfanioPng from "../assets/Alfanio.png";
-import Loader from "../components/Loader";
-import heroImage from "../assets/alafa-images/20211116_114205 (2).webp";
+import alfanioPng from "..\assets\Alfanio.png";
+import Loader from "..\components\Loader";
+import heroImage from "..\assets\alafa-images\20211116_114205 (2).webp";
 import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const galleryImages = import.meta.glob(

@@ -1,13 +1,13 @@
-import mixerImage1 from '../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg';
-import mixerImage2 from '../assets/product Reang/Planetary-Concrete-Mixer/extra-08920029.jpg';
-import mixerImage3 from '../assets/product Reang/Planetary-Concrete-Mixer/extra-08920027.jpg';
-import twinShaftMain from '../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg';
-import twinShaftImage1 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (6).webp';
-import twinShaftImage2 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (7).webp';
-import twinShaftImage3 from '../assets/product Reang/Twine shaft Mixer/20211127_151512 (12).webp';
-import pumpImg1 from '../assets/alafa-images/(16).webp';
-import pumpImg2 from '../assets/alafa-images/(21).webp';
-import pumpImg3 from '../assets/alafa-images/white-pump.webp';
+import mixerImage1 from '..\assets\product Reang\Planetary-Concrete-Mixer\APM-Series-Planetary-Concrete-Mixer.jpg';
+import mixerImage2 from '..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920029.jpg';
+import mixerImage3 from '..\assets\product Reang\Planetary-Concrete-Mixer\extra-08920027.jpg';
+import twinShaftMain from '..\assets\product Reang\Twine shaft Mixer\Twin-Shaft-Concrete-Mixer.jpg';
+import twinShaftImage1 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (6).webp';
+import twinShaftImage2 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (7).webp';
+import twinShaftImage3 from '..\assets\product Reang\Twine shaft Mixer\20211127_151512 (12).webp';
+import pumpImg1 from '..\assets\alafa-images\(16).webp';
+import pumpImg2 from '..\assets\alafa-images\(21).webp';
+import pumpImg3 from '..\assets\alafa-images\White-Pump.webp';
 
 const products = [
   {

@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 // instead of build time
 import { Route, Routes } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import About from "../Routes/About";
+import About from "..\Routes\About";
 
 // Define image paths that will be resolved at runtime
 const Logo = new URL("../assets/Alfanio.png", import.meta.url).href;

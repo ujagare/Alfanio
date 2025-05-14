@@ -11,8 +11,8 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import { COMPANY_INFO } from "../config.js";
-import Logo from "../assets/logo.png";
+import { COMPANY_INFO } from "..\config.js";
+import Logo from "..\assets\logo.png";
 
 const Navbar = () => {
   const [isMenuOpen, setMenuOpen] = useState(false);

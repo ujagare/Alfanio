@@ -1,4 +1,4 @@
-import config from '../config';
+import config from '..\config';
 const GA_TRACKING_ID = config.ENV.isProd ? import.meta.env.VITE_GA_TRACKING_ID : 'G-XXXXXXXXXX';
 
 // Analytics events

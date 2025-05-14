@@ -12,9 +12,9 @@ import {
   FaIndustry,
   FaPhoneAlt,
 } from "react-icons/fa";
-import alfanioLogo from "../assets/Alfanio.png";
-import { API_URL, API_ENDPOINTS } from "../config"; // Ensure API_URL is from environment variables
-import CountryCodeSelect from "../Components/CountryCodeSelect";
+import alfanioLogo from "..\assets\Alfanio.png";
+import { API_URL, API_ENDPOINTS } from "..\config"; // Ensure API_URL is from environment variables
+import CountryCodeSelect from "..\Components\CountryCodeSelect";
 
 const heroImage =
   "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=2070&auto=format&fit=crop";

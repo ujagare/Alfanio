@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FaCheck, FaPhone, FaEnvelope, FaArrowRight, FaDownload, FaShieldAlt } from 'react-icons/fa';
-import mixerImage from '../../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg';
+import mixerImage from '..\..\assets\product Reang\Planetary-Concrete-Mixer\APM-Series-Planetary-Concrete-Mixer.jpg';
 
 const TwinShaftMixer = () => {
   const [activeTab, setActiveTab] = useState('description');

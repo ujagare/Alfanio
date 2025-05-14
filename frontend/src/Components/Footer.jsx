@@ -12,7 +12,7 @@ import {
   FaFacebook,
   FaWhatsapp,
 } from "react-icons/fa";
-import logo from "../assets/logo.png";
+import logo from "..\assets\logo.png";
 
 const Footer = () => {
   const socialMedias = [

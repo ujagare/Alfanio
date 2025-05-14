@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
-import ProductRange from '../Components/ProductRange';
+import ProductRange from '..\Components\ProductRange';
 
 const ProductRangePage = () => {
   return (

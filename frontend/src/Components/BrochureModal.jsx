@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { API_URL, API_ENDPOINTS } from "../config";
+import { API_URL, API_ENDPOINTS } from "..\config";
 
 // Country codes list
 const countryCodes = [

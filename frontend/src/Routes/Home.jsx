@@ -2,21 +2,21 @@ import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade } from "swiper/modules";
 import { motion, AnimatePresence } from "framer-motion";
-import BrochureModal from "../Components/BrochureModal";
-import SEO from "../Components/SEO";
-import MapPage from "../Components/MapPage";
-import ProductRange from "../Components/ProductRange";
+import BrochureModal from "..\Components\BrochureModal";
+import SEO from "..\Components\SEO";
+import MapPage from "..\Components\MapPage";
+import ProductRange from "..\Components\ProductRange";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import alfanioLogo from "../assets/Alfanio.png";
+import alfanioLogo from "..\assets\Alfanio.png";
 
 // Import mixer images
-import slide1 from "../assets/alafa-images/97843  (10).webp";
-import slide2 from "../assets/alafa-images/White-Pump.webp";
-import slide3 from "../assets/alafa-images/97843.webp";
-import slide4 from "../assets/alafa-images/97843  (16).webp";
-import slide5 from "../assets/alafa-images/97843  (15).webp";
-import slide6 from "../assets/alafa-images/(22).jpg";
+import slide1 from "..\assets\alafa-images\97843  (10).webp";
+import slide2 from "..\assets\alafa-images\White-Pump.webp";
+import slide3 from "..\assets\alafa-images\97843.webp";
+import slide4 from "..\assets\alafa-images\97843  (16).webp";
+import slide5 from "..\assets\alafa-images\97843  (15).webp";
+import slide6 from "..\assets\alafa-images\(22).jpg";
 
 const slides = [
   {
