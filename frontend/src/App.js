@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { HelmetProvider } from "react-helmet-async";
-import { initializeErrorTracking, ErrorBoundary } from "./utils/errorTracking";
+import { initializeErrorTracking, ErrorBoundary } from "./Utils/errorTracking";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Home from "./Routes/Home";
