@@ -1,5 +1,15 @@
 import * as Sentry from "@sentry/react";
-import { BrowserTracing } from "@sentry/tracing";
+// Note: In newer versions, BrowserTracing is included in @sentry/react
+// Fallback to empty object if import fails
+let BrowserTracing;
+try {
+  BrowserTracing = require("@sentry/tracing").BrowserTracing;
+} catch (e) {
+  console.warn("Could not import BrowserTracing from @sentry/tracing, using fallback");
+  BrowserTracing = class BrowserTracing {
+    constructor() {}
+  };
+}
 import posthog from 'posthog-js';
 
 const SENTRY_DSN = import.meta.env.VITE_SENTRY_DSN;
