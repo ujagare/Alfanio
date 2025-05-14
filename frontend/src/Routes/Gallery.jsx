@@ -44,13 +44,13 @@ const Gallery = () => {
         // Sort images to ensure consistent order
         filteredImages.sort((a, b) => {
           // Extract base names (without numbers in parentheses)
-          const aBase = a.alt.replace(//s*/(/d+/)/s*$/, "");
-          const bBase = b.alt.replace(//s*/(/d+/)/s*$/, "");
+          const aBase = a.alt.replace(/\s*\(\d+\)\s*$/, "");
+          const bBase = b.alt.replace(/\s*\(\d+\)\s*$/, "");
 
           if (aBase === bBase) {
             // If base names are the same, sort by number in parentheses (if any)
-            const aMatch = a.alt.match(//((/d+)/)/);
-            const bMatch = b.alt.match(//((/d+)/)/);
+            const aMatch = a.alt.match(/\((\d+)\)/);
+            const bMatch = b.alt.match(/\((\d+)\)/);
             const aNum = aMatch ? parseInt(aMatch[1]) : 0;
             const bNum = bMatch ? parseInt(bMatch[1]) : 0;
             return bNum - aNum; // Higher numbers first
@@ -328,7 +328,7 @@ const Gallery = () => {
                             <div className="w-1 h-8 bg-[#FECC00] rounded-full mr-2"></div>
                             <div>
                               <h3 className="text-white font-medium text-sm truncate">
-                                {image.alt.replace(//s*/(/d+/)/s*$/, "")}
+                                {image.alt.replace(/\s*\(\d+\)\s*$/, "")}
                               </h3>
                               <p className="text-white/70 text-xs">
                                 Alfanio Project
@@ -476,7 +476,7 @@ const Gallery = () => {
                   <div className="w-2 h-8 bg-[#FECC00] rounded-full mr-3"></div>
                   <div>
                     <h3 className="text-lg font-semibold text-white truncate max-w-lg">
-                      {selectedImage.alt.replace(//s*/(/d+/)/s*$/, "")}
+                      {selectedImage.alt.replace(/\s*\(\d+\)\s*$/, "")}
                     </h3>
                     <p className="text-xs text-zinc-400">
                       Alfanio Project Gallery
