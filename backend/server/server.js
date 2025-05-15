@@ -813,10 +813,10 @@ const createMailTransport = () => {
 
   // Email configuration with hardcoded values for Gmail
   const emailHost = 'smtp.gmail.com';
-  const emailPort = 587; // Using 587 for TLS
-  const emailSecure = false; // Using TLS instead of SSL
+  const emailPort = 465; // Using 465 for SSL
+  const emailSecure = true; // Using SSL for more reliable connection
   const emailUser = process.env.EMAIL_USER || 'alfanioindia@gmail.com';
-  const emailPass = process.env.EMAIL_PASS || ''; // Should be set in environment variables
+  const emailPass = process.env.EMAIL_PASS || 'yftofapopqvydrqa'; // App password for Gmail
 
   console.log(`Email configuration: Host=${emailHost}, Port=${emailPort}, Secure=${emailSecure}, User=${emailUser}`);
 
@@ -831,10 +831,9 @@ const createMailTransport = () => {
     }
   };
 
-  // For Gmail, use TLS instead of SSL
-  if (emailHost.includes('gmail.com') && !emailSecure) {
-    console.log('Using TLS configuration for Gmail');
-    transportConfig.requireTLS = true;
+  // For Gmail, add SSL configuration
+  if (emailHost.includes('gmail.com')) {
+    console.log('Using SSL configuration for Gmail');
     transportConfig.tls = {
       rejectUnauthorized: false // Allow self-signed certificates
     };
@@ -945,6 +944,13 @@ const sendEmail = async (mailOptions, retries = 2) => {
     return { messageId: 'dummy-id-' + Date.now(), skipped: true };
   }
 
+  console.log('Starting email sending process with options:', {
+    to: mailOptions.to,
+    subject: mailOptions.subject,
+    hasHtml: !!mailOptions.html,
+    hasText: !!mailOptions.text
+  });
+
   let currentRetry = 0;
 
   // Add default email template styling
@@ -993,6 +999,12 @@ const sendEmail = async (mailOptions, retries = 2) => {
         ...mailOptions,
         from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
       };
+
+      // Add additional logging before sending
+      console.log('Email options:', {
+        ...emailOptions,
+        auth: emailOptions.auth ? { user: emailOptions.auth.user, pass: '********' } : undefined
+      });
 
       // Send the email
       const info = await mailTransport.sendMail(emailOptions);
