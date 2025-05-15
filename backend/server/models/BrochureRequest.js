@@ -25,7 +25,7 @@ const brochureRequestSchema = new mongoose.Schema({
         trim: true,
         validate: {
             validator: function(v) {
-                return /^\+?[\d\s-]{10,}$/.test(v);
+                return /^[+]?[0-9\s\-()]{8,20}$/.test(v);
             },
             message: props => `${props.value} is not a valid phone number!`
         }

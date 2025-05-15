@@ -779,6 +779,11 @@ const contactSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Add phone number validation for international numbers
+contactSchema.path('phone').validate(function(v) {
+  return /^[+]?[0-9\s\-()]{8,20}$/.test(v);
+}, 'Please enter a valid phone number');
+
 const Contact = mongoose.model('Contact', contactSchema);
 
 // Brochure request schema
@@ -790,6 +795,11 @@ const brochureRequestSchema = new mongoose.Schema({
   type: { type: String, default: 'brochure' },
   createdAt: { type: Date, default: Date.now }
 });
+
+// Add phone number validation for international numbers
+brochureRequestSchema.path('phone').validate(function(v) {
+  return /^[+]?[0-9\s\-()]{8,20}$/.test(v);
+}, 'Please enter a valid phone number');
 
 const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
 
