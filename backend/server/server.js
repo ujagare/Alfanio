@@ -864,113 +864,13 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Contact form endpoint
-app.post('/api/contact', async (req, res) => {
-  console.log('Received contact form submission', req.body);
+// Import simple contact routes
+import simpleContactRoutes from './routes/simpleContact.js';
 
-  try {
-    const { name, email, phone, message } = req.body;
+// Use simple contact routes
+app.use('/api/contact', simpleContactRoutes);
 
-    if (!name || !email || !phone || !message) {
-      return res.status(400).json({
-        success: false,
-        message: 'All fields are required'
-      });
-    }
-
-    // Save to database
-    const contact = new Contact({
-      name,
-      email,
-      phone,
-      message
-    });
-
-    await contact.save();
-    console.log('Contact form saved to database');
-
-    // Send email
-    await sendEmail({
-      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
-      subject: 'New Contact Form Submission',
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `
-    });
-
-    console.log('Email sent successfully');
-
-    res.json({
-      success: true,
-      message: 'Message sent successfully'
-    });
-  } catch (error) {
-    console.error('Contact form error:', error);
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to send message'
-    });
-  }
-});
-
-// Brochure request endpoint
-app.post('/api/contact/brochure', async (req, res) => {
-  console.log('Received brochure request', req.body);
-
-  try {
-    const { name, email, phone, message } = req.body;
-
-    if (!name || !email || !phone) {
-      return res.status(400).json({
-        success: false,
-        message: 'Name, email and phone are required'
-      });
-    }
-
-    // Save to database
-    const brochureRequest = new BrochureRequest({
-      name,
-      email,
-      phone,
-      message
-    });
-
-    await brochureRequest.save();
-    console.log('Brochure request saved to database');
-
-    // Send email
-    await sendEmail({
-      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
-      subject: 'New Brochure Request',
-      html: `
-        <h2>New Brochure Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
-      `
-    });
-
-    console.log('Brochure request email sent successfully');
-
-    res.json({
-      success: true,
-      message: 'Brochure request received successfully'
-    });
-  } catch (error) {
-    console.error('Brochure request error:', error);
-
-    res.status(500).json({
-      success: false,
-      message: 'Failed to process brochure request'
-    });
-  }
-});
+// Brochure request endpoint is now handled by simpleContactRoutes
 
 // Brochure download endpoint
 app.get('/api/brochure/download', (req, res) => {
