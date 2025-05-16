@@ -128,87 +128,47 @@ const ContactForm = ({
 
     setIsSubmitting(true);
     try {
-      // Get the correct endpoint
-      const endpoint =
-        type === "brochure" ? API_ENDPOINTS.brochure : API_ENDPOINTS.contact;
+      // Format the message
+      const subject =
+        type === "brochure"
+          ? `Brochure Request from ${data.name.trim()}`
+          : `Contact Form Submission from ${data.name.trim()}`;
 
-      console.log("Submitting form with data:", {
-        name: data.name.trim(),
-        email: data.email.trim(),
-        phone: data.phone,
-        message: data.message?.trim() || "",
-        type: type,
-      });
+      const body = `
+Name: ${data.name.trim()}
+Email: ${data.email.trim()}
+Phone: ${data.phone}
+${data.message ? `Message: ${data.message.trim()}` : ""}
+${type === "brochure" ? "Request: Brochure" : ""}
+      `.trim();
 
-      console.log("Endpoint would be:", endpoint);
+      // Create mailto link
+      const mailtoLink = `mailto:alfanioindia@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 
-      try {
-        console.log("Sending request to endpoint:", endpoint);
+      // Open email client
+      window.location.href = mailtoLink;
 
-        // Use simple fetch with minimal options
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: data.name.trim(),
-            email: data.email.trim(),
-            phone: data.phone,
-            message: data.message?.trim() || "",
-            type: type,
-          }),
-        });
+      // Show success message
+      if (type === "brochure") {
+        toast.success(
+          "✅ Thank you for your interest! Your email client will open to send us your request."
+        );
 
-        console.log("Response status:", response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error("Server error response:", errorText);
-          throw new Error(`Server responded with status: ${response.status}`);
-        }
-
-        const responseData = await response.json();
-        console.log("Server response:", responseData);
-
-        // Show success message
-        if (type === "brochure") {
-          toast.success(
-            "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
-          );
-
-          // If brochure is requested, open the PDF from API
-          window.open(API_ENDPOINTS.brochureDownload, "_blank");
-        } else {
-          toast.success(
-            "✅ Thank you for your message! Our team will contact you shortly."
-          );
-        }
-
-        // Reset the form
-        reset();
-      } catch (apiError) {
-        console.error("API call failed:", apiError);
-
-        // Fallback to local success message if API call fails
-        if (type === "brochure") {
-          toast.success(
-            "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
-          );
-          // Open brochure download
-          window.open(API_ENDPOINTS.brochureDownload, "_blank");
-        } else {
-          toast.success(
-            "✅ Thank you for your message! Our team will contact you shortly."
-          );
-        }
-
-        // Reset the form anyway
-        reset();
+        // Open brochure in new tab
+        setTimeout(() => {
+          window.open("/brochure.pdf", "_blank");
+        }, 1000);
+      } else {
+        toast.success(
+          "✅ Thank you for your message! Your email client will open to send us your request."
+        );
       }
+
+      // Reset the form
+      reset();
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error("❌ Failed to send message. Please try again later.");
+      toast.error("❌ Failed to open email client. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
