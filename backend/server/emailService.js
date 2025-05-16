@@ -30,7 +30,7 @@ const createMailTransport = () => {
     service: 'gmail',
     auth: {
       user: 'alfanioindia@gmail.com',
-      pass: 'rvxvxvxvxvxvxvxv' // App password - replace with actual app password
+      pass: 'ogwoqwpovqfcgacz' // App password from 2-step verification
     }
   };
 
@@ -184,7 +184,7 @@ export const sendEmail = async (options) => {
         secure: true,
         auth: {
           user: 'alfanioindia@gmail.com',
-          pass: 'rvxvxvxvxvxvxvxv' // App password - replace with actual app password
+          pass: 'ogwoqwpovqfcgacz' // App password from 2-step verification
         }
       });
 
