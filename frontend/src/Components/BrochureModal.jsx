@@ -140,64 +140,63 @@ const BrochureModal = ({ isOpen, onClose }) => {
       phone: fullPhoneNumber,
     };
 
-    // Save form data to localStorage for offline processing
     try {
-      const storedRequests = JSON.parse(
-        localStorage.getItem("brochureRequests") || "[]"
+      // First try to submit to server - wait for response
+      const result = await submitToServer(formDataToSubmit);
+
+      if (result.success) {
+        // Only show success and download brochure if server submission was successful
+        console.log("Email sent successfully!");
+        setIsSuccess(true);
+        downloadBrochure();
+
+        // Close the modal after a delay
+        setTimeout(() => {
+          handleClose();
+          setFormData({
+            name: "",
+            email: "",
+            phone: "",
+            countryCode: "+91",
+            message: "",
+            type: "brochure",
+          });
+          setIsSuccess(false);
+        }, 3000);
+      } else {
+        // If server submission failed, show error
+        console.error("Server submission failed:", result.error);
+        alert(
+          "Unable to process your request at this time. Please try again later."
+        );
+      }
+    } catch (error) {
+      console.error("Form submission error:", error);
+      alert(
+        "An error occurred while processing your request. Please try again later."
       );
-      storedRequests.push({
-        ...formDataToSubmit,
-        timestamp: new Date().toISOString(),
-        processed: false,
-      });
-      localStorage.setItem("brochureRequests", JSON.stringify(storedRequests));
-      console.log("Form data saved to localStorage for later processing");
-    } catch (storageError) {
-      console.error("Error saving to localStorage:", storageError);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    // Show success UI immediately
-    setIsSuccess(true);
-
-    // Download the brochure immediately
-    downloadBrochure();
-
-    // Try to submit to server in background
-    submitToServer(formDataToSubmit).catch((error) => {
-      console.error("Background submission error:", error);
-      // No need to show error to user since we've already shown success
-    });
-
-    // Close the modal after a delay
-    setTimeout(() => {
-      handleClose();
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        countryCode: "+91",
-        message: "",
-        type: "brochure",
-      });
-      setIsSuccess(false);
-    }, 3000);
-
-    setIsSubmitting(false);
   };
 
-  // Separate function to submit to server
+  // Function to submit to server
   const submitToServer = async (formData) => {
     try {
       // Use simple fetch API for better compatibility
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+
       const response = await fetch(`${API_URL}/api/contact/brochure`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-        // Add timeout to prevent long-hanging requests
-        signal: AbortSignal.timeout(10000), // 10 second timeout
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId); // Clear the timeout if request completes
 
       if (!response.ok) {
         throw new Error(
@@ -208,35 +207,13 @@ const BrochureModal = ({ isOpen, onClose }) => {
       const data = await response.json();
       console.log("Success: Form submitted to server:", data);
 
-      // Update localStorage to mark this request as processed
-      try {
-        const storedRequests = JSON.parse(
-          localStorage.getItem("brochureRequests") || "[]"
-        );
-        const updatedRequests = storedRequests.map((req) => {
-          if (
-            req.email === formData.email &&
-            req.phone === formData.phone &&
-            !req.processed
-          ) {
-            return { ...req, processed: true };
-          }
-          return req;
-        });
-        localStorage.setItem(
-          "brochureRequests",
-          JSON.stringify(updatedRequests)
-        );
-      } catch (storageError) {
-        console.error("Error updating localStorage:", storageError);
-      }
-
-      return data;
+      return { success: true, data };
     } catch (error) {
       console.error("Error submitting form to server:", error);
-      // We don't throw here because this is a background process
-      // and we don't want to interrupt the user experience
-      return { success: false, error: error.message };
+      return {
+        success: false,
+        error: error.message || "Unknown error occurred",
+      };
     }
   };
 

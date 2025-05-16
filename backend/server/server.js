@@ -666,31 +666,52 @@ app.post('/api/contact', async (req, res) => {
     await contact.save();
     console.log('Contact form saved to database');
 
-    // Send email
-    await sendEmail({
-      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
-      subject: 'New Contact Form Submission',
-      html: `
-        <h2>New Contact Form Submission</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        <p><strong>Message:</strong> ${message}</p>
-      `
-    });
+    // Send email with detailed error handling
+    try {
+      const emailResult = await sendEmail({
+        to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
+        subject: 'New Contact Form Submission',
+        html: `
+          <h2>New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Message:</strong> ${message}</p>
+        `
+      });
 
-    console.log('Email sent successfully');
+      // Check if email was actually sent
+      if (!emailResult || emailResult.fallback) {
+        console.error('Email sending failed:', emailResult?.error || 'Unknown error');
+        throw new Error('Email sending failed: ' + (emailResult?.error || 'Unknown error'));
+      }
 
-    res.json({
-      success: true,
-      message: 'Message sent successfully'
-    });
+      console.log('Contact form email sent successfully:', emailResult.messageId);
+
+      // Only return success if email was actually sent
+      res.json({
+        success: true,
+        message: 'Message sent successfully',
+        emailId: emailResult.messageId
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+
+      // Return specific error for email failure
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send email notification',
+        error: emailError.message,
+        savedToDatabase: true
+      });
+    }
   } catch (error) {
     console.error('Contact form error:', error);
 
     res.status(500).json({
       success: false,
-      message: 'Failed to send message'
+      message: 'Failed to process contact form',
+      error: error.message
     });
   }
 });
@@ -720,31 +741,52 @@ app.post('/api/contact/brochure', async (req, res) => {
     await brochureRequest.save();
     console.log('Brochure request saved to database');
 
-    // Send email
-    await sendEmail({
-      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
-      subject: 'New Brochure Request',
-      html: `
-        <h2>New Brochure Request</h2>
-        <p><strong>Name:</strong> ${name}</p>
-        <p><strong>Email:</strong> ${email}</p>
-        <p><strong>Phone:</strong> ${phone}</p>
-        ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
-      `
-    });
+    // Send email with detailed error handling
+    try {
+      const emailResult = await sendEmail({
+        to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
+        subject: 'New Brochure Request',
+        html: `
+          <h2>New Brochure Request</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Phone:</strong> ${phone}</p>
+          ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
+        `
+      });
 
-    console.log('Brochure request email sent successfully');
+      // Check if email was actually sent
+      if (!emailResult || emailResult.fallback) {
+        console.error('Email sending failed:', emailResult?.error || 'Unknown error');
+        throw new Error('Email sending failed: ' + (emailResult?.error || 'Unknown error'));
+      }
 
-    res.json({
-      success: true,
-      message: 'Brochure request received successfully'
-    });
+      console.log('Brochure request email sent successfully:', emailResult.messageId);
+
+      // Only return success if email was actually sent
+      res.json({
+        success: true,
+        message: 'Brochure request received and email sent successfully',
+        emailId: emailResult.messageId
+      });
+    } catch (emailError) {
+      console.error('Email sending error:', emailError);
+
+      // Return specific error for email failure
+      res.status(500).json({
+        success: false,
+        message: 'Failed to send email notification',
+        error: emailError.message,
+        savedToDatabase: true
+      });
+    }
   } catch (error) {
     console.error('Brochure request error:', error);
 
     res.status(500).json({
       success: false,
-      message: 'Failed to process brochure request'
+      message: 'Failed to process brochure request',
+      error: error.message
     });
   }
 });
