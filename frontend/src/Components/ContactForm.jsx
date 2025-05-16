@@ -145,11 +145,11 @@ const ContactForm = ({
       try {
         console.log("Sending request to endpoint:", endpoint);
 
+        // Use simple fetch with minimal options
         const response = await fetch(endpoint, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Origin: window.location.origin,
           },
           body: JSON.stringify({
             name: data.name.trim(),
@@ -158,8 +158,6 @@ const ContactForm = ({
             message: data.message?.trim() || "",
             type: type,
           }),
-          credentials: "include",
-          mode: "cors",
         });
 
         console.log("Response status:", response.status);
