@@ -21,7 +21,7 @@ const EMAIL_CONFIG = {
 // Create mail transport
 const createMailTransport = () => {
   const isProduction = process.env.NODE_ENV === 'production';
-  
+
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
@@ -33,7 +33,16 @@ const createMailTransport = () => {
     auth: {
       user: EMAIL_CONFIG.auth.user,
       pass: EMAIL_CONFIG.auth.pass
-    }
+    },
+    // Always add TLS options for better security and compatibility
+    tls: {
+      rejectUnauthorized: false, // Set to false to avoid certificate validation issues
+      minVersion: 'TLSv1.2'
+    },
+    // Add debug option for detailed logging
+    debug: process.env.EMAIL_DEBUG === 'true',
+    // Add logger for custom logging
+    logger: true
   };
 
   // Add production-specific settings
@@ -42,14 +51,28 @@ const createMailTransport = () => {
     transportConfig.pool = true;
     transportConfig.maxConnections = 5;
     transportConfig.maxMessages = 100;
+  }
 
-    // Add TLS options for better security
-    transportConfig.tls = {
-      rejectUnauthorized: false, // Set to false to avoid certificate validation issues
-      minVersion: 'TLSv1.2'
+  // Try different authentication types if needed
+  if (process.env.EMAIL_AUTH_TYPE === 'oauth2') {
+    transportConfig.auth = {
+      type: 'OAuth2',
+      user: EMAIL_CONFIG.auth.user,
+      clientId: process.env.EMAIL_OAUTH_CLIENT_ID,
+      clientSecret: process.env.EMAIL_OAUTH_CLIENT_SECRET,
+      refreshToken: process.env.EMAIL_OAUTH_REFRESH_TOKEN,
+      accessToken: process.env.EMAIL_OAUTH_ACCESS_TOKEN,
+      expires: parseInt(process.env.EMAIL_OAUTH_EXPIRES || '3600')
+    };
+  } else if (process.env.EMAIL_AUTH_TYPE === 'login') {
+    transportConfig.auth = {
+      type: 'login',
+      user: EMAIL_CONFIG.auth.user,
+      pass: EMAIL_CONFIG.auth.pass
     };
   }
 
+  // Create and return the transport
   return nodemailer.createTransport(transportConfig);
 };
 
@@ -80,7 +103,7 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
           secure: EMAIL_CONFIG.secure,
           user: EMAIL_CONFIG.auth.user
         });
-        
+
         // Log additional troubleshooting information
         console.log('Email troubleshooting tips:');
         console.log('1. Check if the Gmail account has "Less secure app access" enabled');
@@ -174,24 +197,46 @@ export const sendEmail = async (mailOptions, retries = 2) => {
     try {
       // Create a new transport for each attempt to avoid stale connections
       const freshTransport = createMailTransport();
-      
+
+      // Add debug logging for transport configuration
+      console.log('Transport configuration for this attempt:', {
+        host: freshTransport.options.host,
+        port: freshTransport.options.port,
+        secure: freshTransport.options.secure,
+        auth: {
+          user: freshTransport.options.auth.user,
+          // Don't log the actual password
+          pass: freshTransport.options.auth.pass ? '********' : 'not set'
+        },
+        tls: freshTransport.options.tls
+      });
+
       // Send email
       const info = await freshTransport.sendMail(mailOptions);
 
       console.log('Email sent successfully:', info.messageId);
-      
+      console.log('Email accepted by:', info.accepted);
+      console.log('Email response:', info.response);
+
       // Update email record
       emailRecord.status = 'sent';
       emailRecord.messageId = info.messageId;
-      
+      emailRecord.response = info.response;
+
       // Store email record for reference (could be saved to database in production)
       storeEmailRecord(emailRecord);
-      
+
       return info;
     } catch (error) {
       currentRetry++;
       console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
       console.error('Error details:', error);
+
+      // Try to get more detailed error information
+      if (error.code) console.error('Error code:', error.code);
+      if (error.command) console.error('SMTP command that failed:', error.command);
+      if (error.response) console.error('SMTP server response:', error.response);
+      if (error.responseCode) console.error('SMTP response code:', error.responseCode);
 
       if (currentRetry > retries) {
         // Log to database or monitoring system in production
@@ -199,14 +244,24 @@ export const sendEmail = async (mailOptions, retries = 2) => {
           console.error('Critical: Email sending failed after all retries', {
             to: mailOptions.to,
             subject: mailOptions.subject,
-            error: error.message
+            error: error.message,
+            code: error.code,
+            command: error.command,
+            response: error.response,
+            responseCode: error.responseCode
           });
         }
 
         // Update email record
         emailRecord.status = 'failed';
         emailRecord.error = error.message;
-        
+        emailRecord.errorDetails = {
+          code: error.code,
+          command: error.command,
+          response: error.response,
+          responseCode: error.responseCode
+        };
+
         // Store failed email record for reference (could be saved to database in production)
         storeEmailRecord(emailRecord);
 
@@ -215,14 +270,21 @@ export const sendEmail = async (mailOptions, retries = 2) => {
         return {
           success: false,
           error: error.message,
+          errorDetails: {
+            code: error.code,
+            command: error.command,
+            response: error.response,
+            responseCode: error.responseCode
+          },
           fallback: true,
           messageId: `fallback-${Date.now()}`
         };
       }
 
-      // Wait before retry
-      console.log(`Waiting 2000ms before retry ${currentRetry + 1}...`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait before retry with increasing delay
+      const waitTime = 2000 * Math.pow(1.5, currentRetry - 1);
+      console.log(`Waiting ${waitTime}ms before retry ${currentRetry + 1}...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
 };
@@ -233,7 +295,7 @@ const emailRecords = [];
 // Function to store email record
 const storeEmailRecord = (record) => {
   emailRecords.push(record);
-  
+
   // Limit the number of records stored in memory
   if (emailRecords.length > 100) {
     emailRecords.shift();
@@ -249,7 +311,7 @@ export const getEmailRecords = () => {
 export const initEmailService = async () => {
   // Verify email transport
   const isVerified = await verifyEmailTransport();
-  
+
   // Return email service status
   return {
     isVerified,
