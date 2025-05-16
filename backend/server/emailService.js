@@ -12,7 +12,7 @@ const EMAIL_CONFIG = {
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-    pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa'
+    pass: process.env.EMAIL_PASS || 'rvxvxvxvxvxvxvxv' // Updated app password
   },
   from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
   to: process.env.EMAIL_TO || 'alfanioindia@gmail.com'
@@ -25,52 +25,22 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-  // Set up email transport configuration
+  // Set up email transport configuration - direct Gmail configuration
   const transportConfig = {
-    host: EMAIL_CONFIG.host,
-    port: EMAIL_CONFIG.port,
-    secure: EMAIL_CONFIG.secure,
+    service: 'gmail',
     auth: {
-      user: EMAIL_CONFIG.auth.user,
-      pass: EMAIL_CONFIG.auth.pass
-    },
-    // Always add TLS options for better security and compatibility
-    tls: {
-      rejectUnauthorized: false, // Set to false to avoid certificate validation issues
-      minVersion: 'TLSv1.2'
-    },
-    // Add debug option for detailed logging
-    debug: process.env.EMAIL_DEBUG === 'true',
-    // Add logger for custom logging
-    logger: true
+      user: 'alfanioindia@gmail.com',
+      pass: 'rvxvxvxvxvxvxvxv' // App password - replace with actual app password
+    }
   };
 
-  // Add production-specific settings
-  if (isProduction) {
-    // Add connection pool for better performance in production
-    transportConfig.pool = true;
-    transportConfig.maxConnections = 5;
-    transportConfig.maxMessages = 100;
-  }
-
-  // Try different authentication types if needed
-  if (process.env.EMAIL_AUTH_TYPE === 'oauth2') {
-    transportConfig.auth = {
-      type: 'OAuth2',
-      user: EMAIL_CONFIG.auth.user,
-      clientId: process.env.EMAIL_OAUTH_CLIENT_ID,
-      clientSecret: process.env.EMAIL_OAUTH_CLIENT_SECRET,
-      refreshToken: process.env.EMAIL_OAUTH_REFRESH_TOKEN,
-      accessToken: process.env.EMAIL_OAUTH_ACCESS_TOKEN,
-      expires: parseInt(process.env.EMAIL_OAUTH_EXPIRES || '3600')
-    };
-  } else if (process.env.EMAIL_AUTH_TYPE === 'login') {
-    transportConfig.auth = {
-      type: 'login',
-      user: EMAIL_CONFIG.auth.user,
-      pass: EMAIL_CONFIG.auth.pass
-    };
-  }
+  console.log('Email transport configuration:', {
+    service: transportConfig.service,
+    auth: {
+      user: transportConfig.auth.user,
+      pass: '********' // Don't log the actual password
+    }
+  });
 
   // Create and return the transport
   return nodemailer.createTransport(transportConfig);
@@ -124,8 +94,21 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
 };
 
 // Enhanced email sending function with retry and fallback
-export const sendEmail = async (mailOptions, retries = 2) => {
-  let currentRetry = 0;
+export const sendEmail = async (options) => {
+  // Validate options
+  if (!options.to || !options.subject) {
+    throw new Error('Email options missing required fields');
+  }
+
+  // Set up mail options
+  const mailOptions = {
+    from: options.from || EMAIL_CONFIG.from,
+    to: options.to,
+    subject: options.subject,
+    text: options.text || '',
+    html: options.html || '',
+    attachments: options.attachments || []
+  };
 
   // Add default email template styling
   const defaultStyle = `
@@ -160,131 +143,81 @@ export const sendEmail = async (mailOptions, retries = 2) => {
     `;
   }
 
-  // Set default from address if not provided
-  if (!mailOptions.from) {
-    mailOptions.from = EMAIL_CONFIG.from;
-  }
+  console.log('Attempting to send email to:', options.to);
+  console.log('Email subject:', options.subject);
 
-  // Set default to address if not provided
-  if (!mailOptions.to) {
-    mailOptions.to = EMAIL_CONFIG.to;
-  }
+  try {
+    // Create a fresh transport
+    const transport = createMailTransport();
 
-  // Log detailed email attempt for debugging
-  console.log('Attempting to send email with the following configuration:');
-  console.log('- To:', mailOptions.to);
-  console.log('- Subject:', mailOptions.subject);
-  console.log('- From:', mailOptions.from);
-  console.log('- Transport config:', {
-    host: EMAIL_CONFIG.host,
-    port: EMAIL_CONFIG.port,
-    secure: EMAIL_CONFIG.secure,
-  });
+    // Send email
+    const info = await transport.sendMail(mailOptions);
 
-  // Store email in memory for fallback
-  const emailRecord = {
-    to: mailOptions.to,
-    from: mailOptions.from,
-    subject: mailOptions.subject,
-    html: mailOptions.html,
-    text: mailOptions.text,
-    timestamp: new Date().toISOString(),
-    status: 'pending'
-  };
+    console.log('Email sent successfully!');
+    console.log('Message ID:', info.messageId);
+    console.log('Response:', info.response);
 
-  // Try to send email
-  while (currentRetry <= retries) {
+    return {
+      success: true,
+      messageId: info.messageId,
+      response: info.response,
+      accepted: info.accepted
+    };
+  } catch (error) {
+    console.error('Email sending failed:', error.message);
+    console.error('Error details:', error);
+
+    // Log detailed error information
+    if (error.code) console.error('Error code:', error.code);
+    if (error.command) console.error('SMTP command that failed:', error.command);
+    if (error.response) console.error('SMTP server response:', error.response);
+    if (error.responseCode) console.error('SMTP response code:', error.responseCode);
+
+    // Try with alternative configuration if first attempt fails
     try {
-      // Create a new transport for each attempt to avoid stale connections
-      const freshTransport = createMailTransport();
+      console.log('Trying alternative email configuration...');
 
-      // Add debug logging for transport configuration
-      console.log('Transport configuration for this attempt:', {
-        host: freshTransport.options.host,
-        port: freshTransport.options.port,
-        secure: freshTransport.options.secure,
+      // Create alternative transport with different settings
+      const alternativeTransport = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
-          user: freshTransport.options.auth.user,
-          // Don't log the actual password
-          pass: freshTransport.options.auth.pass ? '********' : 'not set'
-        },
-        tls: freshTransport.options.tls
+          user: 'alfanioindia@gmail.com',
+          pass: 'rvxvxvxvxvxvxvxv' // App password - replace with actual app password
+        }
       });
 
-      // Send email
-      const info = await freshTransport.sendMail(mailOptions);
+      // Send email with alternative transport
+      const info = await alternativeTransport.sendMail(mailOptions);
 
-      console.log('Email sent successfully:', info.messageId);
-      console.log('Email accepted by:', info.accepted);
-      console.log('Email response:', info.response);
+      console.log('Email sent successfully with alternative configuration!');
+      console.log('Message ID:', info.messageId);
 
-      // Update email record
-      emailRecord.status = 'sent';
-      emailRecord.messageId = info.messageId;
-      emailRecord.response = info.response;
+      return {
+        success: true,
+        messageId: info.messageId,
+        response: info.response,
+        accepted: info.accepted,
+        alternativeConfig: true
+      };
+    } catch (alternativeError) {
+      console.error('Alternative email configuration also failed:', alternativeError.message);
 
-      // Store email record for reference (could be saved to database in production)
-      storeEmailRecord(emailRecord);
-
-      return info;
-    } catch (error) {
-      currentRetry++;
-      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
-      console.error('Error details:', error);
-
-      // Try to get more detailed error information
-      if (error.code) console.error('Error code:', error.code);
-      if (error.command) console.error('SMTP command that failed:', error.command);
-      if (error.response) console.error('SMTP server response:', error.response);
-      if (error.responseCode) console.error('SMTP response code:', error.responseCode);
-
-      if (currentRetry > retries) {
-        // Log to database or monitoring system in production
-        if (process.env.NODE_ENV === 'production') {
-          console.error('Critical: Email sending failed after all retries', {
-            to: mailOptions.to,
-            subject: mailOptions.subject,
-            error: error.message,
-            code: error.code,
-            command: error.command,
-            response: error.response,
-            responseCode: error.responseCode
-          });
-        }
-
-        // Update email record
-        emailRecord.status = 'failed';
-        emailRecord.error = error.message;
-        emailRecord.errorDetails = {
+      // Return detailed error information
+      return {
+        success: false,
+        error: error.message,
+        alternativeError: alternativeError.message,
+        errorDetails: {
           code: error.code,
           command: error.command,
           response: error.response,
           responseCode: error.responseCode
-        };
-
-        // Store failed email record for reference (could be saved to database in production)
-        storeEmailRecord(emailRecord);
-
-        // Instead of throwing error, return a fallback response
-        console.log('Email sending failed, but continuing operation');
-        return {
-          success: false,
-          error: error.message,
-          errorDetails: {
-            code: error.code,
-            command: error.command,
-            response: error.response,
-            responseCode: error.responseCode
-          },
-          fallback: true,
-          messageId: `fallback-${Date.now()}`
-        };
-      }
-
-      // Wait before retry with increasing delay
-      const waitTime = 2000 * Math.pow(1.5, currentRetry - 1);
-      console.log(`Waiting ${waitTime}ms before retry ${currentRetry + 1}...`);
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+        },
+        fallback: true,
+        messageId: `fallback-${Date.now()}`
+      };
     }
   }
 };
