@@ -144,6 +144,7 @@ const ContactForm = ({
 
       // TEMPORARY FIX: Skip actual API call and show success message
       // This is a temporary solution until backend issues are resolved
+      console.log("Using temporary solution without API call");
 
       // Simulate a delay to make it feel like it's processing
       await new Promise((resolve) => setTimeout(resolve, 1000));
