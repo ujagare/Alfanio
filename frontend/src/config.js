@@ -1,5 +1,5 @@
 // API Configuration
-export const API_URL = 'https://alfanio-backend.onrender.com';
+export const API_URL = import.meta.env.VITE_API_URL || 'https://alfanio-backend.onrender.com';
 export const BROCHURE_URL = import.meta.env.VITE_BROCHURE_URL || '/api/contact/brochure';
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
 

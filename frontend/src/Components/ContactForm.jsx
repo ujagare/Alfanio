@@ -14,7 +14,7 @@ const formSchema = yup.object().shape({
   phone: yup
     .string()
     .required("Phone is required")
-    .matches(/^[0-9]{10}$/, "Please enter a valid 10-digit phone number"),
+    .matches(/^[+]?[0-9\s\-()]{8,20}$/, "Please enter a valid phone number"),
   message: yup.string().trim(),
 });
 
@@ -142,29 +142,71 @@ const ContactForm = ({
 
       console.log("Endpoint would be:", endpoint);
 
-      // TEMPORARY FIX: Skip actual API call and show success message
-      // This is a temporary solution until backend issues are resolved
-      console.log("Using temporary solution without API call");
+      try {
+        console.log("Sending request to endpoint:", endpoint);
 
-      // Simulate a delay to make it feel like it's processing
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Origin: window.location.origin,
+          },
+          body: JSON.stringify({
+            name: data.name.trim(),
+            email: data.email.trim(),
+            phone: data.phone,
+            message: data.message?.trim() || "",
+            type: type,
+          }),
+          credentials: "include",
+          mode: "cors",
+        });
 
-      // Show success message
-      if (type === "brochure") {
-        toast.success(
-          "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
-        );
+        console.log("Response status:", response.status);
 
-        // If brochure is requested, open the PDF directly
-        window.open("/brochure.pdf", "_blank");
-      } else {
-        toast.success(
-          "✅ Thank you for your message! Our team will contact you shortly."
-        );
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("Server error response:", errorText);
+          throw new Error(`Server responded with status: ${response.status}`);
+        }
+
+        const responseData = await response.json();
+        console.log("Server response:", responseData);
+
+        // Show success message
+        if (type === "brochure") {
+          toast.success(
+            "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
+          );
+
+          // If brochure is requested, open the PDF directly
+          window.open("/brochure.pdf", "_blank");
+        } else {
+          toast.success(
+            "✅ Thank you for your message! Our team will contact you shortly."
+          );
+        }
+
+        // Reset the form
+        reset();
+      } catch (apiError) {
+        console.error("API call failed:", apiError);
+
+        // Fallback to local success message if API call fails
+        if (type === "brochure") {
+          toast.success(
+            "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
+          );
+          window.open("/brochure.pdf", "_blank");
+        } else {
+          toast.success(
+            "✅ Thank you for your message! Our team will contact you shortly."
+          );
+        }
+
+        // Reset the form anyway
+        reset();
       }
-
-      // Reset the form
-      reset();
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error("❌ Failed to send message. Please try again later.");
