@@ -93,41 +93,12 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Super simple CORS configuration - allow all origins
-app.use(cors({
-  origin: '*',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control', 'X-CSRF-Token'],
-  exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length', 'X-Request-ID'],
-  maxAge: 86400 // 24 hours
-}));
+// Use enhanced CORS configuration from middleware
+const setupCors = require('./middleware/cors');
+setupCors(app);
 
-// Handle preflight requests for all routes
-app.options('*', (req, res) => {
-  // Always allow all origins
-  res.header('Access-Control-Allow-Origin', '*');
-
-  // Set other CORS headers
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Max-Age', '86400'); // 24 hours
-
-  // Respond with 204 No Content
-  res.status(204).end();
-});
-
-// Add custom CORS headers to all responses
-app.use((req, res, next) => {
-  // Always allow all origins
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
-  res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length, X-Request-ID');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  next();
-});
+// Log that CORS has been configured
+console.log('CORS middleware configured');
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Configure cookie parser with secure defaults
@@ -803,252 +774,74 @@ brochureRequestSchema.path('phone').validate(function(v) {
 
 const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
 
-// Enhanced email configuration for production readiness
-const createMailTransport = () => {
-  // Determine if we're in production
-  const isProduction = process.env.NODE_ENV === 'production';
+// Use the enhanced email service
+const emailService = require('./services/emailService');
 
-  // Log email configuration status
-  console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
-
-  // Email configuration with hardcoded values for Gmail
-  const emailHost = 'smtp.gmail.com';
-  const emailPort = 465; // Using 465 for SSL
-  const emailSecure = true; // Using SSL for more reliable connection
-  const emailUser = process.env.EMAIL_USER || 'alfanioindia@gmail.com';
-  const emailPass = process.env.EMAIL_PASS || 'yftofapopqvydrqa'; // App password for Gmail
-
-  console.log(`Email configuration: Host=${emailHost}, Port=${emailPort}, Secure=${emailSecure}, User=${emailUser}`);
-
-  // Set up email transport configuration
-  const transportConfig = {
-    host: emailHost,
-    port: emailPort,
-    secure: emailSecure,
-    auth: {
-      user: emailUser,
-      pass: emailPass
-    }
-  };
-
-  // For Gmail, add SSL configuration
-  if (emailHost.includes('gmail.com')) {
-    console.log('Using SSL configuration for Gmail');
-    transportConfig.tls = {
-      rejectUnauthorized: false // Allow self-signed certificates
-    };
-  }
-
-  // Add production-specific settings
-  if (isProduction) {
-    // Add connection pool for better performance in production
-    transportConfig.pool = true;
-    transportConfig.maxConnections = 5;
-    transportConfig.maxMessages = 100;
-
-    // Set timeouts
-    transportConfig.connectionTimeout = 30000; // 30 seconds (increased)
-    transportConfig.greetingTimeout = 30000; // 30 seconds (increased)
-    transportConfig.socketTimeout = 60000; // 60 seconds (increased)
-
-    // Check if credentials are properly set
-    if (!emailUser || !emailPass) {
-      console.warn('Email credentials not fully configured. Check environment variables.');
-    }
-
-    // Log successful configuration
-    console.log('Email transport configured for production with enhanced settings');
-  } else {
-    // Development-specific settings
-    console.log('Email transport configured for development environment');
-  }
-
-  // Create and return the transport
+// Initialize email service
+(async () => {
   try {
-    const transport = nodemailer.createTransport(transportConfig);
-    console.log('Email transport created successfully');
-
-    // Log detailed configuration for debugging (without password)
-    const debugConfig = { ...transportConfig };
-    if (debugConfig.auth) {
-      debugConfig.auth = { ...debugConfig.auth, pass: '********' };
-    }
-    console.log('Transport configuration:', JSON.stringify(debugConfig, null, 2));
-
-    return transport;
+    await emailService.initialize();
+    console.log('Email service initialized successfully');
   } catch (error) {
-    console.error('Failed to create email transport:', error.message);
-    // Return a dummy transport in development to prevent crashes
-    if (!isProduction) {
-      console.warn('Using dummy email transport for development');
-      return {
-        sendMail: (options) => {
-          console.log('DUMMY EMAIL TRANSPORT:', options);
-          return Promise.resolve({ messageId: 'dummy-id-' + Date.now() });
-        },
-        verify: () => Promise.resolve(true)
-      };
+    console.error('Failed to initialize email service:', error);
+  }
+})();
+
+// Simplified email sending function that uses the email service
+const sendEmail = async (mailOptions) => {
+  try {
+    // Skip email sending if configured
+    if (process.env.SKIP_EMAIL_SENDING === 'true') {
+      console.log('Skipping email sending as configured by SKIP_EMAIL_SENDING');
+      console.log('Email would have been sent to:', mailOptions.to);
+      console.log('Subject:', mailOptions.subject);
+      return { messageId: 'dummy-id-' + Date.now(), skipped: true };
     }
-    throw error;
-  }
-};
 
-// Create mail transport
-const mailTransport = createMailTransport();
-
-// Verify email transport with retry logic
-const verifyEmailTransport = async (retries = 3, delay = 3000) => {
-  // Skip email verification if explicitly configured or in development
-  if (process.env.SKIP_EMAIL_VERIFICATION === 'true') {
-    console.log('Skipping email verification as configured by SKIP_EMAIL_VERIFICATION');
-    return true;
-  }
-
-  let currentRetry = 0;
-
-  while (currentRetry < retries) {
-    try {
-      await mailTransport.verify();
-      console.log('Email server is ready');
-      return true;
-    } catch (error) {
-      currentRetry++;
-      console.error(`Email verification failed (attempt ${currentRetry}/${retries}):`, error.message);
-
-      if (currentRetry >= retries) {
-        console.error('Maximum email verification retries reached.');
-        console.log('Continuing despite email verification failure. Emails may not send correctly.');
-        // Return true anyway to allow the server to continue
-        return true;
-      }
-
-      // Wait before next retry
-      console.log(`Waiting ${delay}ms before next email verification attempt...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-
-  return true; // Always return true to allow server to continue
-};
-
-// Start email verification
-verifyEmailTransport();
-
-// Enhanced email sending function with retry and fallback
-const sendEmail = async (mailOptions, retries = 2) => {
-  // Skip email sending if configured
-  if (process.env.SKIP_EMAIL_SENDING === 'true') {
-    console.log('Skipping email sending as configured by SKIP_EMAIL_SENDING');
-    console.log('Email would have been sent to:', mailOptions.to);
-    console.log('Subject:', mailOptions.subject);
-    return { messageId: 'dummy-id-' + Date.now(), skipped: true };
-  }
-
-  console.log('Starting email sending process with options:', {
-    to: mailOptions.to,
-    subject: mailOptions.subject,
-    hasHtml: !!mailOptions.html,
-    hasText: !!mailOptions.text
-  });
-
-  let currentRetry = 0;
-
-  // Add default email template styling
-  const defaultStyle = `
-    <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-      h2 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-      .footer { margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-    </style>
-  `;
-
-  // Add company info to all emails
-  const companyInfo = `
-    <div class="footer">
-      <p>Alfanio LTD</p>
-      <p>This is an automated message, please do not reply directly to this email.</p>
-    </div>
-  `;
-
-  // Wrap HTML content with styling
-  if (mailOptions.html) {
-    mailOptions.html = `
-      <html>
-        <head>${defaultStyle}</head>
-        <body>
-          <div class="container">
-            ${mailOptions.html}
-            ${companyInfo}
-          </div>
-        </body>
-      </html>
+    // Add default email template styling
+    const defaultStyle = `
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        h2 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .footer { margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+      </style>
     `;
-  }
 
-  while (currentRetry <= retries) {
-    try {
-      // Log detailed information before sending
-      console.log('Attempting to send email:');
-      console.log('- To:', mailOptions.to);
-      console.log('- Subject:', mailOptions.subject);
-      console.log('- Using transport:', mailTransport.transporter?.options?.host || 'unknown host');
+    // Add company info to all emails
+    const companyInfo = `
+      <div class="footer">
+        <p>Alfanio LTD</p>
+        <p>This is an automated message, please do not reply directly to this email.</p>
+      </div>
+    `;
 
-      // Use from address from environment variables
-      const emailOptions = {
-        ...mailOptions,
-        from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
-      };
-
-      // Add additional logging before sending
-      console.log('Email options:', {
-        ...emailOptions,
-        auth: emailOptions.auth ? { user: emailOptions.auth.user, pass: '********' } : undefined
-      });
-
-      // Send the email
-      const info = await mailTransport.sendMail(emailOptions);
-
-      console.log('Email sent successfully!');
-      console.log('- Message ID:', info.messageId);
-      console.log('- Response:', info.response);
-      return info;
-    } catch (error) {
-      currentRetry++;
-      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`);
-      console.error('- Error name:', error.name);
-      console.error('- Error message:', error.message);
-      console.error('- Error code:', error.code || 'N/A');
-
-      // Log stack trace in development
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('- Stack trace:', error.stack);
-      }
-
-      if (currentRetry > retries) {
-        // Log to database or monitoring system in production
-        if (process.env.NODE_ENV === 'production') {
-          console.error('Critical: Email sending failed after all retries', {
-            to: mailOptions.to,
-            subject: mailOptions.subject,
-            error: error.message
-          });
-        }
-
-        // Instead of throwing error, return a dummy response
-        console.log('Continuing despite email sending failure');
-        return {
-          messageId: 'error-' + Date.now(),
-          error: error.message,
-          failed: true
-        };
-      }
-
-      // Wait before retry with increasing delay
-      const delay = 2000 * Math.pow(1.5, currentRetry - 1);
-      console.log(`Waiting ${delay}ms before next attempt...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+    // Wrap HTML content with styling if it exists
+    if (mailOptions.html) {
+      mailOptions.html = `
+        <html>
+          <head>${defaultStyle}</head>
+          <body>
+            <div class="container">
+              ${mailOptions.html}
+              ${companyInfo}
+            </div>
+          </body>
+        </html>
+      `;
     }
+
+    // Send email using the email service
+    const result = await emailService.sendEmail(mailOptions);
+
+    return result;
+  } catch (error) {
+    console.error('Error in sendEmail wrapper:', error);
+    return {
+      messageId: 'error-' + Date.now(),
+      error: error.message,
+      failed: true
+    };
   }
 };
 
@@ -1059,7 +852,7 @@ app.get('/api/health', (req, res) => {
     message: 'OK',
     timestamp: Date.now(),
     mongoConnection: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    emailService: mailTransport !== null ? 'connected' : 'disconnected'
+    emailService: emailService.isInitialized ? 'connected' : 'disconnected'
   };
 
   try {

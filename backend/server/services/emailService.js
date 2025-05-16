@@ -12,11 +12,11 @@ const emailLogger = winston.createLogger({
     winston.format.json()
   ),
   transports: [
-    new winston.transports.File({ 
+    new winston.transports.File({
       filename: path.join('logs', 'email-errors.log'),
       level: 'error'
     }),
-    new winston.transports.File({ 
+    new winston.transports.File({
       filename: path.join('logs', 'email-service.log')
     })
   ]
@@ -44,27 +44,33 @@ class EmailService {
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
-        port: 587,
+        port: 465,
         secure: true,
         auth: {
-          user: process.env.EMAIL_USER,
-          pass: process.env.EMAIL_PASS
+          user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
+          pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa'
         },
+        tls: {
+          rejectUnauthorized: false // Allow self-signed certificates
+        },
+        connectionTimeout: 30000, // 30 seconds
+        greetingTimeout: 30000,
+        socketTimeout: 60000,
         pool: true,
         maxConnections: 5,
         maxMessages: 100,
-        debug: true,
-        logger: true
+        debug: process.env.NODE_ENV !== 'production',
+        logger: process.env.NODE_ENV !== 'production'
       });
 
       await this.transporter.verify();
       this.isInitialized = true;
       emailLogger.info('Email service initialized successfully');
-      
+
       // Start health checks and retry mechanism
       this.startHealthCheck();
       this.startRetryMechanism();
-      
+
       return true;
     } catch (error) {
       emailLogger.error('Failed to initialize email service:', error);
@@ -84,27 +90,51 @@ class EmailService {
 
       emailLogger.info('Attempting to send email:', { to: emailData.to, subject: emailData.subject });
 
+      // Generate a unique message ID for tracking
+      const messageId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+
       const mailOptions = {
         from: {
-          name: process.env.EMAIL_FROM_NAME || 'Alfanio Website Contact',
-          address: process.env.EMAIL_USER
+          name: process.env.EMAIL_FROM_NAME || 'Alfanio India',
+          address: process.env.EMAIL_USER || 'alfanioindia@gmail.com'
         },
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,
-        text: emailData.text
+        text: emailData.text,
+        messageId: messageId
       };
 
+      // Log detailed information before sending
+      emailLogger.info('Email options:', {
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        from: mailOptions.from,
+        messageId: messageId
+      });
+
+      // Try to send the email
       const result = await this.transporter.sendMail(mailOptions);
-      emailLogger.info('Email sent successfully:', result.messageId);
+
+      emailLogger.info('Email sent successfully:', {
+        messageId: result.messageId,
+        response: result.response
+      });
+
       return { success: true, messageId: result.messageId };
     } catch (error) {
       emailLogger.error('Failed to send email:', error);
-      // Add to retry queue
-      if (emailData.messageId) {
-        this.addToRetryQueue(emailData.messageId, emailData);
-      }
-      return { success: false, error: error.message };
+
+      // Add to retry queue with generated message ID if not provided
+      const messageId = emailData.messageId || `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+      this.addToRetryQueue(messageId, emailData);
+
+      return {
+        success: false,
+        error: error.message,
+        queued: true,
+        messageId: messageId
+      };
     }
   }
 
@@ -141,7 +171,7 @@ class EmailService {
 
       for (let i = this.retryQueue.length - 1; i >= 0; i--) {
         const item = this.retryQueue[i];
-        
+
         if (now >= item.nextRetry) {
           if (item.attempts >= maxRetries) {
             // Log permanent failure
