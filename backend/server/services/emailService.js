@@ -46,6 +46,16 @@ class EmailService {
 
   async initialize() {
     try {
+      // Log email configuration for debugging
+      emailLogger.info('Email configuration:', {
+        EMAIL_USER: process.env.EMAIL_USER || 'Not set',
+        EMAIL_SERVICE: process.env.EMAIL_SERVICE || 'Not set',
+        EMAIL_HOST: process.env.EMAIL_HOST || 'Not set',
+        EMAIL_PORT: process.env.EMAIL_PORT || 'Not set',
+        EMAIL_SECURE: process.env.EMAIL_SECURE || 'Not set',
+        EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'Not set'
+      });
+
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
@@ -64,8 +74,8 @@ class EmailService {
         pool: true,
         maxConnections: 5,
         maxMessages: 100,
-        debug: process.env.NODE_ENV !== 'production',
-        logger: process.env.NODE_ENV !== 'production'
+        debug: true, // Always enable debug for troubleshooting
+        logger: true  // Always enable logger for troubleshooting
       });
 
       await this.transporter.verify();
@@ -98,6 +108,54 @@ class EmailService {
       // Generate a unique message ID for tracking
       const messageId = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
 
+      // Add attachments if specified
+      let attachments = [];
+      if (emailData.attachments) {
+        attachments = emailData.attachments;
+      }
+
+      // For brochure requests, try to attach the brochure
+      if (emailData.subject && emailData.subject.includes('Brochure')) {
+        try {
+          // Try multiple locations for the brochure file
+          const fs = await import('fs');
+          const path = await import('path');
+          const __dirname = path.dirname(new URL(import.meta.url).pathname);
+
+          const possiblePaths = [
+            path.join(__dirname, '../../assets/brochure.pdf'),
+            path.join(__dirname, '../../assets/Alfanio.pdf'),
+            path.join(__dirname, '../../../public/brochure.pdf'),
+            path.join(__dirname, '../../../frontend/public/brochure.pdf')
+          ];
+
+          // Find the first existing file
+          let brochurePath = null;
+          for (const p of possiblePaths) {
+            try {
+              if (fs.existsSync(p)) {
+                brochurePath = p;
+                break;
+              }
+            } catch (err) {
+              emailLogger.warn(`Error checking path ${p}:`, err);
+            }
+          }
+
+          if (brochurePath) {
+            emailLogger.info(`Found brochure at: ${brochurePath}`);
+            attachments.push({
+              filename: 'Alfanio-Brochure.pdf',
+              path: brochurePath
+            });
+          } else {
+            emailLogger.warn('Brochure file not found in any location');
+          }
+        } catch (attachError) {
+          emailLogger.error('Error attaching brochure:', attachError);
+        }
+      }
+
       const mailOptions = {
         from: {
           name: process.env.EMAIL_FROM_NAME || 'Alfanio India',
@@ -107,7 +165,8 @@ class EmailService {
         subject: emailData.subject,
         html: emailData.html,
         text: emailData.text,
-        messageId: messageId
+        messageId: messageId,
+        attachments: attachments
       };
 
       // Log detailed information before sending
@@ -115,7 +174,8 @@ class EmailService {
         to: mailOptions.to,
         subject: mailOptions.subject,
         from: mailOptions.from,
-        messageId: messageId
+        messageId: messageId,
+        hasAttachments: attachments.length > 0
       });
 
       // Try to send the email
