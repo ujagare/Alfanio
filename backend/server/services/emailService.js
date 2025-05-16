@@ -56,14 +56,23 @@ class EmailService {
         EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME || 'Not set'
       });
 
+      // Hard-code credentials for now to ensure they work in production
+      const emailUser = 'alfanioindia@gmail.com';
+      const emailPass = 'yftofapopqvydrqa';
+
+      emailLogger.info('Using email credentials:', {
+        user: emailUser,
+        pass: emailPass ? '******' : 'Not set'
+      });
+
       this.transporter = nodemailer.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
         port: 465,
         secure: true,
         auth: {
-          user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-          pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa'
+          user: emailUser,
+          pass: emailPass
         },
         tls: {
           rejectUnauthorized: false // Allow self-signed certificates
@@ -120,21 +129,38 @@ class EmailService {
           // Try multiple locations for the brochure file
           const fs = await import('fs');
           const path = await import('path');
-          const __dirname = path.dirname(new URL(import.meta.url).pathname);
+          const { fileURLToPath } = await import('url');
 
+          // Get the current file's path
+          const __filename = fileURLToPath(import.meta.url);
+          const __dirname = path.dirname(__filename);
+
+          emailLogger.info('Current directory:', { __dirname });
+
+          // Define possible paths for the brochure file
           const possiblePaths = [
             path.join(__dirname, '../../assets/brochure.pdf'),
             path.join(__dirname, '../../assets/Alfanio.pdf'),
             path.join(__dirname, '../../../public/brochure.pdf'),
-            path.join(__dirname, '../../../frontend/public/brochure.pdf')
+            path.join(__dirname, '../../../frontend/public/brochure.pdf'),
+            // Add more paths that might exist on the server
+            '/var/www/Alfanio/backend/assets/brochure.pdf',
+            '/var/www/Alfanio/backend/assets/Alfanio.pdf',
+            '/opt/render/project/src/backend/assets/brochure.pdf',
+            '/opt/render/project/src/backend/assets/Alfanio.pdf'
           ];
+
+          // Log all paths we're checking
+          emailLogger.info('Checking brochure paths:', { paths: possiblePaths });
 
           // Find the first existing file
           let brochurePath = null;
           for (const p of possiblePaths) {
             try {
+              emailLogger.info(`Checking path: ${p}`);
               if (fs.existsSync(p)) {
                 brochurePath = p;
+                emailLogger.info(`Found brochure at: ${p}`);
                 break;
               }
             } catch (err) {
@@ -143,23 +169,28 @@ class EmailService {
           }
 
           if (brochurePath) {
-            emailLogger.info(`Found brochure at: ${brochurePath}`);
+            emailLogger.info(`Using brochure at: ${brochurePath}`);
             attachments.push({
               filename: 'Alfanio-Brochure.pdf',
               path: brochurePath
             });
           } else {
-            emailLogger.warn('Brochure file not found in any location');
+            // If no file found, use a URL instead
+            emailLogger.warn('Brochure file not found in any location, using URL instead');
+            emailData.html += `<p>You can download our brochure from <a href="https://alfanio.onrender.com/brochure.pdf">here</a>.</p>`;
           }
         } catch (attachError) {
           emailLogger.error('Error attaching brochure:', attachError);
+          // Add a download link as fallback
+          emailData.html += `<p>You can download our brochure from <a href="https://alfanio.onrender.com/brochure.pdf">here</a>.</p>`;
         }
       }
 
+      // Hard-code sender information to ensure consistency
       const mailOptions = {
         from: {
-          name: process.env.EMAIL_FROM_NAME || 'Alfanio India',
-          address: process.env.EMAIL_USER || 'alfanioindia@gmail.com'
+          name: 'Alfanio India',
+          address: 'alfanioindia@gmail.com'
         },
         to: emailData.to,
         subject: emailData.subject,
