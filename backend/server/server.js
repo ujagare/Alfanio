@@ -702,10 +702,24 @@ const sendEmail = async (mailOptions, retries = 2) => {
     `;
   }
 
+  // Log detailed email attempt for debugging
+  console.log('Attempting to send email with the following configuration:');
+  console.log('- To:', mailOptions.to);
+  console.log('- Subject:', mailOptions.subject);
+  console.log('- From:', `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`);
+  console.log('- Transport config:', {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: process.env.EMAIL_SECURE === 'true',
+  });
+
   while (currentRetry <= retries) {
     try {
+      // Create a new transport for each attempt to avoid stale connections
+      const freshTransport = createMailTransport();
+
       // Use from address from environment variables
-      const info = await mailTransport.sendMail({
+      const info = await freshTransport.sendMail({
         ...mailOptions,
         from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
       });
@@ -715,6 +729,7 @@ const sendEmail = async (mailOptions, retries = 2) => {
     } catch (error) {
       currentRetry++;
       console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
+      console.error('Error details:', error);
 
       if (currentRetry > retries) {
         // Log to database or monitoring system in production
@@ -737,6 +752,7 @@ const sendEmail = async (mailOptions, retries = 2) => {
       }
 
       // Wait before retry
+      console.log(`Waiting 2000ms before retry ${currentRetry + 1}...`);
       await new Promise(resolve => setTimeout(resolve, 2000));
     }
   }
