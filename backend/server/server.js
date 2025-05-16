@@ -13,6 +13,7 @@ import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import mime from 'mime-types';
+import { sendEmail, verifyEmailTransport, initEmailService } from './emailService.js';
 
 dotenv.config();
 
@@ -615,148 +616,11 @@ const createMailTransport = () => {
 // Create mail transport
 const mailTransport = createMailTransport();
 
-// Verify email transport with retry logic
-const verifyEmailTransport = async (retries = 3, delay = 3000) => {
-  let currentRetry = 0;
-
-  while (currentRetry < retries) {
-    try {
-      await mailTransport.verify();
-      console.log('Email server is ready');
-      return true;
-    } catch (error) {
-      currentRetry++;
-      console.error(`Email verification failed (attempt ${currentRetry}/${retries}):`, error.message);
-
-      if (currentRetry >= retries) {
-        console.error('Maximum email verification retries reached.');
-        console.log('Continuing server operation despite email verification failure.');
-
-        // Log detailed error information for debugging
-        console.log('Email configuration:', {
-          host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.EMAIL_PORT || '587'),
-          secure: process.env.EMAIL_SECURE === 'false',
-          user: process.env.EMAIL_USER || 'alfanioindia@gmail.com'
-        });
-
-        // Log additional troubleshooting information
-        console.log('Email troubleshooting tips:');
-        console.log('1. Check if the Gmail account has "Less secure app access" enabled');
-        console.log('2. If using 2FA, make sure to use an App Password instead of regular password');
-        console.log('3. Check if there are any network restrictions blocking SMTP connections');
-        console.log('4. Try sending a test email directly to verify credentials');
-
-        return false;
-      }
-
-      // Wait before next retry
-      console.log(`Waiting ${delay}ms before next email verification attempt...`);
-      await new Promise(resolve => setTimeout(resolve, delay));
-    }
-  }
-
-  return false;
-};
-
 // Start email verification but don't wait for it
 verifyEmailTransport().catch(err => {
   console.error('Email verification process error:', err);
   console.log('Server will continue running despite email verification issues.');
 });
-
-// Enhanced email sending function with retry and fallback
-const sendEmail = async (mailOptions, retries = 2) => {
-  let currentRetry = 0;
-
-  // Add default email template styling
-  const defaultStyle = `
-    <style>
-      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-      h2 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-      .footer { margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-    </style>
-  `;
-
-  // Add company info to all emails
-  const companyInfo = `
-    <div class="footer">
-      <p>Alfanio LTD</p>
-      <p>This is an automated message, please do not reply directly to this email.</p>
-    </div>
-  `;
-
-  // Wrap HTML content with styling
-  if (mailOptions.html) {
-    mailOptions.html = `
-      <html>
-        <head>${defaultStyle}</head>
-        <body>
-          <div class="container">
-            ${mailOptions.html}
-            ${companyInfo}
-          </div>
-        </body>
-      </html>
-    `;
-  }
-
-  // Log detailed email attempt for debugging
-  console.log('Attempting to send email with the following configuration:');
-  console.log('- To:', mailOptions.to);
-  console.log('- Subject:', mailOptions.subject);
-  console.log('- From:', `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`);
-  console.log('- Transport config:', {
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587'),
-    secure: process.env.EMAIL_SECURE === 'true',
-  });
-
-  while (currentRetry <= retries) {
-    try {
-      // Create a new transport for each attempt to avoid stale connections
-      const freshTransport = createMailTransport();
-
-      // Use from address from environment variables
-      const info = await freshTransport.sendMail({
-        ...mailOptions,
-        from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
-      });
-
-      console.log('Email sent successfully:', info.messageId);
-      return info;
-    } catch (error) {
-      currentRetry++;
-      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
-      console.error('Error details:', error);
-
-      if (currentRetry > retries) {
-        // Log to database or monitoring system in production
-        if (process.env.NODE_ENV === 'production') {
-          console.error('Critical: Email sending failed after all retries', {
-            to: mailOptions.to,
-            subject: mailOptions.subject,
-            error: error.message
-          });
-        }
-
-        // Instead of throwing error, return a fallback response
-        console.log('Email sending failed, but continuing operation');
-        return {
-          success: false,
-          error: error.message,
-          fallback: true,
-          messageId: `fallback-${Date.now()}`
-        };
-      }
-
-      // Wait before retry
-      console.log(`Waiting 2000ms before retry ${currentRetry + 1}...`);
-      await new Promise(resolve => setTimeout(resolve, 2000));
-    }
-  }
-};
 
 // API routes
 app.get('/api/health', (req, res) => {
