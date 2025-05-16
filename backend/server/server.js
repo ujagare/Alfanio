@@ -12,7 +12,7 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
-import mime from 'mime';
+import mime from 'mime-types';
 
 dotenv.config();
 
@@ -269,8 +269,7 @@ app.use('/manifest.json', (req, res) => {
 });
 
 // Configure proper MIME types with enhanced handling for JavaScript modules
-// Add JSX to the list of extensions for JavaScript
-mime.define('application/javascript', ['js', 'mjs', 'jsx']);
+// We're using mime-types instead of mime
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -363,7 +362,7 @@ app.use((req, res, next) => {
     const ext = path.extname(filePath).toLowerCase();
     let contentType = 'application/octet-stream'; // Default content type
 
-    // Use mime package to get the correct MIME type
+    // Use mime-types package to get the correct MIME type
     contentType = mime.lookup(ext.substring(1)) || contentType;
 
     // Special handling for JavaScript files
@@ -418,7 +417,7 @@ app.use(express.static(path.join(__dirname, '../dist'), {
     // This is a fallback, most files should be handled by the custom middleware above
     const ext = path.extname(filePath).toLowerCase();
 
-    // Use mime package to get the correct MIME type
+    // Use mime-types package to get the correct MIME type
     let contentType = mime.lookup(ext.substring(1)) || 'application/octet-stream';
 
     // Special handling for JavaScript files
