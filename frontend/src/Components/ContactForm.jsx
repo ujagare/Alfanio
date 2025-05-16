@@ -177,8 +177,8 @@ const ContactForm = ({
             "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
           );
 
-          // If brochure is requested, open the PDF directly
-          window.open("/brochure.pdf", "_blank");
+          // If brochure is requested, open the PDF from API
+          window.open(API_ENDPOINTS.brochureDownload, "_blank");
         } else {
           toast.success(
             "✅ Thank you for your message! Our team will contact you shortly."
