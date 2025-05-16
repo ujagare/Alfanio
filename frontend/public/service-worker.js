@@ -152,6 +152,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip POST requests - they cannot be cached
+  if (event.request.method !== 'GET') {
+    return;
+  }
+
   // Handle API requests - always go to network for API requests
   if (event.request.url.includes('/api/')) {
     // For API requests, don't use service worker caching
@@ -258,10 +263,16 @@ self.addEventListener('fetch', (event) => {
     fetch(event.request)
       .then(response => {
         // Cache successful responses
-        if (response.status === 200) {
+        if (response.status === 200 && event.request.method === 'GET') {
           const responseToCache = response.clone();
           caches.open(STATIC_CACHE)
-            .then(cache => cache.put(event.request, responseToCache));
+            .then(cache => {
+              try {
+                cache.put(event.request, responseToCache);
+              } catch (error) {
+                console.error('Failed to cache response:', error);
+              }
+            });
         }
         return response;
       })
