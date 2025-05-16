@@ -12,13 +12,15 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
-import mime from 'mime-types'; // Add mime-types package
+import mime from 'mime';
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
 const app = express();
+
 // Set trust proxy to fix express-rate-limit warning
 app.set('trust proxy', 1);
 
@@ -93,12 +95,27 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Use simple CORS configuration
-import setupSimpleCors from './middleware/simpleCors.js';
-setupSimpleCors(app);
+// Allow all origins for development and testing
+app.use(cors({
+  origin: '*', // Allow all origins
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['*'], // Allow all headers
+  exposedHeaders: ['*'], // Expose all headers
+  maxAge: 86400 // 24 hours
+}));
 
-// Log that CORS has been configured
-console.log('Simple CORS middleware configured');
+// Handle preflight requests for all routes
+app.options('*', cors());
+
+// Add custom CORS headers to all responses
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
+  res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length');
+  next();
+});
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Configure cookie parser with secure defaults
@@ -124,74 +141,37 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSRF protection - enhanced for production
+// CSRF protection - enabled for production only
 const csrfProtection = (req, res, next) => {
   // In production, implement proper CSRF protection
   if (process.env.NODE_ENV === 'production') {
-    // Check for CSRF token in headers or cookies
-    const csrfToken = req.headers['x-csrf-token'] || (req.cookies && req.cookies['_csrf']);
+    // Check for CSRF token in headers
+    const csrfToken = req.headers['x-csrf-token'];
 
-    // Get the request origin
-    const origin = req.headers.origin || req.headers.referer;
-
-    // Check if the request is coming from our allowed origins
-    const allowedOrigins = ['https://alfanio.in', 'https://www.alfanio.in', 'https://alfanio.onrender.com', 'https://alfanio-frontend.onrender.com'];
-    const isAllowedOrigin = !origin || allowedOrigins.some(allowed => origin.startsWith(allowed));
-
-    // Skip CSRF check for specific conditions:
-    // 1. If it's a GET request (should be idempotent)
-    // 2. If it's a preflight OPTIONS request
-    if (req.method === 'GET' || req.method === 'OPTIONS') {
-      return next();
-    }
-
-    // Validate the token
+    // Simple validation - in a real app, you'd validate against a stored token
     if (!csrfToken) {
-      console.warn(`CSRF token missing in ${req.method} request to ${req.originalUrl}`);
       return res.status(403).json({
         success: false,
-        message: 'CSRF token missing',
-        code: 'CSRF_TOKEN_MISSING'
-      });
-    }
-
-    // Check if the origin is allowed
-    if (!isAllowedOrigin) {
-      console.warn(`CSRF origin check failed: ${origin} not in allowed list`);
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid request origin',
-        code: 'INVALID_ORIGIN'
+        message: 'CSRF token missing'
       });
     }
 
     // For a more secure implementation, validate the token against a stored value
-    // This is a simplified version that checks if the token is at least properly formatted
-    if (!/^[a-zA-Z0-9_-]{16,64}$/.test(csrfToken)) {
-      console.warn(`CSRF token format invalid: ${csrfToken.substring(0, 10)}...`);
-      return res.status(403).json({
-        success: false,
-        message: 'Invalid CSRF token format',
-        code: 'INVALID_CSRF_TOKEN'
-      });
-    }
-
-    // In a real implementation, you would validate against a stored token
-    // For now, we're just checking format and presence
+    // This is a simplified version for demonstration
   }
 
   // Always allow in development mode
   next();
 };
 
-// Disable CSRF protection for now to debug CORS issues
-// app.use('/api/contact', csrfProtection);
-// app.use('/api/contact/brochure', csrfProtection);
+// Apply CSRF protection to all POST endpoints
+app.use('/api/contact', csrfProtection);
+app.use('/api/contact/brochure', csrfProtection);
 
-// Rate limiting with production-ready configuration
+// Rate limiting with improved configuration
 const apiLimiter = rateLimit({
-  windowMs: process.env.NODE_ENV === 'production' ? 5 * 60 * 1000 : 15 * 60 * 1000, // 5 minutes in production, 15 in dev
-  max: process.env.NODE_ENV === 'production' ? 60 : 100, // Stricter limits in production
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per windowMs for API endpoints
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
   message: JSON.stringify({
@@ -199,89 +179,27 @@ const apiLimiter = rateLimit({
     code: 'RATE_LIMIT_EXCEEDED'
   }),
   keyGenerator: (req) => {
-    // Use a combination of IP and user agent for better rate limiting
-    const ip = req.ip || req.connection.remoteAddress;
-
-    // In production, use IP only to avoid bypassing rate limits with different user agents
-    if (process.env.NODE_ENV === 'production') {
-      return ip;
-    }
-
-    // In development, use a combination for testing
-    const userAgent = req.headers['user-agent'] || 'unknown';
-    return `${ip}-${userAgent.substring(0, 20)}`;
+    // Use IP address as default
+    return req.ip || req.connection.remoteAddress;
   },
   skip: (req, res) => {
-    // Skip rate limiting for health checks and OPTIONS requests
-    return req.path === '/api/health' || req.method === 'OPTIONS';
-  },
-  // Add handler for when rate limit is exceeded
-  handler: (req, res, next, options) => {
-    console.warn(`Rate limit exceeded: ${req.ip} - ${req.method} ${req.originalUrl}`);
-
-    res.status(429).json({
-      success: false,
-      message: 'Too many requests, please try again later.',
-      code: 'RATE_LIMIT_EXCEEDED',
-      retryAfter: Math.ceil(options.windowMs / 1000)
-    });
-  },
-  // Add draft-7 headers
-  draft_polli_ratelimit_headers: true
-});
-
-// Separate limiter for contact form submissions to prevent spam
-const contactFormLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour
-  max: process.env.NODE_ENV === 'production' ? 5 : 20, // 5 submissions per hour in production
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: JSON.stringify({
-    error: 'Too many form submissions, please try again later.',
-    code: 'FORM_SUBMISSION_LIMIT_EXCEEDED'
-  }),
-  keyGenerator: (req) => {
-    return req.ip || req.connection.remoteAddress;
+    // Skip rate limiting for health checks
+    return req.path === '/api/health';
   }
 });
 
 const staticLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: process.env.NODE_ENV === 'production' ? 200 : 300, // 200 requests per minute in production
+  max: 300, // 300 requests per minute for static assets
   standardHeaders: true,
   legacyHeaders: false,
   keyGenerator: (req) => {
     return req.ip || req.connection.remoteAddress;
-  },
-  skip: (req, res) => {
-    // Skip rate limiting for common static assets in production
-    if (process.env.NODE_ENV === 'production') {
-      const path = req.path.toLowerCase();
-      return path.endsWith('.css') ||
-             path.endsWith('.js') ||
-             path.endsWith('.png') ||
-             path.endsWith('.jpg') ||
-             path.endsWith('.svg') ||
-             path.endsWith('.ico');
-    }
-    return false;
   }
-});
-
-// Health check endpoint for Render
-app.get('/api/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    message: 'Server is running',
-    timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
-  });
 });
 
 // Apply rate limiting
 app.use('/api', apiLimiter); // Stricter limits for API endpoints
-app.use('/api/contact', contactFormLimiter); // Specific limits for contact form
-app.use('/api/contact/brochure', contactFormLimiter); // Specific limits for brochure requests
 app.use(staticLimiter); // More lenient limits for static assets
 
 // We'll implement a simpler response time tracking later
@@ -352,7 +270,7 @@ app.use('/manifest.json', (req, res) => {
 
 // Configure proper MIME types with enhanced handling for JavaScript modules
 // Add JSX to the list of extensions for JavaScript
-// mime.define('application/javascript', ['js', 'mjs', 'jsx']);
+mime.define('application/javascript', ['js', 'mjs', 'jsx']);
 
 const mimeTypes = {
   '.html': 'text/html',
@@ -427,59 +345,26 @@ app.use((req, res, next) => {
     return next();
   }
 
-  // On Render, redirect to frontend service
-  const isRender = process.env.RENDER === 'true' ||
-                  process.env.RENDER_EXTERNAL_URL ||
-                  process.env.RENDER_SERVICE_ID;
-
-  if (isRender) {
-    console.log(`Static file request on Render, redirecting: ${filePath}`);
-    return res.redirect(`https://alfanio.onrender.com${filePath}`);
-  }
-
-  // For local development, continue with static file serving
-  console.log(`Attempting to serve static file: ${filePath}`);
-
   // Handle root path
   if (filePath === '/') {
     filePath = '/index.html';
   }
 
-  // Try multiple possible paths for static files
-  const possiblePaths = [
-    path.join(__dirname, '../dist', filePath),
-    path.join(__dirname, '../../frontend/dist', filePath),
-    path.join(__dirname, '../../../frontend/dist', filePath),
-    path.join(__dirname, '../../../../frontend/dist', filePath)
-  ];
+  // Resolve the full file path
+  const fullPath = path.join(__dirname, '../dist', filePath);
 
-  // Find the first existing file
-  let fullPath = null;
-  for (const p of possiblePaths) {
-    try {
-      const stats = fs.statSync(p);
-      if (stats.isFile()) {
-        fullPath = p;
-        break;
-      }
-    } catch (err) {
-      // File doesn't exist, try next path
+  // Check if the file exists
+  fs.stat(fullPath, (err, stats) => {
+    if (err || !stats.isFile()) {
+      return next(); // File doesn't exist, let Express handle it
     }
-  }
-
-  // Check if any file was found
-  if (!fullPath) {
-    return next(); // No file found, let Express handle it
-  }
-
-  // File exists, serve it with proper MIME type
 
     // Set appropriate MIME type based on file extension
     const ext = path.extname(filePath).toLowerCase();
     let contentType = 'application/octet-stream'; // Default content type
 
-    // Use mime-types package to get the correct MIME type
-    contentType = mime.lookup(ext) || contentType;
+    // Use mime package to get the correct MIME type
+    contentType = mime.lookup(ext.substring(1)) || contentType;
 
     // Special handling for JavaScript files
     if (filePath.endsWith('.js') || filePath.endsWith('.mjs') || filePath.endsWith('.jsx')) {
@@ -522,6 +407,7 @@ app.use((req, res, next) => {
     const stream = fs.createReadStream(fullPath);
     stream.pipe(res);
   });
+});
 
 // Fallback to standard static file serving
 app.use(express.static(path.join(__dirname, '../dist'), {
@@ -532,8 +418,8 @@ app.use(express.static(path.join(__dirname, '../dist'), {
     // This is a fallback, most files should be handled by the custom middleware above
     const ext = path.extname(filePath).toLowerCase();
 
-    // Use mime-types package to get the correct MIME type
-    let contentType = mime.lookup(ext) || 'application/octet-stream';
+    // Use mime package to get the correct MIME type
+    let contentType = mime.lookup(ext.substring(1)) || 'application/octet-stream';
 
     // Special handling for JavaScript files
     if (filePath.endsWith('.js') || filePath.endsWith('.mjs') || filePath.endsWith('.jsx')) {
@@ -570,38 +456,6 @@ app.use(express.static(path.join(__dirname, '../dist'), {
   }
 }));
 
-// API routes are defined elsewhere in this file
-
-// Serve static files from the frontend/dist directory
-app.use(express.static(path.resolve(__dirname, '../../frontend/dist')));
-
-// For any routes that don't match an API route or static file, serve the index.html
-app.get('*', (req, res) => {
-  // Check if the request is for an API endpoint
-  if (req.originalUrl.startsWith('/api')) {
-    // Return 404 for unknown API endpoints
-    return res.status(404).json({
-      success: false,
-      message: 'API endpoint not found'
-    });
-  }
-
-  // On Render, redirect to frontend service
-  const isRender = process.env.RENDER === 'true' ||
-                  process.env.RENDER_EXTERNAL_URL ||
-                  process.env.RENDER_SERVICE_ID;
-
-  if (isRender) {
-    console.log(`Non-API request on Render, redirecting: ${req.originalUrl}`);
-    return res.redirect(`https://alfanio.onrender.com${req.originalUrl}`);
-  }
-
-  // For local development, serve the frontend index.html file
-  // This enables client-side routing
-  console.log(`Serving frontend index.html for: ${req.originalUrl}`);
-  res.sendFile(path.resolve(__dirname, '../../frontend/dist/index.html'));
-});
-
 // MongoDB connection with improved retry logic and production readiness
 const connectWithRetry = async (retries = 5, delay = 5000) => {
   let currentRetry = 0;
@@ -610,13 +464,7 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
   const getMongoURI = () => {
     // For production, use MongoDB Atlas
     if (process.env.NODE_ENV === 'production') {
-      // First check if a complete MONGODB_URI is provided
-      if (process.env.MONGODB_URI && process.env.MONGODB_URI.includes('mongodb+srv://')) {
-        console.log('Using complete MongoDB URI from environment variables');
-        return process.env.MONGODB_URI;
-      }
-
-      // Otherwise, construct from individual components
+      // Make sure to set these environment variables in production
       const username = encodeURIComponent(process.env.MONGO_USERNAME || '');
       const password = encodeURIComponent(process.env.MONGO_PASSWORD || '');
       const cluster = process.env.MONGO_CLUSTER || '';
@@ -627,15 +475,11 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       }
 
       // MongoDB Atlas connection string
-      const uri = `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
-      console.log(`Constructed MongoDB URI: ${uri.replace(password, '********')}`);
-      return uri;
+      return `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
     }
 
     // For development, use local MongoDB or specified URI
-    const devUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/alfanio';
-    console.log(`Using development MongoDB URI: ${devUri.includes('mongodb+srv://') ? devUri.replace(/mongodb\+srv:\/\/.*?@/, 'mongodb+srv://******@') : devUri}`);
-    return devUri;
+    return process.env.MONGODB_URI || 'mongodb://localhost:27017/alfanio';
   };
 
   while (currentRetry < retries) {
@@ -645,25 +489,26 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       const mongoURI = getMongoURI();
       console.log(`Connecting to MongoDB ${process.env.NODE_ENV === 'production' ? 'Atlas' : 'local'} database...`);
 
-      // Connect with no options - this is the most compatible approach
-      console.log('Connecting to MongoDB with no options (most compatible approach)...');
-      await mongoose.connect(mongoURI);
+      // Use modern MongoDB connection options
+      await mongoose.connect(mongoURI, {
+        serverSelectionTimeoutMS: 10000, // 10 seconds timeout
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        // Modern options for better performance and reliability
+        maxPoolSize: 10, // Maintain up to 10 socket connections
+        minPoolSize: 5,  // Maintain at least 5 socket connections
+        retryWrites: true,
+        w: 'majority'    // Write to the primary and wait for acknowledgment from a majority of members
+      });
 
       console.log('MongoDB connected successfully');
 
-      // Add connection event listeners with improved error handling
+      // Add connection event listeners
       mongoose.connection.on('error', (err) => {
         console.error('MongoDB connection error:', err);
-
-        // Handle specific error types
-        if (err.name === 'MongoNetworkError' ||
-            err.name === 'MongoServerSelectionError' ||
-            err.message.includes('topology was destroyed')) {
-          console.log('Attempting to reconnect to MongoDB due to network or server selection error...');
+        if (err.name === 'MongoNetworkError') {
+          console.log('Attempting to reconnect to MongoDB...');
           setTimeout(() => connectWithRetry(retries, delay), delay);
-        } else {
-          // Log other errors but don't automatically reconnect to avoid infinite loops
-          console.error('MongoDB error (not automatically reconnecting):', err.message);
         }
       });
 
@@ -675,54 +520,16 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
       // Add more robust connection monitoring
       mongoose.connection.on('connected', () => {
         console.log('MongoDB connection established');
-
-        // Log connection details in development
-        if (process.env.NODE_ENV !== 'production') {
-          console.log(`Connected to: ${mongoose.connection.host}/${mongoose.connection.name}`);
-        }
       });
 
       mongoose.connection.on('reconnected', () => {
         console.log('MongoDB reconnected successfully');
       });
 
-      // Add graceful shutdown handling
-      process.on('SIGINT', async () => {
-        try {
-          await mongoose.connection.close();
-          console.log('MongoDB connection closed due to application termination');
-          process.exit(0);
-        } catch (err) {
-          console.error('Error during MongoDB connection close:', err);
-          process.exit(1);
-        }
-      });
-
       return;
     } catch (error) {
       currentRetry++;
-
-      // Log detailed error information
-      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`);
-      console.error(`- Error message: ${error.message}`);
-      console.error(`- Error name: ${error.name}`);
-      console.error(`- Error code: ${error.code || 'N/A'}`);
-
-      // Check for specific error types and provide more helpful messages
-      if (error.name === 'MongoParseError') {
-        console.error('This appears to be an issue with the MongoDB connection string format.');
-        console.error('Please check your MONGODB_URI environment variable.');
-      } else if (error.name === 'MongoServerSelectionError') {
-        console.error('Unable to connect to any MongoDB server in the cluster.');
-        console.error('Please check your network connection and MongoDB Atlas status.');
-      } else if (error.message.includes('option') && error.message.includes('not supported')) {
-        console.error('Using an unsupported MongoDB driver option. Please check your connection options.');
-        // Log the specific option that's causing the problem
-        const optionMatch = error.message.match(/option (\w+) is not supported/);
-        if (optionMatch && optionMatch[1]) {
-          console.error(`The problematic option is: ${optionMatch[1]}`);
-        }
-      }
+      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);
 
       if (currentRetry >= retries) {
         console.error('Maximum MongoDB connection retries reached. Exiting retry loop.');
@@ -750,11 +557,6 @@ const contactSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Add phone number validation for international numbers
-contactSchema.path('phone').validate(function(v) {
-  return /^[+]?[0-9\s\-()]{8,20}$/.test(v);
-}, 'Please enter a valid phone number');
-
 const Contact = mongoose.model('Contact', contactSchema);
 
 // Brochure request schema
@@ -767,81 +569,148 @@ const brochureRequestSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
-// Add phone number validation for international numbers
-brochureRequestSchema.path('phone').validate(function(v) {
-  return /^[+]?[0-9\s\-()]{8,20}$/.test(v);
-}, 'Please enter a valid phone number');
-
 const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
 
-// Use the enhanced email service
-import emailService from './services/emailService.js';
+// Enhanced email configuration for production readiness
+const createMailTransport = () => {
+  // Determine if we're in production
+  const isProduction = process.env.NODE_ENV === 'production';
 
-// Initialize email service
-(async () => {
-  try {
-    await emailService.initialize();
-    console.log('Email service initialized successfully');
-  } catch (error) {
-    console.error('Failed to initialize email service:', error);
-  }
-})();
+  // Log email configuration status
+  console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-// Simplified email sending function that uses the email service
-const sendEmail = async (mailOptions) => {
-  try {
-    // Skip email sending if configured
-    if (process.env.SKIP_EMAIL_SENDING === 'true') {
-      console.log('Skipping email sending as configured by SKIP_EMAIL_SENDING');
-      console.log('Email would have been sent to:', mailOptions.to);
-      console.log('Subject:', mailOptions.subject);
-      return { messageId: 'dummy-id-' + Date.now(), skipped: true };
+  // Set up email transport configuration
+  const transportConfig = {
+    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+    port: parseInt(process.env.EMAIL_PORT || '465'),
+    secure: process.env.EMAIL_SECURE === 'true', // use SSL
+    auth: {
+      user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
+      pass: process.env.EMAIL_PASS || '' // Password should be set in environment variables only
     }
+  };
 
-    // Add default email template styling
-    const defaultStyle = `
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        h2 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .footer { margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
-      </style>
-    `;
+  // Add production-specific settings
+  if (isProduction) {
+    // Add connection pool for better performance in production
+    transportConfig.pool = true;
+    transportConfig.maxConnections = 5;
+    transportConfig.maxMessages = 100;
 
-    // Add company info to all emails
-    const companyInfo = `
-      <div class="footer">
-        <p>Alfanio LTD</p>
-        <p>This is an automated message, please do not reply directly to this email.</p>
-      </div>
-    `;
-
-    // Wrap HTML content with styling if it exists
-    if (mailOptions.html) {
-      mailOptions.html = `
-        <html>
-          <head>${defaultStyle}</head>
-          <body>
-            <div class="container">
-              ${mailOptions.html}
-              ${companyInfo}
-            </div>
-          </body>
-        </html>
-      `;
-    }
-
-    // Send email using the email service
-    const result = await emailService.sendEmail(mailOptions);
-
-    return result;
-  } catch (error) {
-    console.error('Error in sendEmail wrapper:', error);
-    return {
-      messageId: 'error-' + Date.now(),
-      error: error.message,
-      failed: true
+    // Add TLS options for better security
+    transportConfig.tls = {
+      rejectUnauthorized: true,
+      minVersion: 'TLSv1.2'
     };
+
+    // Check if credentials are properly set
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+      console.warn('Email credentials not fully configured. Check environment variables.');
+    }
+  }
+
+  return nodemailer.createTransport(transportConfig);
+};
+
+// Create mail transport
+const mailTransport = createMailTransport();
+
+// Verify email transport with retry logic
+const verifyEmailTransport = async (retries = 3, delay = 3000) => {
+  let currentRetry = 0;
+
+  while (currentRetry < retries) {
+    try {
+      await mailTransport.verify();
+      console.log('Email server is ready');
+      return true;
+    } catch (error) {
+      currentRetry++;
+      console.error(`Email verification failed (attempt ${currentRetry}/${retries}):`, error.message);
+
+      if (currentRetry >= retries) {
+        console.error('Maximum email verification retries reached.');
+        return false;
+      }
+
+      // Wait before next retry
+      console.log(`Waiting ${delay}ms before next email verification attempt...`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  return false;
+};
+
+// Start email verification
+verifyEmailTransport();
+
+// Enhanced email sending function with retry and fallback
+const sendEmail = async (mailOptions, retries = 2) => {
+  let currentRetry = 0;
+
+  // Add default email template styling
+  const defaultStyle = `
+    <style>
+      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+      h2 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+      .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+      .footer { margin-top: 30px; font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+  `;
+
+  // Add company info to all emails
+  const companyInfo = `
+    <div class="footer">
+      <p>Alfanio LTD</p>
+      <p>This is an automated message, please do not reply directly to this email.</p>
+    </div>
+  `;
+
+  // Wrap HTML content with styling
+  if (mailOptions.html) {
+    mailOptions.html = `
+      <html>
+        <head>${defaultStyle}</head>
+        <body>
+          <div class="container">
+            ${mailOptions.html}
+            ${companyInfo}
+          </div>
+        </body>
+      </html>
+    `;
+  }
+
+  while (currentRetry <= retries) {
+    try {
+      // Use from address from environment variables
+      const info = await mailTransport.sendMail({
+        ...mailOptions,
+        from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
+      });
+
+      console.log('Email sent successfully:', info.messageId);
+      return info;
+    } catch (error) {
+      currentRetry++;
+      console.error(`Email sending failed (attempt ${currentRetry}/${retries + 1}):`, error.message);
+
+      if (currentRetry > retries) {
+        // Log to database or monitoring system in production
+        if (process.env.NODE_ENV === 'production') {
+          console.error('Critical: Email sending failed after all retries', {
+            to: mailOptions.to,
+            subject: mailOptions.subject,
+            error: error.message
+          });
+        }
+        throw error;
+      }
+
+      // Wait before retry
+      await new Promise(resolve => setTimeout(resolve, 2000));
+    }
   }
 };
 
@@ -852,7 +721,7 @@ app.get('/api/health', (req, res) => {
     message: 'OK',
     timestamp: Date.now(),
     mongoConnection: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    emailService: emailService.isInitialized ? 'connected' : 'disconnected'
+    emailService: mailTransport !== null ? 'connected' : 'disconnected'
   };
 
   try {
@@ -864,19 +733,113 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Import routes
-import simpleContactRoutes from './routes/simpleContact.js';
-import brochureRoutes from './routes/brochureRoutes.js';
+// Contact form endpoint
+app.post('/api/contact', async (req, res) => {
+  console.log('Received contact form submission', req.body);
 
-// Use contact routes for both /api/contact and direct /contact endpoints
-app.use('/api/contact', simpleContactRoutes);
-app.use('/contact', simpleContactRoutes); // Add direct /contact endpoint for compatibility
+  try {
+    const { name, email, phone, message } = req.body;
 
-// Use brochure routes
-app.use('/api/brochure', brochureRoutes);
-app.use('/brochure', brochureRoutes); // Add direct /brochure endpoint for compatibility
+    if (!name || !email || !phone || !message) {
+      return res.status(400).json({
+        success: false,
+        message: 'All fields are required'
+      });
+    }
 
-// Brochure request endpoint is now handled by simpleContactRoutes
+    // Save to database
+    const contact = new Contact({
+      name,
+      email,
+      phone,
+      message
+    });
+
+    await contact.save();
+    console.log('Contact form saved to database');
+
+    // Send email
+    await sendEmail({
+      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
+      subject: 'New Contact Form Submission',
+      html: `
+        <h2>New Contact Form Submission</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        <p><strong>Message:</strong> ${message}</p>
+      `
+    });
+
+    console.log('Email sent successfully');
+
+    res.json({
+      success: true,
+      message: 'Message sent successfully'
+    });
+  } catch (error) {
+    console.error('Contact form error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to send message'
+    });
+  }
+});
+
+// Brochure request endpoint
+app.post('/api/contact/brochure', async (req, res) => {
+  console.log('Received brochure request', req.body);
+
+  try {
+    const { name, email, phone, message } = req.body;
+
+    if (!name || !email || !phone) {
+      return res.status(400).json({
+        success: false,
+        message: 'Name, email and phone are required'
+      });
+    }
+
+    // Save to database
+    const brochureRequest = new BrochureRequest({
+      name,
+      email,
+      phone,
+      message
+    });
+
+    await brochureRequest.save();
+    console.log('Brochure request saved to database');
+
+    // Send email
+    await sendEmail({
+      to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
+      subject: 'New Brochure Request',
+      html: `
+        <h2>New Brochure Request</h2>
+        <p><strong>Name:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>Phone:</strong> ${phone}</p>
+        ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
+      `
+    });
+
+    console.log('Brochure request email sent successfully');
+
+    res.json({
+      success: true,
+      message: 'Brochure request received successfully'
+    });
+  } catch (error) {
+    console.error('Brochure request error:', error);
+
+    res.status(500).json({
+      success: false,
+      message: 'Failed to process brochure request'
+    });
+  }
+});
 
 // Brochure download endpoint
 app.get('/api/brochure/download', (req, res) => {
@@ -923,57 +886,18 @@ app.get('/api/brochure/download', (req, res) => {
   fileStream.pipe(res);
 });
 
-// Handle API 404 errors
-app.use('/api/*', (req, res) => {
-  console.log(`API endpoint not found: ${req.originalUrl}`);
-  return res.status(404).json({
-    success: false,
-    message: 'API endpoint not found',
-    path: req.originalUrl
-  });
-});
-
-// For all other routes, return a simple message
-// This is a backend-only server on Render
+// Serve React app for all other routes
 app.get('*', (req, res) => {
-  console.log(`Non-API request received: ${req.originalUrl}`);
-
-  // Just return a simple message
-  res.status(200).send(`
-    <html>
-      <head>
-        <title>Alfanio Backend API</title>
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-          h1 { color: #FECC00; }
-          a { color: #FECC00; }
-        </style>
-      </head>
-      <body>
-        <h1>Alfanio Backend API Server</h1>
-        <p>This is the backend API server for Alfanio. The frontend website is available at:</p>
-        <p><a href="https://alfanio.onrender.com">https://alfanio.onrender.com</a></p>
-        <p>You will be redirected to the frontend website in 5 seconds...</p>
-        <script>
-          setTimeout(function() {
-            window.location.href = "https://alfanio.onrender.com";
-          }, 5000);
-        </script>
-      </body>
-    </html>
-  `);
+  if (req.path.startsWith('/api')) {
+    return res.status(404).json({ error: 'API endpoint not found' });
+  }
+  res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // Error handling middleware with improved logging and security
 app.use((err, req, res, next) => {
   // Log the error with request ID for better debugging
   console.error(`[Error ${req.id}] Global error handler:`, err);
-
-  // Check if this is a "file not found" error for frontend files
-  if (err.code === 'ENOENT' && err.path && err.path.includes('/frontend/dist/')) {
-    console.log('Frontend file not found error - redirecting to frontend service');
-    return res.redirect('https://alfanio.onrender.com');
-  }
 
   // Don't expose error details in production
   const isProduction = process.env.NODE_ENV === 'production';
