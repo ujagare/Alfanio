@@ -461,24 +461,25 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
 
   // Determine MongoDB URI based on environment
   const getMongoURI = () => {
+    // Always use the MONGODB_URI from .env if available
+    if (process.env.MONGODB_URI) {
+      return process.env.MONGODB_URI;
+    }
+
     // For production, use MongoDB Atlas
     if (process.env.NODE_ENV === 'production') {
       // Make sure to set these environment variables in production
-      const username = encodeURIComponent(process.env.MONGO_USERNAME || '');
-      const password = encodeURIComponent(process.env.MONGO_PASSWORD || '');
-      const cluster = process.env.MONGO_CLUSTER || '';
-      const dbName = process.env.MONGO_DB_NAME || 'alfanio';
-
-      if (!username || !password || !cluster) {
-        console.warn('MongoDB Atlas credentials not fully configured. Check environment variables.');
-      }
+      const username = encodeURIComponent(process.env.MONGO_USERNAME || 'Alfanioindia');
+      const password = encodeURIComponent(process.env.MONGO_PASSWORD || '10Nu2FEpmRZuNFYf');
+      const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
+      const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
 
       // MongoDB Atlas connection string
       return `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
     }
 
-    // For development, use local MongoDB or specified URI
-    return process.env.MONGODB_URI || 'mongodb://localhost:27017/alfanio';
+    // For development, use local MongoDB as fallback
+    return 'mongodb://localhost:27017/alfanio';
   };
 
   while (currentRetry < retries) {
@@ -585,7 +586,7 @@ const createMailTransport = () => {
     secure: process.env.EMAIL_SECURE === 'true', // use SSL
     auth: {
       user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-      pass: process.env.EMAIL_PASS || '' // Password should be set in environment variables only
+      pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa' // Fallback password if not in env
     }
   };
 
@@ -890,7 +891,41 @@ app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
-  res.sendFile(path.join(__dirname, '../dist/index.html'));
+
+  // Check if the file exists before sending it
+  const indexPath = path.join(__dirname, '../dist/index.html');
+
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+
+  // If index.html doesn't exist, send a simple response
+  res.status(200).send(`
+    <html>
+      <head>
+        <title>Alfanio API Server</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
+          h1 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+          .container { background: #f9f9f9; border-radius: 5px; padding: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h1>Alfanio API Server</h1>
+          <p>This is the Alfanio API server. The frontend application is hosted separately.</p>
+          <p>Server is running and ready to accept API requests.</p>
+          <p>Available endpoints:</p>
+          <ul>
+            <li>/api/health - Check server health</li>
+            <li>/api/contact - Submit contact form</li>
+            <li>/api/contact/brochure - Request brochure</li>
+            <li>/api/brochure/download - Download brochure</li>
+          </ul>
+        </div>
+      </body>
+    </html>
+  `);
 });
 
 // Error handling middleware with improved logging and security
