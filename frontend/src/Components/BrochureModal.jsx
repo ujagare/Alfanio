@@ -203,7 +203,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
 
       // Show a simple error message
       alert(
-        "We'll process your request later. You can download the brochure now."
+        "Thank you for your interest! Your brochure is ready for download."
       );
     }
 
