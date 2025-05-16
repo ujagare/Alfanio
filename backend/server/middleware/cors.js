@@ -3,13 +3,13 @@
  * This middleware provides robust CORS configuration for both development and production
  */
 
-const cors = require('cors');
+import cors from 'cors';
 
 /**
  * Configure CORS middleware with appropriate settings
  * @param {Object} app - Express app instance
  */
-const setupCors = (app) => {
+export const setupCors = (app) => {
   // Determine allowed origins based on environment
   const allowedOrigins = [
     'http://localhost:5001',
@@ -21,14 +21,14 @@ const setupCors = (app) => {
   ];
 
   // Use environment variable if set, otherwise use the array
-  const corsOrigin = process.env.CORS_ORIGIN === '*' 
-    ? '*' 
+  const corsOrigin = process.env.CORS_ORIGIN === '*'
+    ? '*'
     : (origin, callback) => {
         // Allow requests with no origin (like mobile apps, curl, etc)
         if (!origin) {
           return callback(null, true);
         }
-        
+
         if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
           callback(null, true);
         } else {
@@ -43,18 +43,18 @@ const setupCors = (app) => {
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
-      'Origin', 
-      'X-Requested-With', 
-      'Content-Type', 
-      'Accept', 
-      'Authorization', 
-      'Cache-Control', 
+      'Origin',
+      'X-Requested-With',
+      'Content-Type',
+      'Accept',
+      'Authorization',
+      'Cache-Control',
       'X-CSRF-Token'
     ],
     exposedHeaders: [
-      'Content-Disposition', 
-      'Content-Type', 
-      'Content-Length', 
+      'Content-Disposition',
+      'Content-Type',
+      'Content-Length',
       'X-Request-ID'
     ],
     maxAge: 86400 // 24 hours
@@ -72,11 +72,11 @@ const setupCors = (app) => {
       res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
       res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Max-Age', '86400'); // 24 hours
-      
+
       console.log(`Handling OPTIONS request from origin: ${req.headers.origin}`);
       return res.status(204).end();
     }
-    
+
     next();
   });
 
@@ -87,10 +87,11 @@ const setupCors = (app) => {
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Max-Age', '86400'); // 24 hours
-    
+
     console.log(`Handling global OPTIONS request from origin: ${req.headers.origin}`);
     res.status(204).end();
   });
 };
 
-module.exports = setupCors;
+// Export as default
+export default setupCors;

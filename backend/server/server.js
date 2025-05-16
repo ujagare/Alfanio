@@ -94,7 +94,7 @@ app.use(compression({
   }
 }));
 // Use enhanced CORS configuration from middleware
-const setupCors = require('./middleware/cors');
+import setupCors from './middleware/cors.js';
 setupCors(app);
 
 // Log that CORS has been configured
@@ -775,7 +775,7 @@ brochureRequestSchema.path('phone').validate(function(v) {
 const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
 
 // Use the enhanced email service
-const emailService = require('./services/emailService');
+import emailService from './services/emailService.js';
 
 // Initialize email service
 (async () => {

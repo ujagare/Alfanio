@@ -1,7 +1,12 @@
-const nodemailer = require('nodemailer');
-const winston = require('winston');
-const path = require('path');
-const fs = require('fs').promises;
+import nodemailer from 'nodemailer';
+import winston from 'winston';
+import path from 'path';
+import { promises as fs } from 'fs';
+import { fileURLToPath } from 'url';
+
+// Get directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 // Configure Winston logger specifically for email service
@@ -251,4 +256,4 @@ class EmailService {
 
 // Create and export a singleton instance
 const emailService = new EmailService();
-module.exports = emailService;
+export default emailService;
