@@ -29,8 +29,8 @@ const createMailTransport = () => {
   const transportConfig = {
     service: 'gmail',
     auth: {
-      user: 'alfanioindia@gmail.com',
-      pass: 'ogwoqwpovqfcgacz' // App password from 2-step verification
+      user: EMAIL_CONFIG.auth.user,
+      pass: EMAIL_CONFIG.auth.pass // Using password from EMAIL_CONFIG which comes from .env
     }
   };
 
@@ -183,8 +183,8 @@ export const sendEmail = async (options) => {
         port: 465,
         secure: true,
         auth: {
-          user: 'alfanioindia@gmail.com',
-          pass: 'ogwoqwpovqfcgacz' // App password from 2-step verification
+          user: EMAIL_CONFIG.auth.user,
+          pass: EMAIL_CONFIG.auth.pass // Using password from EMAIL_CONFIG which comes from .env
         }
       });
 
