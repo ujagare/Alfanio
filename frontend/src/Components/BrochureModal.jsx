@@ -140,9 +140,53 @@ const BrochureModal = ({ isOpen, onClose }) => {
       phone: fullPhoneNumber,
     };
 
-    // Always proceed with submission attempt, regardless of online status
-    console.log("Proceeding with form submission");
+    // Save form data to localStorage for offline processing
+    try {
+      const storedRequests = JSON.parse(
+        localStorage.getItem("brochureRequests") || "[]"
+      );
+      storedRequests.push({
+        ...formDataToSubmit,
+        timestamp: new Date().toISOString(),
+        processed: false,
+      });
+      localStorage.setItem("brochureRequests", JSON.stringify(storedRequests));
+      console.log("Form data saved to localStorage for later processing");
+    } catch (storageError) {
+      console.error("Error saving to localStorage:", storageError);
+    }
 
+    // Show success UI immediately
+    setIsSuccess(true);
+
+    // Download the brochure immediately
+    downloadBrochure();
+
+    // Try to submit to server in background
+    submitToServer(formDataToSubmit).catch((error) => {
+      console.error("Background submission error:", error);
+      // No need to show error to user since we've already shown success
+    });
+
+    // Close the modal after a delay
+    setTimeout(() => {
+      handleClose();
+      setFormData({
+        name: "",
+        email: "",
+        phone: "",
+        countryCode: "+91",
+        message: "",
+        type: "brochure",
+      });
+      setIsSuccess(false);
+    }, 3000);
+
+    setIsSubmitting(false);
+  };
+
+  // Separate function to submit to server
+  const submitToServer = async (formData) => {
     try {
       // Use simple fetch API for better compatibility
       const response = await fetch(`${API_URL}/api/contact/brochure`, {
@@ -150,7 +194,9 @@ const BrochureModal = ({ isOpen, onClose }) => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formDataToSubmit),
+        body: JSON.stringify(formData),
+        // Add timeout to prevent long-hanging requests
+        signal: AbortSignal.timeout(10000), // 10 second timeout
       });
 
       if (!response.ok) {
@@ -160,54 +206,38 @@ const BrochureModal = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      console.log("Success:", data);
+      console.log("Success: Form submitted to server:", data);
 
-      setIsSuccess(true);
-
-      // Download the brochure after successful form submission
-      downloadBrochure();
-
-      // Close the modal after a delay
-      setTimeout(() => {
-        handleClose();
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          countryCode: "+91",
-          message: "",
-          type: "brochure",
+      // Update localStorage to mark this request as processed
+      try {
+        const storedRequests = JSON.parse(
+          localStorage.getItem("brochureRequests") || "[]"
+        );
+        const updatedRequests = storedRequests.map((req) => {
+          if (
+            req.email === formData.email &&
+            req.phone === formData.phone &&
+            !req.processed
+          ) {
+            return { ...req, processed: true };
+          }
+          return req;
         });
-        setIsSuccess(false);
-      }, 3000);
+        localStorage.setItem(
+          "brochureRequests",
+          JSON.stringify(updatedRequests)
+        );
+      } catch (storageError) {
+        console.error("Error updating localStorage:", storageError);
+      }
+
+      return data;
     } catch (error) {
-      console.error("Error submitting form:", error);
-
-      // Always download brochure even if form submission fails
-      setIsSuccess(true);
-      downloadBrochure();
-
-      // Close the modal after a delay
-      setTimeout(() => {
-        handleClose();
-        setFormData({
-          name: "",
-          email: "",
-          phone: "",
-          countryCode: "+91",
-          message: "",
-          type: "brochure",
-        });
-        setIsSuccess(false);
-      }, 3000);
-
-      // Show a simple error message
-      alert(
-        "Thank you for your interest! Your brochure is ready for download."
-      );
+      console.error("Error submitting form to server:", error);
+      // We don't throw here because this is a background process
+      // and we don't want to interrupt the user experience
+      return { success: false, error: error.message };
     }
-
-    setIsSubmitting(false);
   };
 
   return (

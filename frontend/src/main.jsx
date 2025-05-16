@@ -6,6 +6,10 @@ import { BrowserRouter } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.jsx";
 import "./index.css";
+import { setupOfflineSync } from "./Utils/offlineSync";
+
+// Initialize offline sync
+setupOfflineSync();
 
 // Create root and render app
 const rootElement = document.getElementById("root");
