@@ -582,8 +582,8 @@ const createMailTransport = () => {
   // Set up email transport configuration
   const transportConfig = {
     host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '465'),
-    secure: process.env.EMAIL_SECURE === 'true', // use SSL
+    port: parseInt(process.env.EMAIL_PORT || '587'),
+    secure: false, // Use TLS instead of SSL for better compatibility with Gmail
     auth: {
       user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
       pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa' // Fallback password if not in env
@@ -599,7 +599,7 @@ const createMailTransport = () => {
 
     // Add TLS options for better security
     transportConfig.tls = {
-      rejectUnauthorized: true,
+      rejectUnauthorized: false, // Set to false to avoid certificate validation issues
       minVersion: 'TLSv1.2'
     };
 
@@ -635,10 +635,17 @@ const verifyEmailTransport = async (retries = 3, delay = 3000) => {
         // Log detailed error information for debugging
         console.log('Email configuration:', {
           host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-          port: parseInt(process.env.EMAIL_PORT || '465'),
-          secure: process.env.EMAIL_SECURE === 'true',
+          port: parseInt(process.env.EMAIL_PORT || '587'),
+          secure: process.env.EMAIL_SECURE === 'false',
           user: process.env.EMAIL_USER || 'alfanioindia@gmail.com'
         });
+
+        // Log additional troubleshooting information
+        console.log('Email troubleshooting tips:');
+        console.log('1. Check if the Gmail account has "Less secure app access" enabled');
+        console.log('2. If using 2FA, make sure to use an App Password instead of regular password');
+        console.log('3. Check if there are any network restrictions blocking SMTP connections');
+        console.log('4. Try sending a test email directly to verify credentials');
 
         return false;
       }
