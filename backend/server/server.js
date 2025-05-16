@@ -96,13 +96,39 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Allow all origins for development and testing
+// Configure CORS for specific origins
+const allowedOrigins = [
+  'https://alfanio.onrender.com',
+  'https://alfanio-frontend.onrender.com',
+  'https://alfanio.com',
+  'http://localhost:3000',
+  'http://localhost:5001',
+  'http://localhost:5173'
+];
+
+// CORS configuration with specific origins
 app.use(cors({
-  origin: '*', // Allow all origins
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin is allowed
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('alfanio')) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      // Allow all origins in development
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['*'], // Allow all headers
-  exposedHeaders: ['*'], // Expose all headers
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization', 'Cache-Control'],
+  exposedHeaders: ['Content-Disposition', 'Content-Type', 'Content-Length'],
   maxAge: 86400 // 24 hours
 }));
 
@@ -111,10 +137,17 @@ app.options('*', cors());
 
 // Add custom CORS headers to all responses
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  const origin = req.headers.origin;
+
+  // Set CORS headers based on origin
+  if (origin && (allowedOrigins.includes(origin) || origin.includes('alfanio') || process.env.NODE_ENV !== 'production')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
   res.header('Access-Control-Expose-Headers', 'Content-Disposition, Content-Type, Content-Length');
+  res.header('Access-Control-Allow-Credentials', 'true');
   next();
 });
 app.use(express.json({ limit: '10mb' }));
@@ -719,6 +752,7 @@ app.post('/api/contact', async (req, res) => {
 // Brochure request endpoint
 app.post('/api/contact/brochure', async (req, res) => {
   console.log('Received brochure request', req.body);
+  console.log('Request origin:', req.headers.origin);
 
   try {
     const { name, email, phone, message } = req.body;
@@ -743,6 +777,8 @@ app.post('/api/contact/brochure', async (req, res) => {
 
     // Send email with detailed error handling
     try {
+      console.log('Attempting to send email notification...');
+
       const emailResult = await sendEmail({
         to: process.env.EMAIL_TO || 'alfanioindia@gmail.com',
         subject: 'New Brochure Request',
@@ -754,6 +790,8 @@ app.post('/api/contact/brochure', async (req, res) => {
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
         `
       });
+
+      console.log('Email sending result:', JSON.stringify(emailResult));
 
       // Check if email was actually sent
       if (!emailResult || emailResult.fallback) {
