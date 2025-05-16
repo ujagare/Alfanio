@@ -25,13 +25,15 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-  // Set up email transport configuration - direct Gmail configuration
+  // Set up email transport configuration - simplified Gmail configuration
   const transportConfig = {
     service: 'gmail',
     auth: {
-      user: EMAIL_CONFIG.auth.user,
-      pass: EMAIL_CONFIG.auth.pass // Using password from EMAIL_CONFIG which comes from .env
-    }
+      user: 'alfanioindia@gmail.com',
+      pass: 'ogwoqwpovqfcgacz' // App password - hardcoded for testing
+    },
+    debug: true,
+    logger: true
   };
 
   console.log('Email transport configuration:', {
@@ -147,8 +149,27 @@ export const sendEmail = async (options) => {
   console.log('Email subject:', options.subject);
 
   try {
-    // Create a fresh transport
-    const transport = createMailTransport();
+    console.log('Creating direct Gmail transport...');
+
+    // Create a direct Gmail transport
+    const transport = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: 'alfanioindia@gmail.com',
+        pass: 'ogwoqwpovqfcgacz'
+      }
+    });
+
+    console.log('Verifying connection...');
+    await transport.verify();
+    console.log('Connection verified successfully');
+
+    console.log('Sending email...');
+    console.log('Mail options:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject
+    });
 
     // Send email
     const info = await transport.sendMail(mailOptions);
@@ -156,6 +177,7 @@ export const sendEmail = async (options) => {
     console.log('Email sent successfully!');
     console.log('Message ID:', info.messageId);
     console.log('Response:', info.response);
+    console.log('Accepted:', info.accepted);
 
     return {
       success: true,
@@ -175,7 +197,7 @@ export const sendEmail = async (options) => {
 
     // Try with alternative configuration if first attempt fails
     try {
-      console.log('Trying alternative email configuration...');
+      console.log('Trying alternative email configuration with port 465...');
 
       // Create alternative transport with different settings
       const alternativeTransport = nodemailer.createTransport({
@@ -183,16 +205,24 @@ export const sendEmail = async (options) => {
         port: 465,
         secure: true,
         auth: {
-          user: EMAIL_CONFIG.auth.user,
-          pass: EMAIL_CONFIG.auth.pass // Using password from EMAIL_CONFIG which comes from .env
+          user: 'alfanioindia@gmail.com',
+          pass: 'ogwoqwpovqfcgacz'
         }
       });
+
+      console.log('Verifying alternative connection...');
+      await alternativeTransport.verify();
+      console.log('Alternative connection verified successfully');
+
+      console.log('Sending email with alternative transport...');
 
       // Send email with alternative transport
       const info = await alternativeTransport.sendMail(mailOptions);
 
       console.log('Email sent successfully with alternative configuration!');
       console.log('Message ID:', info.messageId);
+      console.log('Response:', info.response);
+      console.log('Accepted:', info.accepted);
 
       return {
         success: true,
@@ -203,6 +233,7 @@ export const sendEmail = async (options) => {
       };
     } catch (alternativeError) {
       console.error('Alternative email configuration also failed:', alternativeError.message);
+      console.error('Alternative error details:', alternativeError);
 
       // Return detailed error information
       return {
