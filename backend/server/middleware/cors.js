@@ -39,7 +39,7 @@ export const setupCors = (app) => {
 
   // Apply CORS middleware with appropriate configuration
   app.use(cors({
-    origin: corsOrigin,
+    origin: '*', // Temporarily allow all origins for debugging
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [
@@ -65,14 +65,15 @@ export const setupCors = (app) => {
 
   // Add additional CORS headers to all responses
   app.use((req, res, next) => {
+    // Add CORS headers to all responses
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins temporarily
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
     // For preflight requests, respond immediately
     if (req.method === 'OPTIONS') {
-      res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
-      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-      res.header('Access-Control-Allow-Credentials', 'true');
       res.header('Access-Control-Max-Age', '86400'); // 24 hours
-
       console.log(`Handling OPTIONS request from origin: ${req.headers.origin}`);
       return res.status(204).end();
     }
@@ -82,7 +83,7 @@ export const setupCors = (app) => {
 
   // Handle preflight requests for all routes
   app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || '*');
+    res.header('Access-Control-Allow-Origin', '*'); // Allow all origins temporarily
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, X-CSRF-Token');
     res.header('Access-Control-Allow-Credentials', 'true');
