@@ -93,12 +93,12 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Use enhanced CORS configuration from middleware
-import setupCors from './middleware/cors.js';
-setupCors(app);
+// Use simple CORS configuration
+import setupSimpleCors from './middleware/simpleCors.js';
+setupSimpleCors(app);
 
 // Log that CORS has been configured
-console.log('CORS middleware configured');
+console.log('Simple CORS middleware configured');
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Configure cookie parser with secure defaults
@@ -867,8 +867,9 @@ app.get('/api/health', (req, res) => {
 // Import simple contact routes
 import simpleContactRoutes from './routes/simpleContact.js';
 
-// Use simple contact routes
+// Use simple contact routes for both /api/contact and direct /contact endpoints
 app.use('/api/contact', simpleContactRoutes);
+app.use('/contact', simpleContactRoutes); // Add direct /contact endpoint for compatibility
 
 // Brochure request endpoint is now handled by simpleContactRoutes
 
