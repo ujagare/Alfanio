@@ -10,6 +10,20 @@ import { fileURLToPath } from 'url';
 
 const router = Router();
 
+// Add CORS headers to all responses in this router
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  next();
+});
+
 // Get directory name in ES module
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -52,31 +66,31 @@ const findBrochureFile = () => {
 router.get('/download', (req, res) => {
   try {
     log('info', 'Brochure download requested');
-    
+
     // Find brochure file
     const brochurePath = findBrochureFile();
-    
+
     if (brochurePath) {
       log('info', `Sending brochure from: ${brochurePath}`);
-      
+
       // Set headers
       res.setHeader('Content-Type', 'application/pdf');
       res.setHeader('Content-Disposition', 'attachment; filename="Alfanio-Brochure.pdf"');
-      
+
       // Send file
       return res.sendFile(brochurePath);
     } else {
       log('error', 'Brochure file not found');
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Brochure file not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Brochure file not found'
       });
     }
   } catch (error) {
     log('error', 'Error serving brochure', { error: error.message });
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Failed to serve brochure file' 
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to serve brochure file'
     });
   }
 });
@@ -85,14 +99,14 @@ router.get('/download', (req, res) => {
 router.get('/info', (req, res) => {
   try {
     log('info', 'Brochure info requested');
-    
+
     // Find brochure file
     const brochurePath = findBrochureFile();
-    
+
     if (brochurePath) {
       // Get file stats
       const stats = fs.statSync(brochurePath);
-      
+
       return res.json({
         success: true,
         filename: 'Alfanio-Brochure.pdf',
@@ -101,16 +115,16 @@ router.get('/info', (req, res) => {
         path: brochurePath
       });
     } else {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'Brochure file not found' 
+      return res.status(404).json({
+        success: false,
+        message: 'Brochure file not found'
       });
     }
   } catch (error) {
     log('error', 'Error getting brochure info', { error: error.message });
-    return res.status(500).json({ 
-      success: false, 
-      message: 'Failed to get brochure info' 
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to get brochure info'
     });
   }
 });
