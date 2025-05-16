@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { API_URL, API_ENDPOINTS, COMPANY_INFO } from "../config"; // Update this import
 import * as yup from "yup";
-import { handleContactForm, handleBrochureForm } from "../utils/formHandler";
+import { handleContactForm, handleBrochureForm } from "../Utils/formHandler";
 
 const formSchema = yup.object().shape({
   name: yup.string().required("Name is required").trim(),
