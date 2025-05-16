@@ -195,7 +195,8 @@ const ContactForm = ({
           toast.success(
             "✅ Thank you for your interest! Our team will contact you shortly with the brochure."
           );
-          window.open("/brochure.pdf", "_blank");
+          import { API_ENDPOINTS } from "../config";
+          window.open(API_ENDPOINTS.brochureDownload, "_blank");
         } else {
           toast.success(
             "✅ Thank you for your message! Our team will contact you shortly."

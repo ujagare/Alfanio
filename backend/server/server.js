@@ -864,12 +864,17 @@ app.get('/api/health', (req, res) => {
   }
 });
 
-// Import simple contact routes
+// Import routes
 import simpleContactRoutes from './routes/simpleContact.js';
+import brochureRoutes from './routes/brochureRoutes.js';
 
-// Use simple contact routes for both /api/contact and direct /contact endpoints
+// Use contact routes for both /api/contact and direct /contact endpoints
 app.use('/api/contact', simpleContactRoutes);
 app.use('/contact', simpleContactRoutes); // Add direct /contact endpoint for compatibility
+
+// Use brochure routes
+app.use('/api/brochure', brochureRoutes);
+app.use('/brochure', brochureRoutes); // Add direct /brochure endpoint for compatibility
 
 // Brochure request endpoint is now handled by simpleContactRoutes
 

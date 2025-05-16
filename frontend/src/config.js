@@ -22,6 +22,7 @@ export const COMPANY_INFO = {
 export const API_ENDPOINTS = {
   contact: `${API_URL}/contact`,  // Use direct endpoint without /api prefix
   brochure: `${API_URL}/contact/brochure`,  // Use direct endpoint without /api prefix
+  brochureDownload: `${API_URL}/brochure/download`,  // Direct brochure download endpoint
   health: `${API_URL}/api/health`
 };
 
