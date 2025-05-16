@@ -128,47 +128,27 @@ const ContactForm = ({
 
     setIsSubmitting(true);
     try {
-      // Format the message
-      const subject =
-        type === "brochure"
-          ? `Brochure Request from ${data.name.trim()}`
-          : `Contact Form Submission from ${data.name.trim()}`;
+      // Prepare form data
+      const formData = {
+        name: data.name.trim(),
+        email: data.email.trim(),
+        phone: data.phone,
+        message: data.message?.trim() || "",
+        product: productName,
+      };
 
-      const body = `
-Name: ${data.name.trim()}
-Email: ${data.email.trim()}
-Phone: ${data.phone}
-${data.message ? `Message: ${data.message.trim()}` : ""}
-${type === "brochure" ? "Request: Brochure" : ""}
-      `.trim();
-
-      // Create mailto link
-      const mailtoLink = `mailto:alfanioindia@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-
-      // Open email client
-      window.location.href = mailtoLink;
-
-      // Show success message
+      // Handle form submission based on type
       if (type === "brochure") {
-        toast.success(
-          "✅ Thank you for your interest! Your email client will open to send us your request."
-        );
-
-        // Open brochure in new tab
-        setTimeout(() => {
-          window.open("/brochure.pdf", "_blank");
-        }, 1000);
+        await handleBrochureForm(formData);
       } else {
-        toast.success(
-          "✅ Thank you for your message! Your email client will open to send us your request."
-        );
+        await handleContactForm(formData);
       }
 
       // Reset the form
       reset();
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error("❌ Failed to open email client. Please try again later.");
+      toast.error("❌ Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }
