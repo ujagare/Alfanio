@@ -1,6 +1,6 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || 'https://alfanio-backend.onrender.com';
-export const BROCHURE_URL = import.meta.env.VITE_BROCHURE_URL || '/api/contact/brochure';
+export const API_URL = ''; // Empty string for relative URLs (proxy support)
+export const BROCHURE_URL = '/contact/brochure'; // Relative URL for proxy support
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
 
 // Company Information
@@ -20,10 +20,10 @@ export const COMPANY_INFO = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  contact: `${API_URL}/contact`,  // Use direct endpoint without /api prefix
-  brochure: `${API_URL}/contact/brochure`,  // Use direct endpoint without /api prefix
-  brochureDownload: `${API_URL}/brochure/download`,  // Direct brochure download endpoint
-  health: `${API_URL}/api/health`
+  contact: `/contact`,  // Relative URL for proxy support
+  brochure: `/contact/brochure`,  // Relative URL for proxy support
+  brochureDownload: `/brochure/download`,  // Relative URL for proxy support
+  health: `/api/health`  // Relative URL for proxy support
 };
 
 // Environment settings

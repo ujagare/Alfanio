@@ -39,6 +39,15 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+      - type: proxy
+        source: /api/*
+        destination: https://alfanio-backend.onrender.com/api/:splat
+      - type: proxy
+        source: /contact/*
+        destination: https://alfanio-backend.onrender.com/contact/:splat
+      - type: proxy
+        source: /brochure/*
+        destination: https://alfanio-backend.onrender.com/brochure/:splat
     autoDeploy: true
     healthCheckPath: /
 

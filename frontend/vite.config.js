@@ -117,6 +117,16 @@ export default defineConfig({
         target: 'http://localhost:5001',
         changeOrigin: true,
         secure: false
+      },
+      '/contact': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false
+      },
+      '/brochure': {
+        target: 'http://localhost:5001',
+        changeOrigin: true,
+        secure: false
       }
     },
     hmr: {
