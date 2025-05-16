@@ -99,13 +99,54 @@
       }
     </script>
 
-    <!-- Google Analytics - Async loading -->
+    <!-- Google Analytics 4 - Async loading -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', { 'anonymize_ip': true });
+      gtag('config', 'G-XXXXXXXXXX', {
+        'anonymize_ip': true,
+        'cookie_flags': 'SameSite=None;Secure',
+        'page_title': document.title,
+        'send_page_view': true,
+        'allow_google_signals': false,
+        'allow_ad_personalization_signals': false
+      });
+
+      // Custom event tracking helper
+      window.trackEvent = function(category, action, label, value) {
+        if (typeof gtag === 'function') {
+          gtag('event', action, {
+            'event_category': category,
+            'event_label': label,
+            'value': value
+          });
+        }
+      };
+
+      // Track form submissions
+      window.trackFormSubmission = function(formType, productName) {
+        if (typeof gtag === 'function') {
+          gtag('event', 'form_submission', {
+            'event_category': 'Forms',
+            'event_label': formType,
+            'form_type': formType,
+            'product_name': productName || 'Not specified'
+          });
+        }
+      };
+
+      // Track brochure downloads
+      window.trackBrochureDownload = function(productName) {
+        if (typeof gtag === 'function') {
+          gtag('event', 'brochure_download', {
+            'event_category': 'Downloads',
+            'event_label': productName || 'General Brochure',
+            'product_name': productName || 'General Brochure'
+          });
+        }
+      };
     </script>
   </head>
   <body>
