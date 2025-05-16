@@ -630,6 +630,16 @@ const verifyEmailTransport = async (retries = 3, delay = 3000) => {
 
       if (currentRetry >= retries) {
         console.error('Maximum email verification retries reached.');
+        console.log('Continuing server operation despite email verification failure.');
+
+        // Log detailed error information for debugging
+        console.log('Email configuration:', {
+          host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+          port: parseInt(process.env.EMAIL_PORT || '465'),
+          secure: process.env.EMAIL_SECURE === 'true',
+          user: process.env.EMAIL_USER || 'alfanioindia@gmail.com'
+        });
+
         return false;
       }
 
@@ -642,8 +652,11 @@ const verifyEmailTransport = async (retries = 3, delay = 3000) => {
   return false;
 };
 
-// Start email verification
-verifyEmailTransport();
+// Start email verification but don't wait for it
+verifyEmailTransport().catch(err => {
+  console.error('Email verification process error:', err);
+  console.log('Server will continue running despite email verification issues.');
+});
 
 // Enhanced email sending function with retry and fallback
 const sendEmail = async (mailOptions, retries = 2) => {
@@ -705,7 +718,15 @@ const sendEmail = async (mailOptions, retries = 2) => {
             error: error.message
           });
         }
-        throw error;
+
+        // Instead of throwing error, return a fallback response
+        console.log('Email sending failed, but continuing operation');
+        return {
+          success: false,
+          error: error.message,
+          fallback: true,
+          messageId: `fallback-${Date.now()}`
+        };
       }
 
       // Wait before retry
