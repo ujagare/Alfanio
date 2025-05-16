@@ -9,7 +9,7 @@ import {
   FaShieldAlt,
 } from "react-icons/fa";
 import mixerImage from "../../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg";
-import ContactForm from "../../components/ContactForm";
+import ContactForm from "../../Components/ContactForm";
 
 const TwinShaftMixer = () => {
   const [activeTab, setActiveTab] = useState("description");
