@@ -93,12 +93,12 @@ app.use(compression({
     return compression.filter(req, res);
   }
 }));
-// Use direct CORS configuration
-import setupDirectCors from './middleware/directCors.js';
-setupDirectCors(app);
+// Use simple CORS configuration
+import setupSimpleCors from './middleware/simpleCors.js';
+setupSimpleCors(app);
 
 // Log that CORS has been configured
-console.log('Direct CORS middleware configured');
+console.log('Simple CORS middleware configured');
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Configure cookie parser with secure defaults
