@@ -103,7 +103,10 @@ const allowedOrigins = [
   'https://alfanio.com',
   'http://localhost:3000',
   'http://localhost:5001',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'http://192.168.31.56:3000',
+  'http://192.168.31.56:5001',
+  'http://192.168.31.56:5173'
 ];
 
 // CORS configuration with specific origins
@@ -704,13 +707,17 @@ app.post('/api/contact', async (req, res) => {
     try {
       console.log('Setting up direct email transport for contact form...');
 
-      // Create a direct transport
+      // Create a direct transport with hardcoded credentials
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: 'alfanioindia@gmail.com',
           pass: 'ogwoqwpovqfcgacz'
-        }
+        },
+        debug: true,
+        logger: true
       });
 
       console.log('Preparing contact form email content...');
@@ -731,17 +738,34 @@ app.post('/api/contact', async (req, res) => {
 
       console.log('Sending contact form email directly...');
 
-      // Send email
-      const info = await transporter.sendMail(mailOptions);
+      try {
+        // Verify connection first
+        await transporter.verify();
+        console.log('Email connection verified successfully for contact form');
 
-      console.log('Contact form email sent successfully:', info.messageId);
+        // Send email
+        const info = await transporter.sendMail(mailOptions);
 
-      // Return success response
-      res.json({
-        success: true,
-        message: 'Message sent successfully',
-        emailId: info.messageId
-      });
+        console.log('Contact form email sent successfully:', info.messageId);
+
+        // Return success response
+        res.json({
+          success: true,
+          message: 'Message sent successfully',
+          emailId: info.messageId
+        });
+      } catch (verifyError) {
+        console.error('Email verification or sending error for contact form:', verifyError);
+
+        // Return success anyway since data is saved to database
+        res.json({
+          success: true,
+          message: 'Your message has been received. We will contact you shortly.',
+          emailSent: false,
+          savedToDatabase: true,
+          error: verifyError.message
+        });
+      }
     } catch (emailError) {
       console.error('Direct email sending error for contact form:', emailError);
 
@@ -838,13 +862,17 @@ app.post('/api/contact/brochure', async (req, res) => {
     try {
       console.log('Setting up direct email transport...');
 
-      // Create a direct transport
+      // Create a direct transport with hardcoded credentials
       const transporter = nodemailer.createTransport({
-        service: 'gmail',
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
         auth: {
           user: 'alfanioindia@gmail.com',
           pass: 'ogwoqwpovqfcgacz'
-        }
+        },
+        debug: true,
+        logger: true
       });
 
       console.log('Preparing email content...');
@@ -865,25 +893,42 @@ app.post('/api/contact/brochure', async (req, res) => {
 
       console.log('Sending email directly...');
 
-      // Send email
-      const info = await transporter.sendMail(mailOptions);
+      try {
+        // Verify connection first
+        await transporter.verify();
+        console.log('Email connection verified successfully');
 
-      console.log('Email sent successfully:', info.messageId);
+        // Send email
+        const info = await transporter.sendMail(mailOptions);
 
-      // Return success response
-      res.json({
-        success: true,
-        message: 'Brochure request received and email sent successfully',
-        emailId: info.messageId
-      });
+        console.log('Email sent successfully:', info.messageId);
+
+        // Return success response
+        res.json({
+          success: true,
+          message: 'Brochure request received and email sent successfully',
+          emailId: info.messageId
+        });
+      } catch (verifyError) {
+        console.error('Email verification or sending error:', verifyError);
+
+        // Return success anyway since data is saved to database
+        res.json({
+          success: true,
+          message: 'Brochure request received successfully. Email notification will be sent later.',
+          emailSent: false,
+          savedToDatabase: true,
+          error: verifyError.message
+        });
+      }
     } catch (emailError) {
       console.error('Direct email sending error:', emailError);
 
       // Try alternative method if direct method fails
       try {
-        console.log('Trying alternative email method...');
+        console.log('Trying alternative email method with direct SMTP...');
 
-        // Create alternative transport
+        // Create alternative transport with different settings
         const alternativeTransporter = nodemailer.createTransport({
           host: 'smtp.gmail.com',
           port: 465,
@@ -891,8 +936,15 @@ app.post('/api/contact/brochure', async (req, res) => {
           auth: {
             user: 'alfanioindia@gmail.com',
             pass: 'ogwoqwpovqfcgacz'
+          },
+          tls: {
+            rejectUnauthorized: false
           }
         });
+
+        // Verify connection first
+        await alternativeTransporter.verify();
+        console.log('Alternative email connection verified successfully');
 
         // Email content
         const mailOptions = {
