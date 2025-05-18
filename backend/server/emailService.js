@@ -25,12 +25,14 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-  // Set up email transport configuration - simplified Gmail configuration
+  // Set up email transport configuration - proven working configuration
   const transportConfig = {
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     auth: {
       user: 'alfanioindia@gmail.com',
-      pass: 'ogwoqwpovqfcgacz' // App password - hardcoded for testing
+      pass: 'ogwoqwpovqfcgacz' // Hardcoded for reliability
     },
     debug: true,
     logger: true
@@ -151,13 +153,17 @@ export const sendEmail = async (options) => {
   try {
     console.log('Creating direct Gmail transport...');
 
-    // Create a direct Gmail transport
+    // Create a direct Gmail transport with proven working configuration
     const transport = nodemailer.createTransport({
-      service: 'gmail',
+      host: 'smtp.gmail.com',
+      port: 465,
+      secure: true,
       auth: {
         user: 'alfanioindia@gmail.com',
         pass: 'ogwoqwpovqfcgacz'
-      }
+      },
+      debug: true,
+      logger: true
     });
 
     console.log('Verifying connection...');
@@ -201,12 +207,13 @@ export const sendEmail = async (options) => {
 
       // Create alternative transport with different settings
       const alternativeTransport = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        service: 'gmail',
         auth: {
           user: 'alfanioindia@gmail.com',
           pass: 'ogwoqwpovqfcgacz'
+        },
+        tls: {
+          rejectUnauthorized: false
         }
       });
 

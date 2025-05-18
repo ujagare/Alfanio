@@ -103,9 +103,13 @@ const allowedOrigins = [
   'https://alfanio.com',
   'http://localhost:3000',
   'http://localhost:5001',
+  'http://localhost:5003',
+  'http://localhost:5005',
   'http://localhost:5173',
   'http://192.168.31.56:3000',
   'http://192.168.31.56:5001',
+  'http://192.168.31.56:5003',
+  'http://192.168.31.56:5005',
   'http://192.168.31.56:5173'
 ];
 
@@ -840,10 +844,13 @@ app.post('/api/contact/brochure', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    if (!name || !email || !phone) {
+    // Extract phone number with or without country code
+    const phoneNumber = phone || '';
+
+    if (!name || !email) {
       return res.status(400).json({
         success: false,
-        message: 'Name, email and phone are required'
+        message: 'Name and email are required'
       });
     }
 
@@ -851,7 +858,7 @@ app.post('/api/contact/brochure', async (req, res) => {
     const brochureRequest = new BrochureRequest({
       name,
       email,
-      phone,
+      phone: phoneNumber,
       message
     });
 
@@ -886,7 +893,7 @@ app.post('/api/contact/brochure', async (req, res) => {
           <h2>New Brochure Request</h2>
           <p><strong>Name:</strong> ${name}</p>
           <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
+          <p><strong>Phone:</strong> ${phoneNumber}</p>
           ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
         `
       };

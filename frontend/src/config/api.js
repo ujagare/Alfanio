@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export const API_URL = process.env.NODE_ENV === 'production'
-  ? 'https://alfanio.com'
+  ? 'https://alfanio.in'
   : 'http://localhost:5001';
 
 export const API_ENDPOINTS = {

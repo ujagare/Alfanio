@@ -133,7 +133,8 @@ export default defineConfig({
       protocol: 'ws',
       host: 'localhost',
       port: 3000
-    }
+    },
+    https: false
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'react-router-dom', 'framer-motion']
