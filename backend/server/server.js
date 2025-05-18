@@ -99,7 +99,6 @@ app.use(compression({
 // Configure CORS for specific origins
 const allowedOrigins = [
   'https://alfanio.onrender.com',
-  'https://alfanio-frontend.onrender.com',
   'https://alfanio-ltd.onrender.com',
   'https://alfanio.in',
   'https://www.alfanio.in',
@@ -1096,7 +1095,7 @@ app.get('*', (req, res) => {
   console.log('Frontend files not found, redirecting to frontend URL');
 
   // Get the frontend URL from environment or use default
-  const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio-frontend.onrender.com';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
 
   // Send HTML with auto-redirect
   res.status(200).send(`

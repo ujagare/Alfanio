@@ -1,9 +1,10 @@
 services:
   - type: web
-    name: alfanio-frontend
+    name: Alfanio
     env: static
-    buildCommand: cd frontend && npm install && npm run build
-    staticPublishPath: frontend/dist
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
     headers:
       - path: /*
         name: Cache-Control
@@ -49,13 +50,13 @@ services:
         source: /brochure/*
         destination: https://alfanio-ltd.onrender.com/brochure/:splat
     autoDeploy: true
-    healthCheckPath: /
 
   - type: web
     name: Alfanio ltd
     env: node
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && node server/server.js
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
     envVars:
       - key: NODE_VERSION
         value: 18.x
@@ -84,6 +85,6 @@ services:
       - key: CLIENT_URL
         value: https://alfanio.in
       - key: FRONTEND_URL
-        value: https://alfanio-frontend.onrender.com
-    healthCheckPath: /api/health
+        value: https://alfanio.onrender.com
+    healthCheckPath: /healthz
     autoDeploy: true
