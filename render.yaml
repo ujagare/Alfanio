@@ -83,5 +83,7 @@ services:
         value: Alfanio India
       - key: CLIENT_URL
         value: https://alfanio.in
+      - key: FRONTEND_URL
+        value: https://alfanio-frontend.onrender.com
     healthCheckPath: /api/health
     autoDeploy: true

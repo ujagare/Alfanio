@@ -100,7 +100,11 @@ app.use(compression({
 const allowedOrigins = [
   'https://alfanio.onrender.com',
   'https://alfanio-frontend.onrender.com',
+  'https://alfanio-backend.onrender.com',
+  'https://alfanio.in',
+  'https://www.alfanio.in',
   'https://alfanio.com',
+  'https://www.alfanio.com',
   'http://localhost:3000',
   'http://localhost:5001',
   'http://localhost:5003',
@@ -1043,7 +1047,11 @@ const staticPaths = [
   path.join(__dirname, '../dist'),
   path.join(__dirname, '../../frontend/dist'),
   path.join(__dirname, '../../frontend/build'),
-  path.join(__dirname, '../public')
+  path.join(__dirname, '../public'),
+  // Add Render-specific paths
+  '/opt/render/project/src/frontend/dist',
+  '/opt/render/project/src/frontend/build',
+  '/opt/render/project/src/dist'
 ];
 
 // Find existing directories and serve static files from them
@@ -1069,7 +1077,11 @@ app.get('*', (req, res) => {
     path.join(__dirname, '../dist/index.html'),
     path.join(__dirname, '../../frontend/dist/index.html'),
     path.join(__dirname, '../../frontend/build/index.html'),
-    path.join(__dirname, '../public/index.html')
+    path.join(__dirname, '../public/index.html'),
+    // Add Render-specific paths
+    '/opt/render/project/src/frontend/dist/index.html',
+    '/opt/render/project/src/frontend/build/index.html',
+    '/opt/render/project/src/dist/index.html'
   ];
 
   // Find the first existing file
@@ -1080,22 +1092,30 @@ app.get('*', (req, res) => {
     return res.sendFile(indexPath);
   }
 
-  // If index.html doesn't exist, send a simple response
-  console.log('Frontend files not found, serving API server page');
+  // If index.html doesn't exist, redirect to the frontend URL or show a better message
+  console.log('Frontend files not found, redirecting to frontend URL');
+
+  // Get the frontend URL from environment or use default
+  const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio-frontend.onrender.com';
+
+  // Send HTML with auto-redirect
   res.status(200).send(`
     <html>
       <head>
         <title>Alfanio API Server</title>
+        <meta http-equiv="refresh" content="0;url=${frontendUrl}">
         <style>
           body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
           h1 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
           .container { background: #f9f9f9; border-radius: 5px; padding: 20px; }
+          a { color: #FECC00; text-decoration: none; font-weight: bold; }
+          a:hover { text-decoration: underline; }
         </style>
       </head>
       <body>
         <div class="container">
           <h1>Alfanio API Server</h1>
-          <p>This is the Alfanio API server.</p>
+          <p>This is the Alfanio API server. The frontend application is hosted separately.</p>
           <p>Server is running and ready to accept API requests.</p>
           <p>Available endpoints:</p>
           <ul>
@@ -1104,11 +1124,14 @@ app.get('*', (req, res) => {
             <li>/api/contact/brochure - Request brochure</li>
             <li>/api/brochure/download - Download brochure</li>
           </ul>
-          <p>Note: Frontend files were not found in any of these locations:</p>
-          <ul>
-            ${possiblePaths.map(p => `<li>${p}</li>`).join('')}
-          </ul>
+          <p>You are being redirected to the frontend application. If you are not redirected automatically, <a href="${frontendUrl}">click here</a>.</p>
         </div>
+        <script>
+          // Redirect to frontend after a short delay
+          setTimeout(function() {
+            window.location.href = "${frontendUrl}";
+          }, 1500);
+        </script>
       </body>
     </html>
   `);
