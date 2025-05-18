@@ -1038,20 +1038,50 @@ app.get('/api/brochure/download', (_, res) => {
   }
 });
 
+// Serve static files from multiple possible locations
+const staticPaths = [
+  path.join(__dirname, '../dist'),
+  path.join(__dirname, '../../frontend/dist'),
+  path.join(__dirname, '../../frontend/build'),
+  path.join(__dirname, '../public')
+];
+
+// Find existing directories and serve static files from them
+staticPaths.forEach(staticPath => {
+  if (fs.existsSync(staticPath)) {
+    console.log('Serving static files from:', staticPath);
+    app.use(express.static(staticPath, {
+      maxAge: '1d', // Cache for 1 day
+      etag: true,
+      lastModified: true
+    }));
+  }
+});
+
 // Serve React app for all other routes
 app.get('*', (req, res) => {
   if (req.path.startsWith('/api')) {
     return res.status(404).json({ error: 'API endpoint not found' });
   }
 
-  // Check if the file exists before sending it
-  const indexPath = path.join(__dirname, '../dist/index.html');
+  // Check multiple possible locations for index.html
+  const possiblePaths = [
+    path.join(__dirname, '../dist/index.html'),
+    path.join(__dirname, '../../frontend/dist/index.html'),
+    path.join(__dirname, '../../frontend/build/index.html'),
+    path.join(__dirname, '../public/index.html')
+  ];
 
-  if (fs.existsSync(indexPath)) {
+  // Find the first existing file
+  const indexPath = possiblePaths.find(p => fs.existsSync(p));
+
+  if (indexPath) {
+    console.log('Serving frontend from:', indexPath);
     return res.sendFile(indexPath);
   }
 
   // If index.html doesn't exist, send a simple response
+  console.log('Frontend files not found, serving API server page');
   res.status(200).send(`
     <html>
       <head>
@@ -1065,7 +1095,7 @@ app.get('*', (req, res) => {
       <body>
         <div class="container">
           <h1>Alfanio API Server</h1>
-          <p>This is the Alfanio API server. The frontend application is hosted separately.</p>
+          <p>This is the Alfanio API server.</p>
           <p>Server is running and ready to accept API requests.</p>
           <p>Available endpoints:</p>
           <ul>
@@ -1073,6 +1103,10 @@ app.get('*', (req, res) => {
             <li>/api/contact - Submit contact form</li>
             <li>/api/contact/brochure - Request brochure</li>
             <li>/api/brochure/download - Download brochure</li>
+          </ul>
+          <p>Note: Frontend files were not found in any of these locations:</p>
+          <ul>
+            ${possiblePaths.map(p => `<li>${p}</li>`).join('')}
           </ul>
         </div>
       </body>
