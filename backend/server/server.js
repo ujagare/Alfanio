@@ -100,7 +100,7 @@ app.use(compression({
 const allowedOrigins = [
   'https://alfanio.onrender.com',
   'https://alfanio-frontend.onrender.com',
-  'https://alfanio-backend.onrender.com',
+  'https://alfanio-ltd.onrender.com',
   'https://alfanio.in',
   'https://www.alfanio.in',
   'https://alfanio.com',

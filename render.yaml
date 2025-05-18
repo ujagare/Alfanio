@@ -41,18 +41,18 @@ services:
         destination: /index.html
       - type: proxy
         source: /api/*
-        destination: https://alfanio-backend.onrender.com/api/:splat
+        destination: https://alfanio-ltd.onrender.com/api/:splat
       - type: proxy
         source: /contact/*
-        destination: https://alfanio-backend.onrender.com/contact/:splat
+        destination: https://alfanio-ltd.onrender.com/contact/:splat
       - type: proxy
         source: /brochure/*
-        destination: https://alfanio-backend.onrender.com/brochure/:splat
+        destination: https://alfanio-ltd.onrender.com/brochure/:splat
     autoDeploy: true
     healthCheckPath: /
 
   - type: web
-    name: alfanio-backend
+    name: Alfanio ltd
     env: node
     buildCommand: cd backend && npm install
     startCommand: cd backend && node server/server.js
