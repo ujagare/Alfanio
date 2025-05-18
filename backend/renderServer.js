@@ -1,9 +1,16 @@
 // Simple Express server for Render deployment
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
-const nodemailer = require('nodemailer');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import fs from 'fs';
+import nodemailer from 'nodemailer';
+import mongoose from 'mongoose';
+
+// Set up __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Create Express app
 const app = express();
@@ -196,6 +203,26 @@ app.post('/api/send-email', async (req, res) => {
 
     console.log('Received email request:', req.body);
 
+    // Save to database if MongoDB is connected
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const contact = new Contact({
+          name: name || 'Not provided',
+          email: email || 'Not provided',
+          phone: phone || 'Not provided',
+          message: message || 'Not provided'
+        });
+
+        await contact.save();
+        console.log('Contact form saved to database');
+      } catch (dbError) {
+        console.error('Error saving contact form to database:', dbError.message);
+        // Continue with email sending even if database save fails
+      }
+    } else {
+      console.log('MongoDB not connected, skipping database save');
+    }
+
     // Send email
     const emailResult = await sendEmail({
       subject: 'New Contact Form Submission',
@@ -212,13 +239,15 @@ app.post('/api/send-email', async (req, res) => {
       res.json({
         success: true,
         message: 'Email sent successfully',
-        emailId: emailResult.messageId
+        emailId: emailResult.messageId,
+        savedToDatabase: mongoose.connection.readyState === 1
       });
     } else {
       res.status(500).json({
         success: false,
         message: 'Failed to send email',
-        error: emailResult.error
+        error: emailResult.error,
+        savedToDatabase: mongoose.connection.readyState === 1
       });
     }
   } catch (error) {
@@ -246,6 +275,27 @@ app.post('/api/contact/brochure', async (req, res) => {
       });
     }
 
+    // Save to database if MongoDB is connected
+    if (mongoose.connection.readyState === 1) {
+      try {
+        const brochureRequest = new BrochureRequest({
+          name: name || 'Not provided',
+          email: email || 'Not provided',
+          phone: phone || 'Not provided',
+          message: message || 'Not provided',
+          type: 'brochure'
+        });
+
+        await brochureRequest.save();
+        console.log('Brochure request saved to database');
+      } catch (dbError) {
+        console.error('Error saving brochure request to database:', dbError.message);
+        // Continue with email sending even if database save fails
+      }
+    } else {
+      console.log('MongoDB not connected, skipping database save');
+    }
+
     // Send email
     const emailResult = await sendEmail({
       subject: 'New Brochure Request',
@@ -262,13 +312,15 @@ app.post('/api/contact/brochure', async (req, res) => {
       res.json({
         success: true,
         message: 'Brochure request received and email sent successfully',
-        emailId: emailResult.messageId
+        emailId: emailResult.messageId,
+        savedToDatabase: mongoose.connection.readyState === 1
       });
     } else {
       res.status(500).json({
         success: false,
         message: 'Failed to send email',
-        error: emailResult.error
+        error: emailResult.error,
+        savedToDatabase: mongoose.connection.readyState === 1
       });
     }
   } catch (error) {
@@ -464,19 +516,139 @@ app.get('*', (req, res) => {
   res.redirect('/');
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`Server URL: http://localhost:${PORT}`);
-  console.log(`API URL: http://localhost:${PORT}/api`);
+// MongoDB connection with retry logic
+const connectToMongoDB = async (retries = 5, delay = 5000) => {
+  // Skip MongoDB connection if SKIP_MONGODB is set
+  if (process.env.SKIP_MONGODB === 'true') {
+    console.log('MongoDB connection skipped due to SKIP_MONGODB=true');
+    return false;
+  }
 
-  // Log email configuration
-  console.log('Email configuration:');
-  console.log('- Host:', EMAIL_CONFIG.host);
-  console.log('- Port:', EMAIL_CONFIG.port);
-  console.log('- Secure:', EMAIL_CONFIG.secure);
-  console.log('- User:', EMAIL_CONFIG.auth.user);
-  console.log('- From:', EMAIL_CONFIG.from);
-  console.log('- To:', EMAIL_CONFIG.to);
+  let currentRetry = 0;
+
+  // Get MongoDB URI from environment variables
+  const getMongoURI = () => {
+    if (process.env.MONGODB_URI) {
+      return process.env.MONGODB_URI;
+    }
+
+    // Construct URI from individual parts if MONGODB_URI is not provided
+    const username = encodeURIComponent(process.env.MONGO_USERNAME || 'Alfanioindia');
+    const password = encodeURIComponent(process.env.MONGO_PASSWORD || 'ogwoqwpovqfcgacz');
+    const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
+    const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
+
+    return `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
+  };
+
+  while (currentRetry < retries) {
+    try {
+      console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);
+
+      const mongoURI = getMongoURI();
+      console.log(`Connecting to MongoDB Atlas...`);
+
+      // Connect to MongoDB with modern options
+      await mongoose.connect(mongoURI, {
+        serverSelectionTimeoutMS: 10000,
+        connectTimeoutMS: 10000,
+        socketTimeoutMS: 45000,
+        maxPoolSize: 10,
+        minPoolSize: 5,
+        retryWrites: true,
+        w: 'majority'
+      });
+
+      console.log('MongoDB connected successfully');
+
+      // Set up connection event listeners
+      mongoose.connection.on('error', (err) => {
+        console.error('MongoDB connection error:', err);
+        if (err.name === 'MongoNetworkError') {
+          console.log('Attempting to reconnect to MongoDB...');
+          setTimeout(() => connectToMongoDB(retries, delay), delay);
+        }
+      });
+
+      mongoose.connection.on('disconnected', () => {
+        console.log('MongoDB disconnected. Attempting to reconnect...');
+        setTimeout(() => connectToMongoDB(retries, delay), delay);
+      });
+
+      return true;
+    } catch (error) {
+      currentRetry++;
+      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);
+
+      if (currentRetry >= retries) {
+        console.error('Maximum MongoDB connection retries reached.');
+        return false;
+      }
+
+      // Wait before next retry with exponential backoff
+      const waitTime = delay * Math.pow(1.5, currentRetry);
+      console.log(`Waiting ${waitTime}ms before next connection attempt...`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    }
+  }
+
+  return false;
+};
+
+// Define MongoDB schemas
+const contactSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: { type: String, required: true },
+  message: { type: String, required: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
+const brochureRequestSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  email: { type: String, required: true },
+  phone: String,
+  message: String,
+  type: { type: String, default: 'brochure' },
+  createdAt: { type: Date, default: Date.now }
+});
+
+// Create models
+const Contact = mongoose.model('Contact', contactSchema);
+const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
+
+// Start server
+const startServer = async () => {
+  // Connect to MongoDB
+  let isMongoConnected = false;
+  if (process.env.SKIP_MONGODB !== 'true') {
+    isMongoConnected = await connectToMongoDB();
+    console.log(`MongoDB connection status: ${isMongoConnected ? 'Connected' : 'Failed to connect'}`);
+  } else {
+    console.log('MongoDB connection skipped');
+  }
+
+  // Start the server
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Server URL: http://localhost:${PORT}`);
+    console.log(`API URL: http://localhost:${PORT}/api`);
+    console.log(`MongoDB: ${isMongoConnected ? 'Connected' : 'Not connected'}`);
+
+    // Log email configuration
+    console.log('Email configuration:');
+    console.log('- Host:', EMAIL_CONFIG.host);
+    console.log('- Port:', EMAIL_CONFIG.port);
+    console.log('- Secure:', EMAIL_CONFIG.secure);
+    console.log('- User:', EMAIL_CONFIG.auth.user);
+    console.log('- From:', EMAIL_CONFIG.from);
+    console.log('- To:', EMAIL_CONFIG.to);
+  });
+};
+
+// Start the server
+startServer().catch(err => {
+  console.error('Failed to start server:', err);
+  process.exit(1);
 });
