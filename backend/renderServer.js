@@ -22,10 +22,12 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configure CORS with specific origins for production
 const allowedOrigins = [
+  'https://alfanio.com',
+  'https://www.alfanio.com',
   'https://alfanio.onrender.com',
   'https://alfanio-ltd.onrender.com',
-  'https://alfanio.in',
-  'https://www.alfanio.in',
+  'http://alfanio.com',
+  'http://www.alfanio.com',
   'http://localhost:3000',
   'http://localhost:5001',
   'http://localhost:5005',
