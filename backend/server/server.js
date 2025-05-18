@@ -710,8 +710,8 @@ app.get('/', (req, res) => {
   res.redirect(302, frontendUrl);
 });
 
-// Contact form endpoint
-app.post('/api/contact', async (req, res) => {
+// Contact form endpoint - both with and without /api prefix
+app.post(['/api/contact', '/contact'], async (req, res) => {
   console.log('Received contact form submission', req.body);
   console.log('Request origin:', req.headers.origin);
 
@@ -865,8 +865,8 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Brochure request endpoint - Simplified version without MongoDB dependency
-app.post('/api/contact/brochure', async (req, res) => {
+// Brochure request endpoint - both with and without /api prefix
+app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
   console.log('Received brochure request', req.body);
   console.log('Request origin:', req.headers.origin);
 
@@ -998,8 +998,8 @@ app.post('/api/contact/brochure', async (req, res) => {
   }
 });
 
-// Brochure download endpoint - Improved with more search paths and error handling
-app.get('/api/brochure/download', (_, res) => {
+// Brochure download endpoint - both with and without /api prefix
+app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
   // Try multiple locations for the brochure file
   const possiblePaths = [
     path.join(__dirname, 'assets/brochure.pdf'),
