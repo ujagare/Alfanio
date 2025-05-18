@@ -14,16 +14,139 @@ const __dirname = dirname(__filename);
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 10000;
+const PORT = process.env.PORT || 5001; // Use consistent port 5001 for production
 
 // Configure middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Configure CORS with specific origins for production
+const allowedOrigins = [
+  'https://alfanio.onrender.com',
+  'https://alfanio-ltd.onrender.com',
+  'https://alfanio.in',
+  'https://www.alfanio.in',
+  'http://localhost:3000',
+  'http://localhost:5001',
+  'http://localhost:5005',
+  'http://localhost:10000'
+];
+
+// CORS configuration
 app.use(cors({
-  origin: '*',
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, etc.)
+    if (!origin) return callback(null, true);
+
+    // Check if the origin is allowed
+    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('alfanio')) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      // Allow all origins in development
+      if (process.env.NODE_ENV !== 'production') {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    }
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
 }));
+
+// Add custom CORS headers to all responses for better compatibility
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+
+  // Set CORS headers based on origin
+  if (origin && (allowedOrigins.includes(origin) || origin.includes('alfanio') || process.env.NODE_ENV !== 'production')) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  next();
+});
+
+// Add security headers to all responses
+app.use((req, res, next) => {
+  // Protect against XSS attacks
+  res.header('X-XSS-Protection', '1; mode=block');
+
+  // Prevent MIME type sniffing
+  res.header('X-Content-Type-Options', 'nosniff');
+
+  // Control iframe embedding
+  res.header('X-Frame-Options', 'SAMEORIGIN');
+
+  // Enable strict transport security (HTTPS only)
+  if (process.env.NODE_ENV === 'production') {
+    res.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
+
+  // Set referrer policy
+  res.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+
+  // Set content security policy
+  res.header('Content-Security-Policy', "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'");
+
+  next();
+});
+
+// Rate limiting middleware to prevent abuse
+const apiLimiter = (req, res, next) => {
+  // Simple in-memory rate limiting
+  const WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+  const MAX_REQUESTS_PER_IP = 100; // 100 requests per window
+
+  // Store for request counts (in a real app, use Redis or similar)
+  const requestCounts = {};
+
+  // Get client IP
+  const ip = req.ip || req.connection.remoteAddress || 'unknown';
+
+  // Initialize or increment request count
+  if (!requestCounts[ip]) {
+    requestCounts[ip] = {
+      count: 1,
+      resetTime: Date.now() + WINDOW_MS
+    };
+  } else {
+    // Reset count if window has passed
+    if (Date.now() > requestCounts[ip].resetTime) {
+      requestCounts[ip] = {
+        count: 1,
+        resetTime: Date.now() + WINDOW_MS
+      };
+    } else {
+      // Increment count
+      requestCounts[ip].count++;
+    }
+  }
+
+  // Check if limit exceeded
+  if (requestCounts[ip].count > MAX_REQUESTS_PER_IP) {
+    console.log(`Rate limit exceeded for IP: ${ip}`);
+    return res.status(429).json({
+      success: false,
+      message: 'Too many requests, please try again later.'
+    });
+  }
+
+  next();
+};
+
+// Apply rate limiting to API routes
+app.use('/api', apiLimiter);
 
 // Email configuration
 const EMAIL_CONFIG = {
@@ -37,6 +160,15 @@ const EMAIL_CONFIG = {
   from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
   to: process.env.EMAIL_TO || 'alfanioindia@gmail.com'
 };
+
+// Log email configuration at startup for verification
+console.log('Email configuration loaded:');
+console.log('- Host:', EMAIL_CONFIG.host);
+console.log('- Port:', EMAIL_CONFIG.port);
+console.log('- Secure:', EMAIL_CONFIG.secure);
+console.log('- User:', EMAIL_CONFIG.auth.user);
+console.log('- From:', EMAIL_CONFIG.from);
+console.log('- To:', EMAIL_CONFIG.to);
 
 // Send email function with multiple fallback methods
 const sendEmail = async (options) => {
@@ -336,6 +468,9 @@ app.post('/api/contact/brochure', async (req, res) => {
 
 // Brochure download endpoint
 app.get('/api/brochure/download', (req, res) => {
+  // Log brochure download request
+  console.log('Brochure download requested from:', req.ip, 'User-Agent:', req.headers['user-agent']);
+
   // Try multiple locations for the brochure file
   const possiblePaths = [
     path.join(__dirname, 'assets/brochure.pdf'),
@@ -402,6 +537,46 @@ app.get('/api/brochure/download', (req, res) => {
 
     // Create a read stream and pipe it to the response
     const fileStream = fs.createReadStream(brochurePath);
+
+    // Handle file stream errors
+    fileStream.on('error', (error) => {
+      console.error('Error streaming brochure file:', error);
+      if (!res.headersSent) {
+        res.status(500).send('Error streaming brochure file');
+      }
+    });
+
+    // Handle successful download
+    fileStream.on('end', () => {
+      console.log('Brochure download completed successfully');
+
+      // Save download record to MongoDB if connected
+      if (mongoose.connection.readyState === 1) {
+        try {
+          // Create a simple schema for brochure downloads if it doesn't exist
+          const BrochureDownload = mongoose.models.BrochureDownload ||
+            mongoose.model('BrochureDownload', new mongoose.Schema({
+              ip: String,
+              userAgent: String,
+              timestamp: { type: Date, default: Date.now }
+            }));
+
+          // Save download record
+          new BrochureDownload({
+            ip: req.ip,
+            userAgent: req.headers['user-agent']
+          }).save().then(() => {
+            console.log('Brochure download record saved to database');
+          }).catch(err => {
+            console.error('Error saving brochure download record:', err);
+          });
+        } catch (dbError) {
+          console.error('Error saving brochure download to database:', dbError);
+        }
+      }
+    });
+
+    // Pipe the file to the response
     fileStream.pipe(res);
   } catch (error) {
     console.error('Error serving brochure file:', error);
@@ -534,7 +709,7 @@ const connectToMongoDB = async (retries = 5, delay = 5000) => {
 
     // Construct URI from individual parts if MONGODB_URI is not provided
     const username = encodeURIComponent(process.env.MONGO_USERNAME || 'Alfanioindia');
-    const password = encodeURIComponent(process.env.MONGO_PASSWORD || 'ogwoqwpovqfcgacz');
+    const password = encodeURIComponent(process.env.MONGO_PASSWORD || '10Nu2FEpmRZuNFYf'); // Updated password from server/.env.fixed
     const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
     const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
 
@@ -646,6 +821,39 @@ const startServer = async () => {
     console.log('- To:', EMAIL_CONFIG.to);
   });
 };
+
+// Global error handler middleware
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+
+  // Don't expose error details in production
+  const errorMessage = process.env.NODE_ENV === 'production'
+    ? 'An unexpected error occurred'
+    : err.message;
+
+  res.status(500).json({
+    success: false,
+    message: errorMessage,
+    error: process.env.NODE_ENV === 'production' ? undefined : err.stack
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION:', err);
+  // Log to file or monitoring service in production
+
+  // Give the server a chance to finish current requests
+  setTimeout(() => {
+    process.exit(1);
+  }, 1000);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('UNHANDLED REJECTION:', reason);
+  // Log to file or monitoring service in production
+});
 
 // Start the server
 startServer().catch(err => {
