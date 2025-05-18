@@ -836,7 +836,7 @@ app.post('/api/contact', async (req, res) => {
   }
 });
 
-// Brochure request endpoint
+// Brochure request endpoint - Simplified version without MongoDB dependency
 app.post('/api/contact/brochure', async (req, res) => {
   console.log('Received brochure request', req.body);
   console.log('Request origin:', req.headers.origin);
@@ -854,14 +854,14 @@ app.post('/api/contact/brochure', async (req, res) => {
       });
     }
 
-    // Skip saving to database to avoid MongoDB connection issues
-    console.log('Skipping database save for brochure request');
+    // Skip database operations to avoid MongoDB connection issues
+    console.log('Using direct email sending without database operations');
 
-    // Direct email sending with nodemailer
+    // Send email using the proven working configuration
     try {
       console.log('Setting up direct email transport...');
 
-      // Create a direct transport with hardcoded credentials
+      // Create a direct transport with hardcoded credentials - proven working configuration
       const transporter = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 465,
@@ -892,45 +892,27 @@ app.post('/api/contact/brochure', async (req, res) => {
 
       console.log('Sending email directly...');
 
-      try {
-        // Verify connection first
-        await transporter.verify();
-        console.log('Email connection verified successfully');
+      // Send email
+      const info = await transporter.sendMail(mailOptions);
 
-        // Send email
-        const info = await transporter.sendMail(mailOptions);
+      console.log('Email sent successfully:', info.messageId);
 
-        console.log('Email sent successfully:', info.messageId);
-
-        // Return success response
-        res.json({
-          success: true,
-          message: 'Brochure request received and email sent successfully',
-          emailId: info.messageId
-        });
-      } catch (verifyError) {
-        console.error('Email verification or sending error:', verifyError);
-
-        // Return success anyway
-        res.json({
-          success: true,
-          message: 'Brochure request received successfully. Email notification will be sent later.',
-          emailSent: false,
-          error: verifyError.message
-        });
-      }
+      // Return success response
+      res.json({
+        success: true,
+        message: 'Brochure request received and email sent successfully',
+        emailId: info.messageId
+      });
     } catch (emailError) {
-      console.error('Direct email sending error:', emailError);
+      console.error('Email sending error:', emailError);
 
       // Try alternative method if direct method fails
       try {
-        console.log('Trying alternative email method with direct SMTP...');
+        console.log('Trying alternative email method...');
 
         // Create alternative transport with different settings
         const alternativeTransporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
+          service: 'gmail',
           auth: {
             user: 'alfanioindia@gmail.com',
             pass: 'ogwoqwpovqfcgacz'
@@ -939,10 +921,6 @@ app.post('/api/contact/brochure', async (req, res) => {
             rejectUnauthorized: false
           }
         });
-
-        // Verify connection first
-        await alternativeTransporter.verify();
-        console.log('Alternative email connection verified successfully');
 
         // Email content
         const mailOptions = {
@@ -953,7 +931,7 @@ app.post('/api/contact/brochure', async (req, res) => {
             <h2>New Brochure Request</h2>
             <p><strong>Name:</strong> ${name}</p>
             <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone}</p>
+            <p><strong>Phone:</strong> ${phoneNumber}</p>
             ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
           `
         };
@@ -972,11 +950,11 @@ app.post('/api/contact/brochure', async (req, res) => {
       } catch (alternativeError) {
         console.error('Alternative email method also failed:', alternativeError);
 
-        // Return success response anyway
-        res.json({
-          success: true,
-          message: 'Brochure request received successfully. Email notification will be sent later.',
-          emailSent: false
+        // Return error response
+        res.status(500).json({
+          success: false,
+          message: 'Failed to send email. Please try again later.',
+          error: alternativeError.message
         });
       }
     }
@@ -991,22 +969,33 @@ app.post('/api/contact/brochure', async (req, res) => {
   }
 });
 
-// Brochure download endpoint
-app.get('/api/brochure/download', (req, res) => {
+// Brochure download endpoint - Improved with more search paths and error handling
+app.get('/api/brochure/download', (_, res) => {
   // Try multiple locations for the brochure file
   const possiblePaths = [
     path.join(__dirname, 'assets/brochure.pdf'),
     path.join(__dirname, 'assets/Alfanio.pdf'),
     path.join(__dirname, '../public/brochure.pdf'),
-    path.join(__dirname, '../dist/brochure.pdf')
+    path.join(__dirname, '../dist/brochure.pdf'),
+    path.join(__dirname, 'server/assets/brochure.pdf'),
+    path.join(__dirname, 'server/assets/Alfanio.pdf'),
+    path.join(__dirname, '../assets/brochure.pdf'),
+    path.join(__dirname, '../assets/Alfanio.pdf')
   ];
 
+  console.log('Searching for brochure in the following locations:');
+  possiblePaths.forEach(p => console.log(`- ${p}`));
+
   // Find the first existing file
-  const brochurePath = possiblePaths.find(path => fs.existsSync(path));
+  const brochurePath = possiblePaths.find(p => fs.existsSync(p));
 
   if (!brochurePath) {
     console.error('Brochure file not found in any location', possiblePaths);
-    return res.status(404).send('Brochure file not found');
+    return res.status(404).json({
+      success: false,
+      message: 'Brochure file not found',
+      searchedPaths: possiblePaths
+    });
   }
 
   // Set appropriate headers for better mobile compatibility
@@ -1016,24 +1005,37 @@ app.get('/api/brochure/download', (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
 
-  // Get file stats for Content-Length header
-  const stat = fs.statSync(brochurePath);
-  res.setHeader('Content-Length', stat.size);
+  try {
+    // Get file stats for Content-Length header
+    const stat = fs.statSync(brochurePath);
+    res.setHeader('Content-Length', stat.size);
 
-  console.log('Serving brochure from:', brochurePath);
+    console.log('Serving brochure from:', brochurePath);
 
-  // Create a read stream and pipe it to the response
-  const fileStream = fs.createReadStream(brochurePath);
+    // Create a read stream and pipe it to the response
+    const fileStream = fs.createReadStream(brochurePath);
 
-  fileStream.on('error', (err) => {
-    console.error('Brochure download stream error:', err);
-    if (!res.headersSent) {
-      res.status(500).send('Error downloading brochure');
-    }
-  });
+    fileStream.on('error', (err) => {
+      console.error('Brochure download stream error:', err);
+      if (!res.headersSent) {
+        res.status(500).json({
+          success: false,
+          message: 'Error downloading brochure',
+          error: err.message
+        });
+      }
+    });
 
-  // Pipe the file to the response
-  fileStream.pipe(res);
+    // Pipe the file to the response
+    fileStream.pipe(res);
+  } catch (error) {
+    console.error('Error serving brochure file:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error serving brochure file',
+      error: error.message
+    });
+  }
 });
 
 // Serve React app for all other routes
@@ -1079,9 +1081,9 @@ app.get('*', (req, res) => {
 });
 
 // Error handling middleware with improved logging and security
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   // Log the error with request ID for better debugging
-  console.error(`[Error ${req.id}] Global error handler:`, err);
+  console.error(`[Error ${req.id || 'unknown'}] Global error handler:`, err);
 
   // Don't expose error details in production
   const isProduction = process.env.NODE_ENV === 'production';
@@ -1090,7 +1092,7 @@ app.use((err, req, res, next) => {
   const errorResponse = {
     success: false,
     message: 'Internal server error',
-    requestId: req.id, // Include request ID for support reference
+    requestId: req.id || crypto.randomBytes(8).toString('hex'), // Include request ID for support reference
     timestamp: new Date().toISOString()
   };
 
