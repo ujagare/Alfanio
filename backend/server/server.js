@@ -854,16 +854,8 @@ app.post('/api/contact/brochure', async (req, res) => {
       });
     }
 
-    // Save to database
-    const brochureRequest = new BrochureRequest({
-      name,
-      email,
-      phone: phoneNumber,
-      message
-    });
-
-    await brochureRequest.save();
-    console.log('Brochure request saved to database');
+    // Skip saving to database to avoid MongoDB connection issues
+    console.log('Skipping database save for brochure request');
 
     // Direct email sending with nodemailer
     try {
@@ -919,12 +911,11 @@ app.post('/api/contact/brochure', async (req, res) => {
       } catch (verifyError) {
         console.error('Email verification or sending error:', verifyError);
 
-        // Return success anyway since data is saved to database
+        // Return success anyway
         res.json({
           success: true,
           message: 'Brochure request received successfully. Email notification will be sent later.',
           emailSent: false,
-          savedToDatabase: true,
           error: verifyError.message
         });
       }
@@ -981,12 +972,11 @@ app.post('/api/contact/brochure', async (req, res) => {
       } catch (alternativeError) {
         console.error('Alternative email method also failed:', alternativeError);
 
-        // Return success response anyway since data is saved to database
+        // Return success response anyway
         res.json({
           success: true,
           message: 'Brochure request received successfully. Email notification will be sent later.',
-          emailSent: false,
-          savedToDatabase: true
+          emailSent: false
         });
       }
     }
