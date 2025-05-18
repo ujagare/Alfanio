@@ -1,10 +1,11 @@
 /**
- * Simple form handler utility for Alfanio
- * This utility handles form submissions without making API calls
+ * Form handler utility for Alfanio
+ * This utility handles form submissions with API calls
  */
 
 import { toast } from 'react-toastify';
 import { saveContactSubmission, saveBrochureRequest } from './offlineSync';
+import { API_ENDPOINTS } from '../config';
 
 // Store form submissions in local storage
 const saveSubmission = (formData, formType) => {
@@ -37,10 +38,35 @@ const saveSubmission = (formData, formType) => {
 // Handle contact form submission
 export const handleContactForm = async (formData) => {
   try {
-    // Save submission to local storage
-    const saved = saveSubmission(formData, 'contact');
+    // Save submission to local storage as backup
+    saveSubmission(formData, 'contact');
 
-    if (saved) {
+    // Make API call to server
+    console.log('Sending contact form to API:', formData);
+
+    const response = await fetch(API_ENDPOINTS.contact, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        type: 'contact',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`Server responded with status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
       // Show success message
       toast.success('✅ Thank you for your message! We will contact you shortly.');
 
@@ -51,7 +77,7 @@ export const handleContactForm = async (formData) => {
 
       return { success: true };
     } else {
-      throw new Error('Failed to save submission');
+      throw new Error(result.message || 'Failed to send message');
     }
   } catch (error) {
     console.error('Contact form error:', error);
@@ -63,10 +89,36 @@ export const handleContactForm = async (formData) => {
 // Handle brochure form submission
 export const handleBrochureForm = async (formData) => {
   try {
-    // Save submission to local storage
-    const saved = saveSubmission(formData, 'brochure');
+    // Save submission to local storage as backup
+    saveSubmission(formData, 'brochure');
 
-    if (saved) {
+    // Make API call to server
+    console.log('Sending brochure form to API:', formData);
+
+    const response = await fetch(API_ENDPOINTS.brochure, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        message: formData.message,
+        product: formData.product,
+        type: 'brochure',
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Server error response:', errorText);
+      throw new Error(`Server responded with status: ${response.status}`);
+    }
+
+    const result = await response.json();
+
+    if (result.success) {
       // Show success message
       toast.success('✅ Thank you for your interest! Your brochure is ready for download.');
 
@@ -76,11 +128,11 @@ export const handleBrochureForm = async (formData) => {
       }
 
       // Open brochure in new tab
-      window.open('/brochure.pdf', '_blank');
+      window.open(API_ENDPOINTS.brochureDownload, '_blank');
 
       return { success: true };
     } else {
-      throw new Error('Failed to save submission');
+      throw new Error(result.message || 'Failed to request brochure');
     }
   } catch (error) {
     console.error('Brochure form error:', error);

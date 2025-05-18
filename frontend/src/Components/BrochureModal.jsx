@@ -116,7 +116,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
     try {
       // Create a link to download the brochure
       const link = document.createElement("a");
-      link.href = `${API_URL}/api/brochure/download`;
+      link.href = API_ENDPOINTS.brochureDownload;
       link.setAttribute("download", "Alfanio-Brochure.pdf");
       document.body.appendChild(link);
       link.click();
@@ -187,7 +187,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
 
-      const response = await fetch(`${API_URL}/api/contact/brochure`, {
+      const response = await fetch(API_ENDPOINTS.brochure, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
