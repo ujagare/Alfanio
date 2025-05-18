@@ -684,6 +684,32 @@ app.get('/api/health', (req, res) => {
   }
 });
 
+// Health check endpoint for Render
+app.get('/healthz', (req, res) => {
+  const healthcheck = {
+    status: 'ok',
+    uptime: process.uptime(),
+    timestamp: Date.now()
+  };
+
+  try {
+    res.status(200).json(healthcheck);
+  } catch (error) {
+    console.error('Health check failed', error.message);
+    res.status(503).json({
+      status: 'error',
+      message: error.message
+    });
+  }
+});
+
+// Root endpoint to redirect to frontend
+app.get('/', (req, res) => {
+  const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
+  console.log('Root endpoint accessed, redirecting to frontend URL:', frontendUrl);
+  res.redirect(302, frontendUrl);
+});
+
 // Contact form endpoint
 app.post('/api/contact', async (req, res) => {
   console.log('Received contact form submission', req.body);
@@ -1091,49 +1117,14 @@ app.get('*', (req, res) => {
     return res.sendFile(indexPath);
   }
 
-  // If index.html doesn't exist, redirect to the frontend URL or show a better message
+  // If index.html doesn't exist, redirect to the frontend URL
   console.log('Frontend files not found, redirecting to frontend URL');
 
   // Get the frontend URL from environment or use default
   const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
 
-  // Send HTML with auto-redirect
-  res.status(200).send(`
-    <html>
-      <head>
-        <title>Alfanio API Server</title>
-        <meta http-equiv="refresh" content="0;url=${frontendUrl}">
-        <style>
-          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 800px; margin: 0 auto; padding: 20px; }
-          h1 { color: #FECC00; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-          .container { background: #f9f9f9; border-radius: 5px; padding: 20px; }
-          a { color: #FECC00; text-decoration: none; font-weight: bold; }
-          a:hover { text-decoration: underline; }
-        </style>
-      </head>
-      <body>
-        <div class="container">
-          <h1>Alfanio API Server</h1>
-          <p>This is the Alfanio API server. The frontend application is hosted separately.</p>
-          <p>Server is running and ready to accept API requests.</p>
-          <p>Available endpoints:</p>
-          <ul>
-            <li>/api/health - Check server health</li>
-            <li>/api/contact - Submit contact form</li>
-            <li>/api/contact/brochure - Request brochure</li>
-            <li>/api/brochure/download - Download brochure</li>
-          </ul>
-          <p>You are being redirected to the frontend application. If you are not redirected automatically, <a href="${frontendUrl}">click here</a>.</p>
-        </div>
-        <script>
-          // Redirect to frontend after a short delay
-          setTimeout(function() {
-            window.location.href = "${frontendUrl}";
-          }, 1500);
-        </script>
-      </body>
-    </html>
-  `);
+  // Perform a direct 302 redirect to the frontend URL
+  res.redirect(302, frontendUrl);
 });
 
 // Error handling middleware with improved logging and security
