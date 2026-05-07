@@ -157,7 +157,7 @@ const EMAIL_CONFIG = {
   secure: process.env.EMAIL_SECURE === 'true' || true,
   auth: {
     user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-    pass: process.env.EMAIL_PASS || 'ogwoqwpovqfcgacz' // App password from 2-step verification
+    pass: process.env.EMAIL_PASS // App password from 2-step verification
   },
   from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
   to: process.env.EMAIL_TO || 'alfanioindia@gmail.com'
@@ -711,7 +711,7 @@ const connectToMongoDB = async (retries = 5, delay = 5000) => {
 
     // Construct URI from individual parts if MONGODB_URI is not provided
     const username = encodeURIComponent(process.env.MONGO_USERNAME || 'Alfanioindia');
-    const password = encodeURIComponent(process.env.MONGO_PASSWORD || '10Nu2FEpmRZuNFYf'); // Updated password from server/.env.fixed
+    const password = encodeURIComponent(process.env.MONGO_PASSWORD); // Updated password from server/.env.fixed
     const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
     const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
 

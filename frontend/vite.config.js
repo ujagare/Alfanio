@@ -114,17 +114,17 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5005',
         changeOrigin: true,
         secure: false
       },
       '/contact': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5005',
         changeOrigin: true,
         secure: false
       },
       '/brochure': {
-        target: 'http://localhost:5001',
+        target: 'http://localhost:5005',
         changeOrigin: true,
         secure: false
       }
@@ -137,7 +137,12 @@ export default defineConfig({
     https: false
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion']
+    include: ['react', 'react-dom', 'react-router-dom', 'framer-motion'],
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx'
+      }
+    }
   },
 
   preview: {

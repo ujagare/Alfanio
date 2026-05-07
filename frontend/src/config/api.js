@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const API_URL = process.env.NODE_ENV === 'production'
+export const API_URL = import.meta.env.PROD
   ? 'https://alfanio.in'
   : 'http://localhost:5001';
 

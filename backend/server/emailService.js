@@ -8,14 +8,14 @@ import nodemailer from 'nodemailer';
 // Email configuration
 const EMAIL_CONFIG = {
   host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT || '587'),
-  secure: process.env.EMAIL_SECURE === 'true',
+  port: parseInt(process.env.EMAIL_PORT || '465', 10),
+  secure: String(process.env.EMAIL_SECURE ?? 'true') === 'true',
   auth: {
-    user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-    pass: process.env.EMAIL_PASS || 'rvxvxvxvxvxvxvxv' // Updated app password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   },
-  from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
-  to: process.env.EMAIL_TO || 'alfanioindia@gmail.com'
+  from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'no-reply@alfanio.in'}>`,
+  to: process.env.EMAIL_TO || process.env.EMAIL_USER
 };
 
 // Create mail transport
@@ -25,17 +25,22 @@ const createMailTransport = () => {
   // Log email configuration status
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
-  // Set up email transport configuration - proven working configuration
+  if (!EMAIL_CONFIG.auth.user || !EMAIL_CONFIG.auth.pass) {
+    console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');
+    return null;
+  }
+
+  // Set up email transport configuration from environment
   const transportConfig = {
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
+    host: EMAIL_CONFIG.host,
+    port: EMAIL_CONFIG.port,
+    secure: EMAIL_CONFIG.secure,
     auth: {
-      user: 'alfanioindia@gmail.com',
-      pass: 'ogwoqwpovqfcgacz' // Hardcoded for reliability
+      user: EMAIL_CONFIG.auth.user,
+      pass: EMAIL_CONFIG.auth.pass
     },
-    debug: true,
-    logger: true
+    debug: process.env.NODE_ENV !== 'production',
+    logger: process.env.NODE_ENV !== 'production'
   };
 
   console.log('Email transport configuration:', {
@@ -59,6 +64,11 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
 
   while (currentRetry < retries) {
     try {
+      if (!mailTransport) {
+        console.warn('Email transport is not configured.');
+        return false;
+      }
+
       await mailTransport.verify();
       console.log('Email server is ready');
       return true;
@@ -153,17 +163,21 @@ export const sendEmail = async (options) => {
   try {
     console.log('Creating direct Gmail transport...');
 
-    // Create a direct Gmail transport with proven working configuration
+    if (!EMAIL_CONFIG.auth.user || !EMAIL_CONFIG.auth.pass) {
+      throw new Error('Email configuration missing: EMAIL_USER and EMAIL_PASS are required');
+    }
+
+    // Create a direct transport from environment settings
     const transport = nodemailer.createTransport({
-      host: 'smtp.gmail.com',
-      port: 465,
-      secure: true,
+      host: EMAIL_CONFIG.host,
+      port: EMAIL_CONFIG.port,
+      secure: EMAIL_CONFIG.secure,
       auth: {
-        user: 'alfanioindia@gmail.com',
-        pass: 'ogwoqwpovqfcgacz'
+        user: EMAIL_CONFIG.auth.user,
+        pass: EMAIL_CONFIG.auth.pass
       },
-      debug: true,
-      logger: true
+      debug: process.env.NODE_ENV !== 'production',
+      logger: process.env.NODE_ENV !== 'production'
     });
 
     console.log('Verifying connection...');
@@ -207,13 +221,15 @@ export const sendEmail = async (options) => {
 
       // Create alternative transport with different settings
       const alternativeTransport = nodemailer.createTransport({
-        service: 'gmail',
+        host: EMAIL_CONFIG.host,
+        port: EMAIL_CONFIG.port,
+        secure: EMAIL_CONFIG.secure,
         auth: {
-          user: 'alfanioindia@gmail.com',
-          pass: 'ogwoqwpovqfcgacz'
+          user: EMAIL_CONFIG.auth.user,
+          pass: EMAIL_CONFIG.auth.pass
         },
         tls: {
-          rejectUnauthorized: false
+          rejectUnauthorized: process.env.NODE_ENV === 'production'
         }
       });
 

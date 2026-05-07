@@ -1,5 +1,6 @@
 // API Configuration
 export const API_URL = ''; // Empty string for relative URLs (proxy support)
+export const API_BASE_URL = API_URL;
 export const BROCHURE_URL = '/api/contact/brochure'; // Using /api prefix for direct backend access
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
 

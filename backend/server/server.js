@@ -185,32 +185,9 @@ app.use((req, res, next) => {
   next();
 });
 
-// CSRF protection - enabled for production only
-const csrfProtection = (req, res, next) => {
-  // In production, implement proper CSRF protection
-  if (process.env.NODE_ENV === 'production') {
-    // Check for CSRF token in headers
-    const csrfToken = req.headers['x-csrf-token'];
-
-    // Simple validation - in a real app, you'd validate against a stored token
-    if (!csrfToken) {
-      return res.status(403).json({
-        success: false,
-        message: 'CSRF token missing'
-      });
-    }
-
-    // For a more secure implementation, validate the token against a stored value
-    // This is a simplified version for demonstration
-  }
-
-  // Always allow in development mode
-  next();
-};
-
-// Apply CSRF protection to all POST endpoints
-app.use('/api/contact', csrfProtection);
-app.use('/api/contact/brochure', csrfProtection);
+// Contact and brochure endpoints are public lead-capture forms.
+// They are protected with CORS, validation and rate limits instead of CSRF tokens,
+// because the frontend does not maintain an authenticated CSRF session.
 
 // Rate limiting with improved configuration
 const apiLimiter = rateLimit({
@@ -513,13 +490,17 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
     // For production, use MongoDB Atlas
     if (process.env.NODE_ENV === 'production') {
       // Make sure to set these environment variables in production
-      const username = encodeURIComponent(process.env.MONGO_USERNAME || 'Alfanioindia');
-      const password = encodeURIComponent(process.env.MONGO_PASSWORD || '10Nu2FEpmRZuNFYf');
+      const username = process.env.MONGO_USERNAME;
+      const password = process.env.MONGO_PASSWORD;
       const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
       const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
 
+      if (!username || !password) {
+        throw new Error('MongoDB credentials missing. Set MONGODB_URI or MONGO_USERNAME/MONGO_PASSWORD.');
+      }
+
       // MongoDB Atlas connection string
-      return `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
+      return `mongodb+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${cluster}/${dbName}?retryWrites=true&w=majority`;
     }
 
     // For development, use local MongoDB as fallback
@@ -597,7 +578,7 @@ const contactSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true },
   phone: { type: String, required: true },
-  message: { type: String, required: true },
+  message: { type: String, default: '' },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -616,6 +597,16 @@ const brochureRequestSchema = new mongoose.Schema({
 const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
 
 // Enhanced email configuration for production readiness
+const getEmailSettings = () => ({
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.EMAIL_PORT || '465', 10),
+  secure: String(process.env.EMAIL_SECURE ?? 'true') === 'true',
+  user: process.env.EMAIL_USER,
+  pass: process.env.EMAIL_PASS,
+  fromName: process.env.EMAIL_FROM_NAME || 'Alfanio India',
+  to: process.env.EMAIL_TO || process.env.EMAIL_USER
+});
+
 const createMailTransport = () => {
   // Determine if we're in production
   const isProduction = process.env.NODE_ENV === 'production';
@@ -624,13 +615,20 @@ const createMailTransport = () => {
   console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
 
   // Set up email transport configuration
+  const emailSettings = getEmailSettings();
+
+  if (!emailSettings.user || !emailSettings.pass) {
+    console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');
+    return null;
+  }
+
   const transportConfig = {
-    host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.EMAIL_PORT || '587'),
-    secure: false, // Use TLS instead of SSL for better compatibility with Gmail
+    host: emailSettings.host,
+    port: emailSettings.port,
+    secure: emailSettings.secure,
     auth: {
-      user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-      pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa' // Fallback password if not in env
+      user: emailSettings.user,
+      pass: emailSettings.pass
     }
   };
 
@@ -648,13 +646,55 @@ const createMailTransport = () => {
     };
 
     // Check if credentials are properly set
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.warn('Email credentials not fully configured. Check environment variables.');
-    }
+    transportConfig.debug = false;
+    transportConfig.logger = false;
   }
 
   return nodemailer.createTransport(transportConfig);
 };
+
+const escapeHtml = (value = '') =>
+  String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+const getMailDefaults = () => {
+  const settings = getEmailSettings();
+  return {
+    from: `"${escapeHtml(settings.fromName)}" <${settings.user || 'no-reply@alfanio.in'}>`,
+    to: settings.to || settings.user
+  };
+};
+
+const getMissingEmailConfig = () => {
+  const settings = getEmailSettings();
+  return [
+    !settings.user && 'EMAIL_USER',
+    !settings.pass && 'EMAIL_PASS',
+    !settings.to && 'EMAIL_TO'
+  ].filter(Boolean);
+};
+
+const sendEmailConfigError = (res) => {
+  const missing = getMissingEmailConfig();
+  return res.status(503).json({
+    success: false,
+    code: 'EMAIL_CONFIG_MISSING',
+    message: `Email service is not configured. Missing: ${missing.join(', ')}`,
+    missing
+  });
+};
+
+const sendAcceptedWithoutEmail = (res, message, extra = {}) =>
+  res.json({
+    success: true,
+    message,
+    emailSent: false,
+    ...extra
+  });
 
 // Create mail transport
 const mailTransport = createMailTransport();
@@ -716,56 +756,64 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
   console.log('Request origin:', req.headers.origin);
 
   try {
-    const { name, email, phone, message } = req.body;
+    const name = String(req.body.name || '').trim();
+    const email = String(req.body.email || '').trim();
+    const phone = String(req.body.phone || '').trim();
+    const message = String(req.body.message || '').trim();
 
-    if (!name || !email || !phone || !message) {
+    if (!name || !email || !phone) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required'
+        message: 'Name, email and phone are required'
       });
     }
 
-    // Save to database
-    const contact = new Contact({
-      name,
-      email,
-      phone,
-      message
-    });
+    let savedToDatabase = false;
 
-    await contact.save();
-    console.log('Contact form saved to database');
+    try {
+      const contact = new Contact({
+        name,
+        email,
+        phone,
+        message
+      });
+
+      await contact.save();
+      savedToDatabase = true;
+      console.log('Contact form saved to database');
+    } catch (databaseError) {
+      console.error('Contact form database save failed:', databaseError.message);
+      console.log('Continuing with email delivery despite database issue');
+    }
 
     // Direct email sending with nodemailer
     try {
       console.log('Setting up direct email transport for contact form...');
 
-      // Create a direct transport with hardcoded credentials
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'alfanioindia@gmail.com',
-          pass: 'ogwoqwpovqfcgacz'
-        },
-        debug: true,
-        logger: true
-      });
+      const transporter = createMailTransport();
+      const mailDefaults = getMailDefaults();
+
+      if (!transporter || !mailDefaults.to) {
+        return sendAcceptedWithoutEmail(
+          res,
+          'Your message has been received. We will contact you shortly.',
+          { savedToDatabase }
+        );
+      }
 
       console.log('Preparing contact form email content...');
 
       // Email content
       const mailOptions = {
-        from: '"Alfanio India" <alfanioindia@gmail.com>',
-        to: 'alfanioindia@gmail.com',
+        from: mailDefaults.from,
+        to: mailDefaults.to,
         subject: 'New Contact Form Submission',
         html: `
           <h2>New Contact Form Submission</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phone}</p>
-          <p><strong>Message:</strong> ${message}</p>
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+          <p><strong>Message:</strong> ${escapeHtml(message || 'Not provided')}</p>
         `
       };
 
@@ -785,7 +833,8 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         res.json({
           success: true,
           message: 'Message sent successfully',
-          emailId: info.messageId
+          emailId: info.messageId,
+          savedToDatabase
         });
       } catch (verifyError) {
         console.error('Email verification or sending error for contact form:', verifyError);
@@ -795,7 +844,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
           success: true,
           message: 'Your message has been received. We will contact you shortly.',
           emailSent: false,
-          savedToDatabase: true,
+          savedToDatabase,
           error: verifyError.message
         });
       }
@@ -806,28 +855,28 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       try {
         console.log('Trying alternative email method for contact form...');
 
-        // Create alternative transport
-        const alternativeTransporter = nodemailer.createTransport({
-          host: 'smtp.gmail.com',
-          port: 465,
-          secure: true,
-          auth: {
-            user: 'alfanioindia@gmail.com',
-            pass: 'ogwoqwpovqfcgacz'
-          }
-        });
+        const alternativeTransporter = createMailTransport();
+        const mailDefaults = getMailDefaults();
+
+        if (!alternativeTransporter || !mailDefaults.to) {
+          return sendAcceptedWithoutEmail(
+            res,
+            'Your message has been received. We will contact you shortly.',
+            { savedToDatabase }
+          );
+        }
 
         // Email content
         const mailOptions = {
-          from: '"Alfanio India" <alfanioindia@gmail.com>',
-          to: 'alfanioindia@gmail.com',
+          from: mailDefaults.from,
+          to: mailDefaults.to,
           subject: 'New Contact Form Submission (Alternative Method)',
           html: `
             <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phone}</p>
-            <p><strong>Message:</strong> ${message}</p>
+            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
+            <p><strong>Message:</strong> ${escapeHtml(message || 'Not provided')}</p>
           `
         };
 
@@ -840,7 +889,8 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         res.json({
           success: true,
           message: 'Message sent successfully (alternative method)',
-          emailId: info.messageId
+          emailId: info.messageId,
+          savedToDatabase
         });
       } catch (alternativeError) {
         console.error('Alternative email method also failed for contact form:', alternativeError);
@@ -850,7 +900,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
           success: true,
           message: 'Your message has been received. We will contact you shortly.',
           emailSent: false,
-          savedToDatabase: true
+          savedToDatabase
         });
       }
     }
@@ -871,7 +921,10 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
   console.log('Request origin:', req.headers.origin);
 
   try {
-    const { name, email, phone, message } = req.body;
+    const name = String(req.body.name || '').trim();
+    const email = String(req.body.email || '').trim();
+    const phone = String(req.body.phone || '').trim();
+    const message = String(req.body.message || '').trim();
 
     // Extract phone number with or without country code
     const phoneNumber = phone || '';
@@ -890,32 +943,30 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
     try {
       console.log('Setting up direct email transport...');
 
-      // Create a direct transport with hardcoded credentials - proven working configuration
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
-        auth: {
-          user: 'alfanioindia@gmail.com',
-          pass: 'ogwoqwpovqfcgacz'
-        },
-        debug: true,
-        logger: true
-      });
+      const transporter = createMailTransport();
+      const mailDefaults = getMailDefaults();
+
+      if (!transporter || !mailDefaults.to) {
+        return sendAcceptedWithoutEmail(
+          res,
+          'Brochure request received. Email delivery is not configured.',
+          { code: 'EMAIL_CONFIG_MISSING' }
+        );
+      }
 
       console.log('Preparing email content...');
 
       // Email content
       const mailOptions = {
-        from: '"Alfanio India" <alfanioindia@gmail.com>',
-        to: 'alfanioindia@gmail.com',
+        from: mailDefaults.from,
+        to: mailDefaults.to,
         subject: 'New Brochure Request',
         html: `
           <h2>New Brochure Request</h2>
-          <p><strong>Name:</strong> ${name}</p>
-          <p><strong>Email:</strong> ${email}</p>
-          <p><strong>Phone:</strong> ${phoneNumber}</p>
-          ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
+          <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+          <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+          <p><strong>Phone:</strong> ${escapeHtml(phoneNumber)}</p>
+          ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
         `
       };
 
@@ -939,29 +990,28 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       try {
         console.log('Trying alternative email method...');
 
-        // Create alternative transport with different settings
-        const alternativeTransporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: {
-            user: 'alfanioindia@gmail.com',
-            pass: 'ogwoqwpovqfcgacz'
-          },
-          tls: {
-            rejectUnauthorized: false
-          }
-        });
+        const alternativeTransporter = createMailTransport();
+        const mailDefaults = getMailDefaults();
+
+        if (!alternativeTransporter || !mailDefaults.to) {
+          return sendAcceptedWithoutEmail(
+            res,
+            'Brochure request received. Email delivery is not configured.',
+            { code: 'EMAIL_CONFIG_MISSING' }
+          );
+        }
 
         // Email content
         const mailOptions = {
-          from: '"Alfanio India" <alfanioindia@gmail.com>',
-          to: 'alfanioindia@gmail.com',
+          from: mailDefaults.from,
+          to: mailDefaults.to,
           subject: 'New Brochure Request (Alternative Method)',
           html: `
             <h2>New Brochure Request</h2>
-            <p><strong>Name:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
-            <p><strong>Phone:</strong> ${phoneNumber}</p>
-            ${message ? `<p><strong>Message:</strong> ${message}</p>` : ''}
+            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
+            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
+            <p><strong>Phone:</strong> ${escapeHtml(phoneNumber)}</p>
+            ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
           `
         };
 
@@ -1156,7 +1206,7 @@ app.use((err, req, res, _next) => {
   res.status(statusCode).json(errorResponse);
 });
 
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5005;
 const HOST = '0.0.0.0'; // Listen on all network interfaces
 
 // Create server with timeout

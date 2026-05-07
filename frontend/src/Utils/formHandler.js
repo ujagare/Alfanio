@@ -68,7 +68,7 @@ export const handleContactForm = async (formData) => {
 
     if (result.success) {
       // Show success message
-      toast.success('✅ Thank you for your message! We will contact you shortly.');
+      toast.success('Thank you for your message! We will contact you shortly.');
 
       // Track form submission event if analytics is available
       if (window.trackFormSubmission) {
@@ -81,7 +81,7 @@ export const handleContactForm = async (formData) => {
     }
   } catch (error) {
     console.error('Contact form error:', error);
-    toast.error('❌ Something went wrong. Please try again later.');
+    toast.error('Something went wrong. Please try again later.');
     return { success: false, error: error.message };
   }
 };
@@ -120,7 +120,7 @@ export const handleBrochureForm = async (formData) => {
 
     if (result.success) {
       // Show success message
-      toast.success('✅ Thank you for your interest! Your brochure is ready for download.');
+      toast.success('Thank you for your interest! Your brochure is ready for download.');
 
       // Track brochure download event if analytics is available
       if (window.trackBrochureDownload) {
@@ -136,7 +136,7 @@ export const handleBrochureForm = async (formData) => {
     }
   } catch (error) {
     console.error('Brochure form error:', error);
-    toast.error('❌ Something went wrong. Please try again later.');
+    toast.error('Something went wrong. Please try again later.');
     return { success: false, error: error.message };
   }
 };

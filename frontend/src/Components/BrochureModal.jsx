@@ -199,8 +199,16 @@ const BrochureModal = ({ isOpen, onClose }) => {
       clearTimeout(timeoutId); // Clear the timeout if request completes
 
       if (!response.ok) {
+        let errorMessage = `Server returned ${response.status}: ${response.statusText}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // Keep the HTTP status message if the server did not return JSON.
+        }
+
         throw new Error(
-          `Server returned ${response.status}: ${response.statusText}`
+          errorMessage
         );
       }
 
@@ -235,14 +243,14 @@ const BrochureModal = ({ isOpen, onClose }) => {
           onClick={handleClose}
           className="absolute top-2 right-2 sm:top-4 sm:right-4 text-black hover:text-gray-700 z-10 bg-white rounded-full w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center shadow-md"
         >
-          ✕
+          x
         </button>
 
         <div className="mt-14 sm:mt-16 pt-2">
           {isSuccess ? (
             <div className="text-center py-6 sm:py-8 bg-white rounded-lg">
-              <div className="text-[#FECC00] text-5xl sm:text-6xl mb-3 sm:mb-4">
-                ✓
+              <div className="text-[#FECC00] text-2xl sm:text-3xl mb-3 sm:mb-4 font-semibold">
+                Done
               </div>
               <h3 className="text-lg sm:text-xl font-semibold mb-2">
                 Thank You!

@@ -58,7 +58,7 @@ class EmailService {
 
       // Hard-code credentials for now to ensure they work in production
       const emailUser = 'alfanioindia@gmail.com';
-      const emailPass = 'yftofapopqvydrqa';
+      const emailPass = process.env.EMAIL_PASS;
 
       emailLogger.info('Using email credentials:', {
         user: emailUser,

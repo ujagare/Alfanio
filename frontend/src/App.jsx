@@ -20,6 +20,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useAnalytics } from "./hooks/useAnalytics";
 import SmoothScroll from "./Components/SmoothScroll";
 
+const isProduction = import.meta.env.PROD;
+const isDevelopment = import.meta.env.DEV;
+
 const AppContent = () => {
   const [loading, setLoading] = useState(true);
   const location = useLocation();
@@ -33,7 +36,7 @@ const AppContent = () => {
 
   useEffect(() => {
     // Initialize error tracking only in production
-    if (process.env.NODE_ENV === "production") {
+    if (isProduction) {
       initializeErrorTracking();
 
       // Track any errors
@@ -47,7 +50,7 @@ const AppContent = () => {
     }
 
     // Register service worker
-    if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
+    if ("serviceWorker" in navigator && isProduction) {
       window.addEventListener("load", () => {
         navigator.serviceWorker
           .register("/service-worker.js")
@@ -159,7 +162,7 @@ const ErrorFallback = ({ error }) => (
       <p className="text-gray-600 mb-4">
         We're sorry for the inconvenience. Our team has been notified.
       </p>
-      {process.env.NODE_ENV === "development" && (
+      {isDevelopment && (
         <div className="text-left bg-gray-100 p-4 rounded mb-4 overflow-auto">
           <p className="text-sm font-mono text-gray-700">{error?.message}</p>
         </div>

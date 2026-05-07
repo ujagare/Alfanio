@@ -71,7 +71,7 @@ const transporter = nodemailer.createTransport({
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-    pass: process.env.EMAIL_PASS || 'yftofapopqvydrqa'
+    pass: process.env.EMAIL_PASS
   },
   tls: {
     minVersion: 'TLSv1.2',
@@ -118,7 +118,7 @@ const transporter = nodemailer.createTransport({
         secure: true,
         auth: {
           user: 'alfanioindia@gmail.com',
-          pass: 'yftofapopqvydrqa'
+          pass: process.env.EMAIL_PASS
         },
         tls: {
           minVersion: 'TLSv1.2',
@@ -372,7 +372,7 @@ async function sendEmail(mailOptions) {
       secure: true,
       auth: {
         user: 'alfanioindia@gmail.com',
-        pass: 'yftofapopqvydrqa'
+        pass: process.env.EMAIL_PASS
       },
       tls: {
         minVersion: 'TLSv1.2',
@@ -492,7 +492,7 @@ async function sendEmailWithAttachment(mailOptions) {
       service: 'gmail',
       auth: {
         user: 'alfanioindia@gmail.com',
-        pass: 'yftofapopqvydrqa'
+        pass: process.env.EMAIL_PASS
       },
       tls: {
         rejectUnauthorized: false

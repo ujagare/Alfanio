@@ -6,9 +6,9 @@ import BrochureModal from "../Components/BrochureModal";
 import SEO from "../Components/SEO";
 import MapPage from "../Components/MapPage";
 import ProductRange from "../Components/ProductRange";
+import { FaArrowRight, FaChevronDown, FaHeadset } from "react-icons/fa";
 import "swiper/css";
 import "swiper/css/effect-fade";
-import alfanioLogo from "../assets/Alfanio.png";
 
 // Import mixer images
 import slide1 from "../assets/alafa-images/97843  (10).webp";
@@ -18,9 +18,18 @@ import slide4 from "../assets/alafa-images/97843  (16).webp";
 import slide5 from "../assets/alafa-images/97843  (15).webp";
 import slide6 from "../assets/alafa-images/(22).jpg";
 
+// Import mobile images
+import mobileSlide1 from "../assets/mobile/First.png";
+import mobileSlide2 from "../assets/mobile/Second.png";
+import mobileSlide3 from "../assets/mobile/third.png";
+import mobileSlide4 from "../assets/mobile/fourth.png";
+import mobileSlide5 from "../assets/mobile/Fifth.png";
+import mobileSlide6 from "../assets/mobile/Six.png";
+
 const slides = [
   {
     bgImage: slide1,
+    mobileImage: mobileSlide1,
     subtitle: "Innovation in Motion",
     title: "Advanced Mixing Solutions",
     description:
@@ -28,6 +37,7 @@ const slides = [
   },
   {
     bgImage: slide2,
+    mobileImage: mobileSlide2,
     subtitle: "Engineering Excellence",
     title: "Premium Quality",
     description:
@@ -35,6 +45,7 @@ const slides = [
   },
   {
     bgImage: slide3,
+    mobileImage: mobileSlide3,
     subtitle: "Industrial Power",
     title: "Robust Performance",
     description:
@@ -42,6 +53,7 @@ const slides = [
   },
   {
     bgImage: slide4,
+    mobileImage: mobileSlide4,
     subtitle: "Next Generation",
     title: "Smart Technology",
     description:
@@ -49,6 +61,7 @@ const slides = [
   },
   {
     bgImage: slide5,
+    mobileImage: mobileSlide5,
     subtitle: "Versatile Solutions",
     title: "Adaptable Design",
     description:
@@ -56,6 +69,7 @@ const slides = [
   },
   {
     bgImage: slide6,
+    mobileImage: mobileSlide6,
     subtitle: "Manufacturing Precision",
     title: "Expert Craftsmanship",
     description:
@@ -63,10 +77,39 @@ const slides = [
   },
 ];
 
+const faqs = [
+  {
+    question: "What types of construction equipment does Alfanio manufacture?",
+    answer:
+      "Alfanio manufactures concrete pumps, concrete mixers, batching plant solutions, twin shaft mixers, planetary mixers, and related construction equipment for domestic and export markets.",
+  },
+  {
+    question: "Do you provide support after installation?",
+    answer:
+      "Yes. The team provides technical guidance, service support, spare parts assistance, and product-specific help after installation.",
+  },
+  {
+    question: "Can I request a brochure before speaking with sales?",
+    answer:
+      "Yes. You can download the brochure from the home page. Submitting the form helps the team understand your requirement and follow up with relevant details.",
+  },
+  {
+    question: "Do you export equipment outside India?",
+    answer:
+      "Yes. Alfanio supports international requirements and has experience with export markets including high-performance concrete pumping applications.",
+  },
+  {
+    question: "How can I choose the right machine for my project?",
+    answer:
+      "Share your project type, output requirement, site conditions, and preferred application. The Alfanio team can recommend a suitable model based on your work needs.",
+  },
+];
+
 const Home = () => {
   const [swiper, setSwiper] = useState(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [openFaqIndex, setOpenFaqIndex] = useState(0);
 
   useEffect(() => {
     // Handle mobile viewport height
@@ -136,7 +179,13 @@ const Home = () => {
                   <img
                     src={slide.bgImage}
                     alt={slide.title}
-                    className="w-full h-full  object-cover"
+                    className="hidden md:block w-full h-full object-cover"
+                    loading="eager"
+                  />
+                  <img
+                    src={slide.mobileImage}
+                    alt={slide.title}
+                    className="md:hidden w-full h-full object-cover"
                     loading="eager"
                   />
                 </motion.div>
@@ -237,6 +286,130 @@ const Home = () => {
         className="min-h-[calc(100vh-80px)]"
       >
         <ProductRange />
+      </motion.section>
+
+      {/* FAQ Section */}
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8 }}
+        viewport={{ once: true }}
+        id="faq"
+        className="relative overflow-hidden bg-[#111111] py-16 sm:py-24"
+      >
+        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FECC00]/70 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(254,204,0,0.18),transparent_34%),linear-gradient(135deg,rgba(255,255,255,0.08),transparent_38%)]" />
+
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-[0.9fr_1.4fr] gap-10 lg:gap-14 items-start">
+            <div className="lg:sticky lg:top-28">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#FECC00]/30 bg-[#FECC00]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[3px] text-[#FECC00]">
+                <FaHeadset className="h-3.5 w-3.5" />
+                FAQ
+              </div>
+              <h2 className="mt-6 text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-white">
+                Answers before your next machine decision.
+              </h2>
+              <p className="mt-5 text-base leading-8 text-white/70">
+                Quick clarity on product selection, support, exports, and brochure
+                requests so your team can move faster.
+              </p>
+
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                <div className="border border-white/10 bg-white/[0.06] p-4">
+                  <p className="text-2xl font-bold text-[#FECC00]">24/7</p>
+                  <p className="mt-1 text-xs uppercase tracking-[2px] text-white/55">
+                    Support Focus
+                  </p>
+                </div>
+                <div className="border border-white/10 bg-white/[0.06] p-4">
+                  <p className="text-2xl font-bold text-[#FECC00]">Global</p>
+                  <p className="mt-1 text-xs uppercase tracking-[2px] text-white/55">
+                    Export Ready
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href="/contact"
+                className="mt-8 inline-flex items-center gap-3 rounded-full bg-[#FECC00] px-6 py-3 text-sm font-bold uppercase tracking-wider text-black transition-transform duration-300 hover:scale-[1.03]"
+              >
+                Talk To Expert
+                <FaArrowRight className="h-3.5 w-3.5" />
+              </a>
+            </div>
+
+            <div className="space-y-4">
+              {faqs.map((faq, index) => {
+                const isOpen = openFaqIndex === index;
+
+                return (
+                  <div
+                    key={faq.question}
+                    className={`border transition-all duration-300 ${
+                      isOpen
+                        ? "border-[#FECC00]/55 bg-white text-gray-900 shadow-2xl shadow-black/25"
+                        : "border-white/10 bg-white/[0.06] text-white hover:border-[#FECC00]/35 hover:bg-white/[0.09]"
+                    }`}
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaqIndex(isOpen ? -1 : index)}
+                      className="w-full flex items-center justify-between gap-4 px-5 sm:px-7 py-5 sm:py-6 text-left"
+                      aria-expanded={isOpen}
+                    >
+                      <span className="flex items-start gap-4">
+                        <span
+                          className={`mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center border text-xs font-bold ${
+                            isOpen
+                              ? "border-black/10 bg-[#FECC00] text-black"
+                              : "border-[#FECC00]/30 bg-[#FECC00]/10 text-[#FECC00]"
+                          }`}
+                        >
+                          {String(index + 1).padStart(2, "0")}
+                        </span>
+                        <span className="text-base sm:text-lg font-semibold leading-7">
+                          {faq.question}
+                        </span>
+                      </span>
+                      <span
+                        className={`flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full transition-colors duration-300 ${
+                          isOpen ? "bg-black text-[#FECC00]" : "bg-white/10 text-[#FECC00]"
+                        }`}
+                      >
+                        <FaChevronDown
+                          className={`h-4 w-4 transition-transform duration-300 ${
+                            isOpen ? "rotate-180" : ""
+                          }`}
+                        />
+                      </span>
+                    </button>
+
+                    <AnimatePresence initial={false}>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.28, ease: "easeInOut" }}
+                          className="overflow-hidden"
+                        >
+                          <div className="px-5 sm:px-7 pb-6 sm:pb-7">
+                            <div className="ml-12 border-l-2 border-[#FECC00] pl-5">
+                              <p className="text-sm sm:text-base leading-7 text-gray-600">
+                                {faq.answer}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </motion.section>
     </>
   );

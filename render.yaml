@@ -37,9 +37,6 @@ services:
         name: Content-Type
         value: font/woff2
     routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
       - type: proxy
         source: /api/*
         destination: https://alfanio-ltd.onrender.com/api/:splat
@@ -49,6 +46,9 @@ services:
       - type: proxy
         source: /brochure/*
         destination: https://alfanio-ltd.onrender.com/brochure/:splat
+      - type: rewrite
+        source: /*
+        destination: /index.html
     autoDeploy: true
 
   - type: web

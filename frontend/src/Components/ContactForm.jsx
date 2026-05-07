@@ -1,23 +1,8 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable react/prop-types */
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import { API_URL, API_ENDPOINTS, COMPANY_INFO } from "../config"; // Update this import
-import * as yup from "yup";
 import { handleContactForm, handleBrochureForm } from "../Utils/formHandler";
-
-const formSchema = yup.object().shape({
-  name: yup.string().required("Name is required").trim(),
-  email: yup
-    .string()
-    .email("Invalid email")
-    .required("Email is required")
-    .trim(),
-  phone: yup
-    .string()
-    .required("Phone is required")
-    .matches(/^[+]?[0-9\s\-()]{8,20}$/, "Please enter a valid phone number"),
-  message: yup.string().trim(),
-});
 
 const FormError = ({ error }) =>
   error ? (
@@ -109,8 +94,6 @@ const ContactForm = ({
     handleSubmit,
     formState: { errors },
     reset,
-    watch,
-    getValues,
   } = useForm({
     defaultValues: {
       name: "",
@@ -120,9 +103,6 @@ const ContactForm = ({
       product: productName,
     },
   });
-
-  // Phone number validation and formatting
-  const phone = watch("phone");
 
   const onSubmit = async (data) => {
     if (isSubmitting) return;
@@ -138,18 +118,18 @@ const ContactForm = ({
         product: productName,
       };
 
-      // Handle form submission based on type
-      if (type === "brochure") {
-        await handleBrochureForm(formData);
-      } else {
-        await handleContactForm(formData);
-      }
+      const result =
+        type === "brochure"
+          ? await handleBrochureForm(formData)
+          : await handleContactForm(formData);
+
+      if (!result?.success) return;
 
       // Reset the form
       reset();
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error("❌ Something went wrong. Please try again later.");
+      toast.error("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);
     }

@@ -8,6 +8,11 @@ export default defineConfig({
   name: 'image-optimizer',
   enforce: 'pre',
   async buildStart() {
+    if (process.env.SKIP_IMAGE_OPTIMIZATION === 'true') {
+      console.log('Skipping image optimization because SKIP_IMAGE_OPTIMIZATION=true');
+      return;
+    }
+
     console.log('Starting image optimization...');
     
     // Define source and destination directories
@@ -78,11 +83,13 @@ async function optimizeImage(srcPath, destDir, filename) {
       return;
     }
     
-    // Create WebP version
     const webpPath = path.join(destDir, `${baseName}.webp`);
-    await image
-      .webp({ quality: 80 })
-      .toFile(webpPath);
+    if (await isOutputCurrent(srcPath, webpPath)) {
+      return;
+    }
+
+    // Create WebP version
+    await image.webp({ quality: 80 }).toFile(webpPath);
     console.log(`Created WebP: ${webpPath}`);
     
     // Create responsive versions for larger images
@@ -120,5 +127,18 @@ async function optimizeImage(srcPath, destDir, filename) {
     }
   } catch (err) {
     console.error(`Error optimizing ${filename}: ${err.message}`);
+  }
+}
+
+async function isOutputCurrent(srcPath, outputPath) {
+  try {
+    const [srcStats, outputStats] = await Promise.all([
+      fs.stat(srcPath),
+      fs.stat(outputPath)
+    ]);
+
+    return outputStats.mtimeMs >= srcStats.mtimeMs;
+  } catch {
+    return false;
   }
 }

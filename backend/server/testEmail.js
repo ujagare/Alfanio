@@ -18,7 +18,7 @@ const EMAIL_CONFIG = {
   secure: process.env.EMAIL_SECURE === 'true',
   auth: {
     user: process.env.EMAIL_USER || 'alfanioindia@gmail.com',
-    pass: process.env.EMAIL_PASS || 'ogwoqwpovqfcgacz' // App password from 2-step verification
+    pass: process.env.EMAIL_PASS // App password from 2-step verification
   },
   from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'alfanioindia@gmail.com'}>`,
   to: process.env.EMAIL_TO || 'alfanioindia@gmail.com'

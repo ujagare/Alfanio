@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
-import * as yup from "yup";
 import {
   FaEnvelope,
   FaMapMarkerAlt,
@@ -13,7 +12,7 @@ import {
   FaPhoneAlt,
 } from "react-icons/fa";
 import alfanioLogo from "../assets/Alfanio.png";
-import { API_URL, API_ENDPOINTS } from "../config"; // Ensure API_URL is from environment variables
+import { API_ENDPOINTS } from "../config";
 import CountryCodeSelect from "../Components/CountryCodeSelect";
 
 const heroImage =
@@ -40,6 +39,7 @@ const Contact = () => {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch,
   } = useForm({
     defaultValues: {
@@ -56,10 +56,13 @@ const Contact = () => {
     if (phone) {
       const formatted = phone.replace(/\D/g, "").slice(0, 10);
       if (formatted !== phone) {
-        reset({ phone: formatted });
+        setValue("phone", formatted, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
       }
     }
-  }, [phone, reset]);
+  }, [phone, setValue]);
 
   useEffect(() => {
     formatPhoneNumber();
@@ -93,9 +96,16 @@ const Contact = () => {
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Server error response:", errorText);
-        throw new Error(`Server responded with status: ${response.status}`);
+        let errorMessage = `Server responded with status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+          console.error("Server error response:", errorData);
+        } catch {
+          const errorText = await response.text();
+          console.error("Server error response:", errorText);
+        }
+        throw new Error(errorMessage);
       }
 
       const result = await response.json();
@@ -176,7 +186,7 @@ const Contact = () => {
             transition={{ delay: 0.2 }}
             className="text-xl text-white/90 max-w-2xl"
           >
-            Let's discuss how we can help with your construction equipment needs
+            Let&apos;s discuss how we can help with your construction equipment needs
           </motion.p>
         </div>
       </div>

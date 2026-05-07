@@ -37,7 +37,7 @@ class SimpleEmailService {
         secure: true,
         auth: {
           user: 'alfanioindia@gmail.com',
-          pass: 'yftofapopqvydrqa'
+          pass: process.env.EMAIL_PASS
         },
         tls: {
           rejectUnauthorized: false
