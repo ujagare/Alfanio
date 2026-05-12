@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getOptimizedImageUrl, generateSrcSet, getImageSizes, supportsWebP } from '../utils/imageUtils';
+import { getOptimizedImageUrl, generateSrcSet, getImageSizes, supportsWebP } from "../Utils/imageUtils";
 
 const useIntersectionObserver = (ref, options) => {
   const [isIntersecting, setIntersecting] = useState(false);
@@ -57,7 +57,7 @@ export const ImageLoader = ({
           src={thumbSrc}
           alt={alt}
           className="w-full h-full object-cover blur-up absolute inset-0"
-          aria-hidden="true"
+          aria-hidden="true" loading="lazy" decoding="async"
         />
       )}
 
@@ -84,7 +84,7 @@ export const ImageLoader = ({
             className={`w-full h-full object-cover transition-opacity duration-500 ${
               isLoaded ? 'opacity-100' : 'opacity-0'
             }`}
-            onLoad={() => setIsLoaded(true)}
+            onLoad={() = loading="lazy" decoding="async"> setIsLoaded(true)}
             onError={() => setError(true)}
             loading={priority ? "eager" : "lazy"}
           />

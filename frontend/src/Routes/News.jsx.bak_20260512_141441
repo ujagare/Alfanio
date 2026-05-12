@@ -1,0 +1,377 @@
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Helmet } from "react-helmet-async";
+import {
+  FaPlay,
+  FaPause,
+  FaCalendar,
+  FaChevronRight,
+  FaChevronLeft,
+  FaShare,
+  FaFacebook,
+  FaTwitter,
+  FaNewspaper,
+  FaGlobeAsia,
+  FaIndustry,
+} from "react-icons/fa";
+import { FiClock, FiTag, FiExternalLink } from "react-icons/fi";
+import { newsData } from "../Data/newsData";
+import heroImage from "../assets/alafa-images/(10).webp";
+
+const News = () => {
+  const [playingVideo, setPlayingVideo] = useState(null);
+  const [activeNewsIndex, setActiveNewsIndex] = useState(0);
+  const videoRefs = useRef({});
+  const newsContainerRef = useRef(null);
+
+  // Function to handle video playback
+  const toggleVideo = (id) => {
+    if (playingVideo === id) {
+      videoRefs.current[id]?.pause();
+      setPlayingVideo(null);
+    } else {
+      if (playingVideo) {
+        videoRefs.current[playingVideo]?.pause();
+      }
+      videoRefs.current[id]?.play();
+      setPlayingVideo(id);
+    }
+  };
+
+  // Function to scroll to a specific news section
+  const scrollToNews = (index) => {
+    setActiveNewsIndex(index);
+    const newsElements = document.querySelectorAll(".news-section");
+    if (newsElements[index]) {
+      newsElements[index].scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
+  // Update active news index based on scroll position
+  useEffect(() => {
+    const handleScroll = () => {
+      const newsElements = document.querySelectorAll(".news-section");
+      const scrollPosition = window.scrollY + window.innerHeight / 2;
+
+      newsElements.forEach((element, index) => {
+        const top = element.offsetTop;
+        const bottom = top + element.offsetHeight;
+
+        if (scrollPosition >= top && scrollPosition <= bottom) {
+          setActiveNewsIndex(index);
+        }
+      });
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <>
+      <Helmet>
+        <title>News & Events - Alfanio LTD</title>
+        <meta
+          name="description"
+          content="Stay updated with the latest news and events from Alfanio LTD"
+        />
+      </Helmet>
+
+      <section className="relative min-h-[86vh] overflow-hidden bg-[#111113] pt-20">
+        <motion.div
+          className="absolute inset-0 h-full w-full"
+          initial={{ scale: 1 }}
+          animate={{ scale: [1, 1.04, 1.01] }}
+          transition={{
+            duration: 18,
+            times: [0, 0.5, 1],
+            repeat: Infinity,
+            repeatType: "reverse",
+            ease: "easeInOut",
+          }}
+        >
+          <img
+            src={heroImage}
+            alt="Construction Equipment"
+            className="h-full w-full origin-center object-cover object-top"
+            loading="eager"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/72 to-black/35" />
+          <div className="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-[#f5f5f2] to-transparent" />
+        </motion.div>
+
+        <div className="relative z-20 flex min-h-[calc(86vh-80px)] items-center">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div
+              className="max-w-4xl text-white"
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+            >
+              <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#FECC00]/35 bg-[#FECC00]/10 px-4 py-2 text-xs font-bold uppercase tracking-[0.22em] text-[#FECC00]">
+                <FaNewspaper />
+                Latest News & Events
+              </div>
+
+              <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+                News, launches, and global milestones.
+              </h1>
+
+              <p className="mt-6 max-w-2xl text-base leading-8 text-white/75 sm:text-lg md:text-xl">
+                Stay updated with our latest innovations, events, and
+                achievements in the construction equipment industry.
+              </p>
+
+              <div className="mt-9 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3">
+                {[
+                  { Icon: FaCalendar, value: `${newsData.length}+`, label: "Updates" },
+                  { Icon: FaGlobeAsia, value: "Global", label: "Market Reach" },
+                  { Icon: FaIndustry, value: "Product", label: "Launch Focus" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="border border-white/12 bg-white/[0.06] p-4 backdrop-blur-md"
+                  >
+                    <item.Icon className="mb-3 text-[#FECC00]" />
+                    <p className="text-2xl font-black text-white">{item.value}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-white/55">
+                      {item.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        <div className="absolute right-6 top-1/2 z-30 hidden -translate-y-1/2 lg:block">
+          <div className="flex flex-col gap-4 rounded-full border border-white/10 bg-black/30 p-3 backdrop-blur">
+            {newsData.map((news, index) => (
+              <button
+                key={news.id}
+                onClick={() => scrollToNews(index)}
+                className={`h-3 w-3 rounded-full transition-all duration-300 ${
+                  activeNewsIndex === index
+                    ? "scale-125 bg-[#FECC00]"
+                    : "bg-white/50 hover:bg-white/80"
+                }`}
+                aria-label={`Go to ${news.title}`}
+              />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <div ref={newsContainerRef} className="relative bg-[#f5f5f2]">
+        <div className="sticky top-20 z-30 hidden border-b border-black/10 bg-white/90 backdrop-blur-xl lg:block">
+          <div className="container mx-auto flex items-center gap-3 overflow-x-auto px-4 py-3 sm:px-6 lg:px-8">
+            {newsData.map((news, index) => (
+              <button
+                key={news.id}
+                onClick={() => scrollToNews(index)}
+                className={`whitespace-nowrap rounded-md px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] transition-all ${
+                  activeNewsIndex === index
+                    ? "bg-[#202024] text-[#FECC00]"
+                    : "text-gray-600 hover:bg-gray-100 hover:text-black"
+                }`}
+              >
+                {String(index + 1).padStart(2, "0")} {news.category}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {newsData.map((news, index) => (
+          <section
+            key={news.id}
+            className="news-section py-12 sm:py-16 md:py-20"
+            id={`news-${news.id}`}
+          >
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="relative mb-8 sm:mb-10 md:mb-12">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6 }}
+                  viewport={{ once: true, margin: "-100px" }}
+                  className="flex flex-col justify-between gap-4 border-b border-black/10 pb-6 md:flex-row md:items-end sm:gap-6"
+                >
+                  <div>
+                    <div className="mb-3 flex items-center gap-3">
+                      <span className="flex h-10 w-10 items-center justify-center bg-[#202024] text-sm font-black text-[#FECC00]">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="text-xs font-bold uppercase tracking-[0.2em] text-[#b08a00] sm:text-sm">
+                        {news.category}
+                      </span>
+                    </div>
+                    <h2 className="max-w-4xl text-2xl font-black leading-tight text-[#202024] sm:text-3xl md:text-5xl">
+                      {news.title}
+                    </h2>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <time className="flex items-center gap-2 rounded-md border border-black/10 bg-white px-4 py-2 text-xs font-semibold text-gray-600 shadow-sm sm:text-sm">
+                      <FiClock className="text-[#b08a00]" />
+                      {news.date || "Recent"}
+                    </time>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        className="flex h-9 w-9 items-center justify-center rounded-md border border-black/10 bg-white text-gray-600 shadow-sm transition-colors hover:text-[#b08a00]"
+                        aria-label="Share news"
+                      >
+                        <FaShare className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </div>
+
+              <motion.div
+                className="grid grid-cols-1 items-start gap-6 sm:gap-8 md:gap-12 lg:grid-cols-12 lg:gap-12"
+                initial={{ opacity: 0, y: 50 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8 }}
+                viewport={{ once: true, margin: "-100px" }}
+              >
+                <div className="order-1 space-y-4 sm:space-y-6 md:space-y-8 lg:col-span-7">
+                  {news.video ? (
+                    <div className="group relative overflow-hidden rounded-lg border border-black/10 bg-black shadow-2xl shadow-black/20">
+                      <div className="relative w-full pt-[56.25%]">
+                        <video
+                          ref={(el) => (videoRefs.current[news.id] = el)}
+                          src={news.video}
+                          className="absolute left-0 top-0 h-full w-full object-cover"
+                          playsInline
+                        />
+                        <button
+                          onClick={() => toggleVideo(news.id)}
+                          className="absolute inset-0 flex h-full w-full items-center justify-center"
+                          aria-label="Play/Pause video"
+                        >
+                          <div
+                            className={`flex h-14 w-14 items-center justify-center rounded-full bg-[#FECC00] shadow-2xl shadow-black/30 transition-transform duration-200 sm:h-16 sm:w-16 ${
+                              playingVideo === news.id
+                                ? "scale-0"
+                                : "scale-100 group-hover:scale-110"
+                            }`}
+                          >
+                            {playingVideo === news.id ? (
+                              <FaPause className="h-5 w-5 text-black sm:h-6 sm:w-6" />
+                            ) : (
+                              <FaPlay className="h-5 w-5 translate-x-0.5 text-black sm:h-6 sm:w-6" />
+                            )}
+                          </div>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="group relative overflow-hidden rounded-lg border border-black/10 bg-white shadow-2xl shadow-black/15">
+                      <img
+                        src={news.images.hero}
+                        alt={news.title}
+                        className="aspect-video w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                      <div className="absolute bottom-0 left-0 right-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-4 transition-transform duration-300 group-hover:translate-y-0">
+                        <h3 className="text-sm font-semibold text-white sm:text-base">
+                          {news.title}
+                        </h3>
+                      </div>
+                    </div>
+                  )}
+
+                  {news.images.gallery.length > 0 && (
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                    {news.images.gallery.map((img, imageIndex) => (
+                      <motion.div
+                        key={imageIndex}
+                        className="group relative overflow-hidden rounded-lg border border-black/10 bg-white shadow-lg shadow-black/10"
+                        whileHover={{ scale: 1.03, y: -5 }}
+                        transition={{ duration: 0.3 }}
+                      >
+                        <img
+                          src={img}
+                          alt={`${news.title} - ${imageIndex + 1}`}
+                          className="h-32 w-full object-cover transition-transform duration-500 group-hover:scale-110 sm:h-48"
+                        />
+                        <div
+                          className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0">
+                          <span className="text-xs font-semibold text-white sm:text-sm">
+                            Image {imageIndex + 1}
+                          </span>
+                        </div>
+                      </motion.div>
+                    ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="order-2 mt-4 space-y-4 sm:space-y-6 lg:col-span-5 lg:mt-0">
+                  <div className="border border-black/10 bg-white p-5 shadow-xl shadow-black/5 sm:p-7 lg:sticky lg:top-40">
+                    <div className="mb-6 flex items-center justify-between gap-3 border-b border-black/10 pb-5">
+                      <span className="inline-flex items-center rounded-md bg-[#FECC00] px-3 py-1.5 text-xs font-black uppercase tracking-[0.16em] text-black">
+                        Update
+                      </span>
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <FaFacebook className="h-3.5 w-3.5" />
+                        <FaTwitter className="h-3.5 w-3.5" />
+                      </div>
+                    </div>
+
+                    <div className="max-w-none">
+                      <p className="mb-6 text-sm leading-8 text-gray-700 sm:text-base">
+                        {news.content}
+                      </p>
+
+                      <div className="mt-6 flex flex-wrap gap-2 sm:gap-3">
+                        <span className="inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 sm:text-sm">
+                          <FiTag className="mr-1.5 text-[#b08a00]" />
+                          {news.category}
+                        </span>
+                        {news.excerpt && (
+                          <span className="inline-flex items-center rounded-md bg-gray-100 px-3 py-2 text-xs font-semibold text-gray-700 sm:text-sm">
+                            <FiExternalLink className="mr-1.5 text-[#b08a00]" />
+                            Press Release
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+
+              {index < newsData.length - 1 && (
+                <div className="mt-10 border-t border-black/10 pt-6 sm:mt-12 md:mt-16 md:pt-8">
+                  <div className="flex items-center justify-between">
+                    {index > 0 && (
+                      <button
+                        onClick={() => scrollToNews(index - 1)}
+                        className="flex items-center gap-2 rounded-md border border-black/10 bg-white px-4 py-2 text-sm font-semibold text-gray-600 transition-colors hover:text-[#b08a00] sm:text-base"
+                      >
+                        <FaChevronLeft className="h-3 w-3" />
+                        <span>Previous</span>
+                      </button>
+                    )}
+                    <div className="flex-1" />
+                    <button
+                      onClick={() => scrollToNews(index + 1)}
+                      className="flex items-center gap-2 rounded-md bg-[#202024] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#FECC00] hover:text-black sm:text-base"
+                    >
+                      <span>Next</span>
+                      <FaChevronRight className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
+        ))}
+      </div>
+    </>
+  );
+};
+
+export default News;

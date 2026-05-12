@@ -5,13 +5,9 @@ import {
   FaFacebook,
   FaInstagram,
   FaWhatsapp,
-  FaYoutube,
-  FaPhone,
-  FaEnvelope,
-  FaMapMarkerAlt,
+  FaPhoneAlt,
 } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import { COMPANY_INFO } from "../config.js";
 import Logo from "../assets/logo.png";
 
 const Navbar = () => {
@@ -76,84 +72,94 @@ const Navbar = () => {
     return false;
   };
 
-  const menuVariants = {
-    closed: {
-      opacity: 0,
-      height: 0,
-      transition: { duration: 0.3, ease: "easeInOut" },
-    },
-    open: {
-      opacity: 1,
-      height: "auto",
-      transition: { duration: 0.4, ease: "easeInOut" },
-    },
-  };
-
-  const contactInfo = {
-    phones: [
-      { number: "+91 96876 18558", label: "Sales" },
-      { number: "+91 79729 24637", label: "Support" },
-    ],
-    emails: [
-      { address: "sales@alfanio.com", label: "Sales" },
-      { address: "alfanioindia@gmail.com", label: "General" },
-      { address: "spares@alfanio.com", label: "Spares" },
-    ],
-  };
-
   return (
-    <nav className="fixed w-full z-50 bg-[#27272A] shadow-md">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-20">
+    <nav className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-[#202024]/95 shadow-[0_18px_45px_rgba(0,0,0,0.25)] backdrop-blur-xl">
+      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FECC00]/60 to-transparent" />
+      <div className="container relative mx-auto px-4 lg:px-8">
+        <div className="flex h-20 items-center justify-between gap-5">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
-            <img src={Logo} alt="Alfanio" className="h-12" />
+          <Link
+            to="/"
+            className="group flex items-center gap-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+            aria-label="Alfanio home"
+          >
+            <span className="flex h-14 w-44 items-center justify-center rounded-lg border border-[#FECC00]/25 bg-[#27272A] px-4 shadow-lg shadow-black/20 transition-transform duration-300 group-hover:-translate-y-0.5">
+              <img src={Logo} alt="Alfanio" className="h-11 w-auto" loading="eager" decoding="async" />
+            </span>
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden xl:flex items-center rounded-lg border border-white/10 bg-white/[0.04] p-1 shadow-inner shadow-black/20">
             {navItems.map((item) => (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-lg font-medium transition-colors duration-200 relative group ${
+                className={`relative rounded-md px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                   isActive(item.path)
-                    ? "text-[#FECC00]"
-                    : "text-gray-200 hover:text-[#FECC00]"
+                    ? "bg-[#FECC00] text-[#202024] shadow-md shadow-[#FECC00]/20"
+                    : "text-zinc-200 hover:bg-white/[0.06] hover:text-[#FECC00]"
                 }`}
               >
                 {item.name}
-                <span
-                  className={`absolute -bottom-1 left-0 w-full h-0.5 bg-[#FECC00] transform origin-left transition-transform duration-200 ${
-                    isActive(item.path)
-                      ? "scale-x-100"
-                      : "scale-x-0 group-hover:scale-x-100"
-                  }`}
-                />
               </Link>
             ))}
           </div>
 
-          {/* Social Media Links */}
-          <div className="hidden md:flex items-center gap-6">
-            {socialMedias.map((social, index) => (
+          <div className="hidden xl:flex items-center gap-3">
+            <a
+              href="tel:+919687618558"
+              className="hidden 2xl:flex items-center gap-3 rounded-lg border border-[#FECC00]/25 bg-[#FECC00]/10 px-4 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:border-[#FECC00] hover:bg-[#FECC00] hover:text-[#202024] focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+            >
+              <span className="flex h-8 w-8 items-center justify-center rounded-md bg-[#FECC00] text-[#202024]">
+                <FaPhoneAlt className="text-xs" />
+              </span>
+              <span className="leading-tight">
+                <span className="block text-[10px] uppercase tracking-[0.18em] opacity-70">
+                  Call Sales
+                </span>
+                +91 96876 18558
+              </span>
+            </a>
+
+            <div className="flex items-center gap-2 border-l border-white/10 pl-3">
+              {socialMedias.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex h-10 w-10 items-center justify-center rounded-md border border-white/10 bg-white/[0.04] text-[#FECC00] transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-white ${social.hoverColor} focus:outline-none focus:ring-2 focus:ring-[#FECC00]`}
+                  aria-label={social.name}
+                >
+                  <social.Icon className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+
+          {/* Compact Desktop Social Media Links */}
+          <div className="hidden md:flex xl:hidden items-center gap-3">
+            {socialMedias.slice(0, 2).map((social, index) => (
               <a
                 key={index}
                 href={social.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`text-[#FECC00] transition-all duration-300 transform hover:-translate-y-1 ${social.hoverColor}`}
+                className={`flex h-10 w-10 items-center justify-center rounded-md border border-[#FECC00]/20 bg-[#FECC00]/10 text-[#FECC00] transition-all duration-300 ${social.hoverColor}`}
                 aria-label={social.name}
               >
-                <social.Icon className="w-5 h-5" />
+                <social.Icon className="h-4 w-4" />
               </a>
             ))}
           </div>
 
           {/* Mobile Menu Button */}
           <button
+            type="button"
             onClick={() => setMenuOpen(!isMenuOpen)}
-            className="md:hidden text-[#FECC00] text-2xl focus:outline-none hover:text-[#FECC00] transition-colors duration-200"
+            className="xl:hidden flex h-11 w-11 items-center justify-center rounded-md border border-[#FECC00]/30 bg-[#FECC00]/10 text-2xl text-[#FECC00] transition-all duration-200 hover:bg-[#FECC00] hover:text-[#202024] focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <FiX /> : <FiMenu />}
           </button>
@@ -168,9 +174,9 @@ const Navbar = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed inset-0 top-20 bg-black/95 backdrop-blur-lg z-50 overflow-auto"
+            className="absolute left-0 right-0 top-full z-[60] max-h-[calc(100vh-5rem)] overflow-auto border-t border-[#FECC00]/20 bg-black/95 shadow-2xl shadow-black/40 backdrop-blur-lg xl:hidden"
           >
-            <div className="max-h-[calc(100vh-5rem)] overflow-auto flex flex-col">
+            <div className="flex flex-col">
               {/* Navigation Links Section */}
               <div className="flex-1 py-3">
                 <div className="container mx-auto px-6">
@@ -200,9 +206,9 @@ const Navbar = () => {
                             transition={{ duration: 0.3 }}
                           >
                             {isActive(item.path) ? (
-                              <span className="text-[#FECC00]">•</span>
+                              <span className="text-[#FECC00]">*</span>
                             ) : (
-                              <span className="text-gray-500">›</span>
+                              <span className="text-gray-500">&gt;</span>
                             )}
                           </motion.span>
                         </Link>

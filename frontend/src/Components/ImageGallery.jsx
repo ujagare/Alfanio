@@ -125,7 +125,7 @@ const ImageGallery = ({ images, columns = 3, gap = 4, className = '' }) => {
               <img
                 src={selectedImage.src}
                 alt={selectedImage.alt || 'Gallery Image'}
-                className="max-h-[90vh] w-auto mx-auto shadow-2xl rounded-lg"
+                className="max-h-[90vh] w-auto mx-auto shadow-2xl rounded-lg" loading="lazy" decoding="async"
               />
               {selectedImage.caption && (
                 <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent">

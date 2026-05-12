@@ -1,20 +1,75 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  FaTwitter,
   FaInstagram,
-  FaYoutube,
   FaLinkedin,
   FaMapMarkerAlt,
-  FaPhone,
   FaPhoneAlt,
   FaEnvelope,
   FaFacebook,
   FaWhatsapp,
+  FaArrowRight,
+  FaGlobeAsia,
+  FaIndustry,
 } from "react-icons/fa";
 import logo from "../assets/logo.png";
 
 const Footer = () => {
+  const quickLinks = [
+    { label: "Home", path: "/" },
+    { label: "About", path: "/about" },
+    { label: "Products", path: "/#products" },
+    { label: "Gallery", path: "/gallery" },
+    { label: "News", path: "/news" },
+    { label: "Contact", path: "/contact" },
+  ];
+
+  const countries = [
+    "South Korea",
+    "South Africa",
+    "India",
+    "USA",
+    "Nepal",
+    "Kenya",
+    "Tanzania",
+    "Somalia",
+    "Bangladesh",
+    "Congo",
+  ];
+
+  const contactDetails = [
+    {
+      Icon: FaEnvelope,
+      label: "Sales",
+      value: "sales@alfanio.com",
+      href: "mailto:sales@alfanio.com",
+    },
+    {
+      Icon: FaEnvelope,
+      label: "Spares",
+      value: "spares@alfanio.com",
+      href: "mailto:spares@alfanio.com",
+    },
+    {
+      Icon: FaEnvelope,
+      label: "General",
+      value: "alfanioindia@gmail.com",
+      href: "mailto:alfanioindia@gmail.com",
+    },
+    {
+      Icon: FaPhoneAlt,
+      label: "Call",
+      value: "+91 96876 18558",
+      href: "tel:+919687618558",
+    },
+    {
+      Icon: FaPhoneAlt,
+      label: "Support",
+      value: "+91 79729 24631",
+      href: "tel:+917972924631",
+    },
+  ];
+
   const socialMedias = [
     {
       Icon: FaFacebook,
@@ -34,277 +89,286 @@ const Footer = () => {
       name: "WhatsApp",
       hoverColor: "hover:text-[#25D366]",
     },
+    {
+      Icon: FaLinkedin,
+      url: "https://www.linkedin.com/company/alfanio-india-private-limited/",
+      name: "LinkedIn",
+      hoverColor: "hover:text-[#0A66C2]",
+    },
   ];
 
   return (
-    <footer className="bg-[#27272A] text-white py-8" aria-label="Footer">
-      <div className="container mx-auto px-4 md:px-8 lg:px-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
-          {/* Logo and Description */}
-          <div className="lg:col-span-3 space-y-3">
+    <footer
+      className="relative overflow-hidden bg-[#202024] text-white"
+      aria-label="Footer"
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FECC00]/70 to-transparent" />
+      <div className="absolute -right-28 top-10 h-72 w-72 rounded-full bg-[#FECC00]/5 blur-3xl" />
+      <div className="absolute -left-28 bottom-0 h-72 w-72 rounded-full bg-white/5 blur-3xl" />
+
+      <div className="relative container mx-auto px-4 py-10 md:px-8 lg:px-16 lg:py-12">
+        <div className="mb-10 grid gap-4 rounded-lg border border-[#FECC00]/20 bg-[#FECC00] p-5 text-[#1f1f22] shadow-2xl shadow-black/20 md:grid-cols-[1fr_auto] md:items-center md:p-6">
+          <div className="flex items-start gap-4">
+            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#1f1f22] text-[#FECC00] sm:flex">
+              <FaIndustry className="text-xl" />
+            </div>
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#3c3c3f]">
+                Need concrete machinery support?
+              </p>
+              <h2 className="mt-1 text-2xl font-bold leading-tight md:text-3xl">
+                Let's build your next batching solution.
+              </h2>
+            </div>
+          </div>
+          <Link
+            to="/contact"
+            className="inline-flex items-center justify-center gap-2 rounded-md bg-[#202024] px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:-translate-y-0.5 hover:bg-black focus:outline-none focus:ring-2 focus:ring-[#202024] focus:ring-offset-2 focus:ring-offset-[#FECC00]"
+          >
+            Get in Touch
+            <FaArrowRight className="text-xs" />
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-12">
+          <div className="lg:col-span-4">
             <Link
               to="/"
-              className="block w-36 focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded"
+              className="inline-flex rounded focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
             >
-              <img src={logo} alt="Alfanio Logo" className="h-10 w-auto" />
+              <img src={logo} alt="Alfanio Logo" className="h-12 w-auto" loading="eager" decoding="async" />
             </Link>
-            <div className="flex flex-col items-center lg:items-start">
-              <p className="text-gray-400 text-sm leading-relaxed text-center lg:text-left max-w-xs">
-                Alfanio caters to a wide range of customers for an extensive
-                range of applications. We Are partnering with clients all over
-                the worldwide.
-              </p>
-              <div className="grid grid-cols-2 gap-1 text-xs text-gray-400 mt-2 w-full">
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  South Korea
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  South Africa
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  India
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  USA
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Nepal
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Kenya
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Tanzania
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Somalia
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Bangladesh
-                </span>
-                <span className="flex items-center">
-                  <span className="w-1.5 h-1.5 bg-[#FECC00] rounded-full mr-1.5"></span>
-                  Congo
-                </span>
+
+            <p className="mt-4 max-w-sm text-sm leading-7 text-zinc-300">
+              Alfanio caters to a wide range of customers for an extensive range
+              of concrete machinery applications, partnering with clients across
+              global markets.
+            </p>
+
+            <div className="mt-5 rounded-lg border border-white/10 bg-white/[0.03] p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-[#FECC00]">
+                <FaGlobeAsia />
+                Global Presence
               </div>
-              <div className="hidden md:flex items-center space-x-4 mt-3">
-                {socialMedias.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`text-[#FECC00] ${social.hoverColor} transition-colors duration-200`}
-                    aria-label={social.name}
+              <div className="flex flex-wrap gap-2">
+                {countries.map((country) => (
+                  <span
+                    key={country}
+                    className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-zinc-300"
                   >
-                    <social.Icon className="text-3xl" />
-                  </a>
+                    {country}
+                  </span>
                 ))}
               </div>
             </div>
+
+            <div className="mt-5 flex items-center gap-3">
+              {socialMedias.map((social, index) => (
+                <a
+                  key={index}
+                  href={social.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`flex h-10 w-10 items-center justify-center rounded-md border border-[#FECC00]/25 bg-[#FECC00]/10 text-[#FECC00] transition-all duration-300 hover:-translate-y-0.5 hover:border-transparent hover:bg-white ${social.hoverColor} focus:outline-none focus:ring-2 focus:ring-[#FECC00]`}
+                  aria-label={social.name}
+                >
+                  <social.Icon className="text-lg" />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Quick Links */}
-          <nav className="lg:col-span-2 space-y-3" aria-label="Quick Links">
-            <h3 className="text-[15px] font-semibold text-[#FECC00]">
-              Quick Links
-            </h3>
-            <ul className="flex flex-col space-y-1.5">
-              <li>
-                <Link
-                  to="/"
-                  className="text-gray-400 hover:text-[#FECC00] transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                >
-                  Home
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="text-gray-400 hover:text-[#FECC00] transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/gallery"
-                  className="text-gray-400 hover:text-[#FECC00] transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                >
-                  Gallery
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="text-gray-400 hover:text-[#FECC00] transition-colors text-sm focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                >
-                  Contact
-                </Link>
-              </li>
+          <nav className="lg:col-span-2" aria-label="Quick Links">
+            <h3 className="footer-heading">Quick Links</h3>
+            <ul className="mt-4 grid grid-cols-2 gap-2 md:grid-cols-1">
+              {quickLinks.map((link) => (
+                <li key={link.path}>
+                  <Link
+                    to={link.path}
+                    className="group inline-flex items-center gap-2 rounded px-1 py-1 text-sm text-zinc-300 transition-colors hover:text-[#FECC00] focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+                  >
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#FECC00]/50 transition-all group-hover:bg-[#FECC00]" />
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
 
-          {/* Contact Information */}
-          <div className="lg:col-span-4 space-y-3">
-            <div>
-              <h3 className="text-[15px] font-semibold text-[#FECC00] mb-3">
-                Factory Address
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-start space-x-2 text-gray-400 group">
-                  <FaMapMarkerAlt className="text-[#FECC00] mt-1 flex-shrink-0 text-sm" />
-                  <span className="text-sm leading-relaxed group-hover:text-[#FECC00] transition-colors">
-                    Gate No.282 Opp. ICEAge Cold Storage Village Kuruli, Pune
-                    410501
+          <div className="lg:col-span-3">
+            <h3 className="footer-heading">Contact</h3>
+            <div className="mt-4 space-y-2">
+              {contactDetails.map((item) => (
+                <a
+                  key={`${item.label}-${item.value}`}
+                  href={item.href}
+                  className="group flex items-center gap-3 rounded-lg border border-white/10 bg-white/[0.03] p-3 transition-all duration-300 hover:border-[#FECC00]/40 hover:bg-[#FECC00]/10 focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-[#FECC00]/15 text-[#FECC00]">
+                    <item.Icon className="text-sm transition-transform group-hover:scale-110" />
                   </span>
-                </div>
-
-                <div className="space-y-2">
-                  <a
-                    href="mailto:alfanioindia@gmail.com"
-                    className="flex items-center space-x-2 text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5 group"
-                  >
-                    <FaEnvelope className="text-[#FECC00] flex-shrink-0 text-sm group-hover:animate-bounce" />
-                    <span className="text-sm">sales@alfanio.com</span>
-                  </a>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <a
-                      href="mailto:spares@alfanio.com"
-                      className="flex items-center space-x-2 text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5 group"
-                    >
-                      <FaEnvelope className="text-[#FECC00] flex-shrink-0 text-sm group-hover:animate-bounce" />
-                      <span className="text-sm">spares@alfanio.com</span>
-                    </a>
-                    <a
-                      href="tel:+919687618558"
-                      className="flex items-center space-x-2 text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5 group"
-                    >
-                      <FaPhoneAlt className="text-[#FECC00] flex-shrink-0 text-sm group-hover:rotate-12 transition-transform" />
-                      <span className="text-sm">+91 96876 18558</span>
-                    </a>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    <a
-                      href="mailto:sales@alfanio.com"
-                      className="flex items-center space-x-2 text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5 group"
-                    >
-                      <FaEnvelope className="text-[#FECC00] flex-shrink-0 text-sm group-hover:animate-bounce" />
-                      <span className="text-sm">alfanioindia@gmail.com</span>
-                    </a>
-                    <a
-                      href="tel:+917972924637"
-                      className="flex items-center space-x-2 text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5 group"
-                    >
-                      <FaPhoneAlt className="text-[#FECC00] flex-shrink-0 text-sm group-hover:rotate-12 transition-transform" />
-                      <span className="text-sm">+91 79729 24631</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
+                  <span className="min-w-0">
+                    <span className="block text-xs uppercase tracking-wide text-zinc-500 group-hover:text-[#FECC00]/80">
+                      {item.label}
+                    </span>
+                    <span className="block truncate text-sm text-zinc-200 group-hover:text-white">
+                      {item.value}
+                    </span>
+                  </span>
+                </a>
+              ))}
             </div>
+          </div>
 
-            <div>
-              <h3 className="text-[15px] font-semibold text-[#FECC00] mb-2">
-                Head Office
-              </h3>
-              <div className="flex items-start space-x-2 text-gray-400 group">
-                <FaMapMarkerAlt className="text-[#FECC00] mt-1 flex-shrink-0 text-sm" />
-                <span className="text-sm leading-relaxed group-hover:text-[#FECC00] transition-colors">
+          <div className="lg:col-span-3">
+            <h3 className="footer-heading">Visit Us</h3>
+            <div className="mt-4 space-y-3">
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#FECC00]">
+                  <FaMapMarkerAlt />
+                  Factory Address
+                </div>
+                <p className="text-sm leading-6 text-zinc-300">
+                  Gate No.282 Opp. ICEAge Cold Storage Village Kuruli, Pune
+                  410501
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-[#FECC00]">
+                  <FaMapMarkerAlt />
+                  Head Office
+                </div>
+                <p className="text-sm leading-6 text-zinc-300">
                   Flat no 207-208, Orient Plaza, SRPF Road, Hadapsar, Pune
                   411013
-                </span>
+                </p>
               </div>
             </div>
           </div>
 
-          {/* Map */}
-          <div className="lg:col-span-3">
-            <h3 className="text-[15px] font-semibold text-[#FECC00] mb-3">
-              Location
-            </h3>
-            <div className="rounded-lg overflow-hidden h-48 md:h-40 shadow-lg hover:shadow-xl transition-shadow duration-300 relative bg-gray-800">
-              <iframe
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3780.8787288647506!2d73.91641187496726!3d18.63333166697036!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c6918c3e61a1%3A0xa11e1e6eefde6c46!2sAlfanio%20India%20Pvt%20Ltd!5e0!3m2!1sen!2sin!4v1688470902664!5m2!1sen!2sin"
-                width="100%"
-                height="100%"
-                style={{ border: 0 }}
-                allowFullScreen={false}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="rounded-lg w-full h-full"
-                title="Alfanio India Pvt Ltd Location"
-                onError={(e) => {
-                  const fallback = e.target.nextSibling;
-                  if (fallback) {
-                    e.target.style.display = "none";
-                    fallback.style.display = "flex";
-                  }
-                }}
-              />
-              <div
-                className="absolute inset-0 flex items-center justify-center text-center p-4"
-                style={{ display: "none" }}
-              >
-                <div className="space-y-2">
-                  <FaMapMarkerAlt className="text-[#FECC00] text-3xl mx-auto" />
-                  <p className="text-sm text-gray-300">
-                    Map loading failed. Visit us at:
-                    <br />
-                    Gate No.282 Opp. ICEAge Cold Storage Village Kuruli, Pune
-                    410501
-                  </p>
+          <div className="md:col-span-2 lg:col-span-12">
+            <div className="grid gap-5 lg:grid-cols-[1fr_1.5fr] lg:items-stretch">
+              <div className="rounded-lg border border-[#FECC00]/20 bg-[#FECC00]/10 p-5">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#FECC00]">
+                  Why Alfanio
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-white">
+                  Concrete equipment made for reliable site performance.
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-zinc-300">
+                  Reach out for batching plants, mixers, spares, or service
+                  support. Our team will help you choose the right solution for
+                  your project.
+                </p>
+              </div>
+
+              <div className="overflow-hidden rounded-lg border border-white/10 bg-zinc-900 shadow-2xl shadow-black/30">
+                <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+                  <h3 className="text-sm font-semibold text-[#FECC00]">
+                    Location
+                  </h3>
                   <a
                     href="https://goo.gl/maps/YhPLZF9T7kGgvtLb7"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-[#FECC00] hover:underline text-sm inline-block"
+                    className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-300 transition-colors hover:text-[#FECC00]"
                   >
-                    Open in Google Maps
+                    Open Map
+                    <FaArrowRight className="text-[10px]" />
                   </a>
+                </div>
+                <div className="relative h-64 bg-gray-800 md:h-72">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3780.8787288647506!2d73.91641187496726!3d18.63333166697036!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bc2c6918c3e61a1%3A0xa11e1e6eefde6c46!2sAlfanio%20India%20Pvt%20Ltd!5e0!3m2!1sen!2sin!4v1688470902664!5m2!1sen!2sin"
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    className="h-full w-full grayscale transition-all duration-500 hover:grayscale-0"
+                    title="Alfanio India Pvt Ltd Location"
+                    onError={(e) => {
+                      const fallback = e.target.nextSibling;
+                      if (fallback) {
+                        e.target.style.display = "none";
+                        fallback.style.display = "flex";
+                      }
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 flex items-center justify-center p-4 text-center"
+                    style={{ display: "none" }}
+                  >
+                    <div className="space-y-2">
+                      <FaMapMarkerAlt className="mx-auto text-3xl text-[#FECC00]" />
+                      <p className="text-sm text-gray-300">
+                        Map loading failed. Visit us at:
+                        <br />
+                        Gate No.282 Opp. ICEAge Cold Storage Village Kuruli,
+                        Pune 410501
+                      </p>
+                      <a
+                        href="https://goo.gl/maps/YhPLZF9T7kGgvtLb7"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block text-sm text-[#FECC00] hover:underline"
+                      >
+                        Open in Google Maps
+                      </a>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Copyright */}
-          <div className="lg:col-span-12">
-            <div className="mt-8 pt-6 border-t border-gray-700/50">
-              <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-                <p className="text-sm text-gray-400 text-center md:text-left">
-                  &copy; {new Date().getFullYear()} Alfanio India Pvt Ltd. All
-                  rights reserved.
-                </p>
-                <div className="flex items-center space-x-6">
-                  <Link
-                    to="/privacy"
-                    className="text-sm text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                  >
-                    Privacy Policy
-                  </Link>
-                  <Link
-                    to="/terms"
-                    className="text-sm text-gray-400 hover:text-[#FECC00] transition-colors focus:outline-none focus:ring-2 focus:ring-[#FECC00] rounded px-2 py-0.5"
-                  >
-                    Terms of Service
-                  </Link>
-                </div>
+          <div className="md:col-span-2 lg:col-span-12">
+            <div className="mt-2 flex flex-col gap-4 border-t border-white/10 pt-6 md:flex-row md:items-center md:justify-between">
+              <p className="text-center text-sm text-zinc-400 md:text-left">
+                &copy; {new Date().getFullYear()} Alfanio India Pvt Ltd. All
+                rights reserved.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+                <Link
+                  to="/privacy"
+                  className="text-sm text-zinc-400 transition-colors hover:text-[#FECC00] focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+                >
+                  Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="text-sm text-zinc-400 transition-colors hover:text-[#FECC00] focus:outline-none focus:ring-2 focus:ring-[#FECC00]"
+                >
+                  Terms of Service
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <style>{`
+        .footer-heading {
+          position: relative;
+          display: inline-flex;
+          color: #FECC00;
+          font-size: 0.95rem;
+          font-weight: 700;
+        }
+
+        .footer-heading::after {
+          content: "";
+          position: absolute;
+          left: 0;
+          bottom: -0.45rem;
+          height: 2px;
+          width: 2.25rem;
+          border-radius: 999px;
+          background: #FECC00;
+        }
+      `}</style>
     </footer>
   );
 };

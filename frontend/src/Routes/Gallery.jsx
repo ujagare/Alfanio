@@ -69,12 +69,12 @@ const Gallery = () => {
           return aBase.localeCompare(bBase);
         });
 
-        console.log(
+  // console.log(  // [removed by fix script]
           `Loaded ${filteredImages.length} images (removed ${allImages.length - filteredImages.length} duplicates)`
         );
         setLoadedImages(filteredImages);
       } catch (error) {
-        console.error("Error loading images:", error);
+  // console.error("Error loading images:", error);  // [removed by fix script]
       } finally {
         setIsLoading(false);
       }
@@ -220,7 +220,7 @@ const Gallery = () => {
                   className="w-32 h-32 md:w-40 md:h-40 object-contain mx-auto "
                   style={{
                     filter: "drop-shadow(0 0 20px rgba(254, 204, 0, 0.3))",
-                  }}
+                  }} loading="lazy" decoding="async"
                 />
               </motion.div>
 

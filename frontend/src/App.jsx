@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { HelmetProvider } from "react-helmet-async";
-import { initializeErrorTracking, ErrorBoundary } from "./utils/errorTracking";
+import { initializeErrorTracking, ErrorBoundary } from "./Utils/errorTracking";
 import Navbar from "./Components/Navbar";
 import Footer from "./Components/Footer";
 import Home from "./Routes/Home";
@@ -55,7 +55,7 @@ const AppContent = () => {
         navigator.serviceWorker
           .register("/service-worker.js")
           .then((registration) => {
-            console.log("SW registered:", registration);
+  // console.log("SW registered:", registration);  // [removed by fix script]
 
             // Check for updates every hour
             setInterval(
@@ -82,7 +82,7 @@ const AppContent = () => {
             });
           })
           .catch((error) => {
-            console.error("SW registration failed:", error);
+  // console.error("SW registration failed:", error);  // [removed by fix script]
             trackEvent({
               action: "error",
               category: "ServiceWorker",
@@ -94,7 +94,7 @@ const AppContent = () => {
       // Handle communication from service worker
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data && event.data.type === "CACHE_UPDATED") {
-          console.log("New content is available; please refresh.");
+  // console.log("New content is available; please refresh.");  // [removed by fix script]
         }
       });
     }

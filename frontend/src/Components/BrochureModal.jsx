@@ -122,7 +122,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
       link.click();
       document.body.removeChild(link);
     } catch (error) {
-      console.error("Error downloading brochure:", error);
+  // console.error("Error downloading brochure:", error);  // [removed by fix script]
       alert("Failed to download brochure. Please try again.");
     }
   };
@@ -146,7 +146,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
 
       if (result.success) {
         // Only show success and download brochure if server submission was successful
-        console.log("Email sent successfully!");
+  // console.log("Email sent successfully!");  // [removed by fix script]
         setIsSuccess(true);
         downloadBrochure();
 
@@ -165,13 +165,13 @@ const BrochureModal = ({ isOpen, onClose }) => {
         }, 3000);
       } else {
         // If server submission failed, show error
-        console.error("Server submission failed:", result.error);
+  // console.error("Server submission failed:", result.error);  // [removed by fix script]
         alert(
           "Unable to process your request at this time. Please try again later."
         );
       }
     } catch (error) {
-      console.error("Form submission error:", error);
+  // console.error("Form submission error:", error);  // [removed by fix script]
       alert(
         "An error occurred while processing your request. Please try again later."
       );
@@ -213,11 +213,11 @@ const BrochureModal = ({ isOpen, onClose }) => {
       }
 
       const data = await response.json();
-      console.log("Success: Form submitted to server:", data);
+  // console.log("Success: Form submitted to server:", data);  // [removed by fix script]
 
       return { success: true, data };
     } catch (error) {
-      console.error("Error submitting form to server:", error);
+  // console.error("Error submitting form to server:", error);  // [removed by fix script]
       return {
         success: false,
         error: error.message || "Unknown error occurred",

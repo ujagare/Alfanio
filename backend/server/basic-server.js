@@ -26,7 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // Simple logging middleware
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  // console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);  // [removed by fix script]
   next();
 });
 
@@ -45,7 +45,7 @@ app.post('/api/contact', (req, res) => {
   try {
     const { name, email, phone, message, type } = req.body;
     
-    console.log(`Contact form submission received from ${email}`);
+  // console.log(`Contact form submission received from ${email}`);  // [removed by fix script]
     
     // Store in memory
     const submission = {
@@ -67,21 +67,21 @@ app.post('/api/contact', (req, res) => {
       try {
         existingData = JSON.parse(fs.readFileSync(logFile, 'utf8'));
       } catch (err) {
-        console.error('Error reading contact log file:', err);
+  // console.error('Error reading contact log file:', err);  // [removed by fix script]
       }
     }
     
     existingData.push(submission);
     fs.writeFileSync(logFile, JSON.stringify(existingData, null, 2));
     
-    console.log(`Saved contact form from ${email} to log file`);
+  // console.log(`Saved contact form from ${email} to log file`);  // [removed by fix script]
     
     return res.status(200).json({
       success: true,
       message: 'Your message has been received! We will contact you soon.',
     });
   } catch (error) {
-    console.error('Error in contact form endpoint:', error);
+  // console.error('Error in contact form endpoint:', error);  // [removed by fix script]
     return res.status(500).json({
       success: false,
       message: 'There was an issue processing your request. Please try again later.'
@@ -94,7 +94,7 @@ app.post('/contact', (req, res) => {
   try {
     const { name, email, phone, message, type } = req.body;
     
-    console.log(`Contact form submission received from ${email} via /contact endpoint`);
+  // console.log(`Contact form submission received from ${email} via /contact endpoint`);  // [removed by fix script]
     
     // Store in memory
     const submission = {
@@ -116,21 +116,21 @@ app.post('/contact', (req, res) => {
       try {
         existingData = JSON.parse(fs.readFileSync(logFile, 'utf8'));
       } catch (err) {
-        console.error('Error reading contact log file:', err);
+  // console.error('Error reading contact log file:', err);  // [removed by fix script]
       }
     }
     
     existingData.push(submission);
     fs.writeFileSync(logFile, JSON.stringify(existingData, null, 2));
     
-    console.log(`Saved contact form from ${email} to log file`);
+  // console.log(`Saved contact form from ${email} to log file`);  // [removed by fix script]
     
     return res.status(200).json({
       success: true,
       message: 'Your message has been received! We will contact you soon.',
     });
   } catch (error) {
-    console.error('Error in contact form endpoint:', error);
+  // console.error('Error in contact form endpoint:', error);  // [removed by fix script]
     return res.status(500).json({
       success: false,
       message: 'There was an issue processing your request. Please try again later.'
@@ -143,7 +143,7 @@ app.post('/api/contact/brochure', (req, res) => {
   try {
     const { name, email } = req.body;
     
-    console.log(`Brochure request received from ${email}`);
+  // console.log(`Brochure request received from ${email}`);  // [removed by fix script]
     
     if (!name || !email) {
       return res.status(400).json({
@@ -169,14 +169,14 @@ app.post('/api/contact/brochure', (req, res) => {
       try {
         existingData = JSON.parse(fs.readFileSync(logFile, 'utf8'));
       } catch (err) {
-        console.error('Error reading brochure log file:', err);
+  // console.error('Error reading brochure log file:', err);  // [removed by fix script]
       }
     }
     
     existingData.push(request);
     fs.writeFileSync(logFile, JSON.stringify(existingData, null, 2));
     
-    console.log(`Saved brochure request from ${email} to log file`);
+  // console.log(`Saved brochure request from ${email} to log file`);  // [removed by fix script]
     
     // Check if we have the brochure file
     const brochurePaths = [
@@ -203,7 +203,7 @@ app.post('/api/contact/brochure', (req, res) => {
       downloadUrl: brochureFound ? '/brochures/download' : null
     });
   } catch (error) {
-    console.error('Error in brochure endpoint:', error);
+  // console.error('Error in brochure endpoint:', error);  // [removed by fix script]
     return res.status(500).json({
       success: false,
       message: 'There was an issue processing your request. Please try again later.'
@@ -213,7 +213,7 @@ app.post('/api/contact/brochure', (req, res) => {
 
 // Direct download endpoint for brochure
 app.get('/brochures/download', (req, res) => {
-  console.log('Direct brochure download requested');
+  // console.log('Direct brochure download requested');  // [removed by fix script]
   
   // Check all possible brochure file paths
   const pdfPaths = [
@@ -226,12 +226,12 @@ app.get('/brochures/download', (req, res) => {
   
   for (const pdfPath of pdfPaths) {
     if (fs.existsSync(pdfPath)) {
-      console.log(`Serving brochure from: ${pdfPath}`);
+  // console.log(`Serving brochure from: ${pdfPath}`);  // [removed by fix script]
       return res.download(pdfPath, 'Alfanio-Brochure.pdf');
     }
   }
   
-  console.error('Brochure file not found for direct download');
+  // console.error('Brochure file not found for direct download');  // [removed by fix script]
   return res.status(404).json({
     success: false,
     message: 'Brochure file not found. Please contact us directly for assistance.'
@@ -269,7 +269,7 @@ let staticPath = null;
 for (const testPath of staticPaths) {
   if (fs.existsSync(testPath)) {
     staticPath = testPath;
-    console.log(`Serving static files from: ${staticPath}`);
+  // console.log(`Serving static files from: ${staticPath}`);  // [removed by fix script]
     app.use(express.static(testPath));
     break;
   }
@@ -351,7 +351,7 @@ app.get('*', (req, res) => {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
+  // console.error('Server error:', err);  // [removed by fix script]
   res.status(500).json({
     success: false,
     message: 'Internal server error'
@@ -360,15 +360,15 @@ app.use((err, req, res, next) => {
 
 // Start the server
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
-  console.log(`Server accessible at http://localhost:${PORT}`);
+  // console.log(`Server is running on port ${PORT}`);  // [removed by fix script]
+  // console.log(`Server accessible at http://localhost:${PORT}`);  // [removed by fix script]
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+  // console.error('Uncaught Exception:', err);  // [removed by fix script]
 });
 
 process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Rejection:', err);
+  // console.error('Unhandled Rejection:', err);  // [removed by fix script]
 });

@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 export const API_URL = import.meta.env.PROD
-  ? 'https://alfanio.in'
-  : 'http://localhost:5001';
+  ? API_BASE_URL
+  : API_BASE_URL;
 
 export const API_ENDPOINTS = {
   contact: `${API_URL}/api/contact`,
@@ -24,7 +24,7 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   response => response,
   error => {
-    console.error('API Error:', {
+  // console.error('API Error:', {  // [removed by fix script]
       status: error.response?.status,
       message: error.response?.data?.message || error.message,
       url: error.config?.url

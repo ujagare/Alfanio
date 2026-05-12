@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Offline - Alfanio LTD</title>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offline - Alfanio LTD</title>
+<style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
@@ -59,16 +59,57 @@
       color: #FECC00;
     }
   </style>
-</head>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Offline - Alfanio LTD",
+  "url": "https://www.alfanio.com/frontend/public/offline.html",
+  "description": "Best website for all your needs",
+  "inLanguage": "hi",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Alfanio",
+    "url": "https://www.alfanio.com"
+  }
+}</script><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.alfanio.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Frontend",
+      "item": "https://www.alfanio.com/frontend"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Public",
+      "item": "https://www.alfanio.com/frontend/public"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Offline - Alfanio LTD",
+      "item": "https://www.alfanio.com/frontend/public/offline.html"
+    }
+  ]
+}</script></head>
 <body>
-  <div class="container">
-    <div class="icon">📶</div>
-    <h1>You're Offline</h1>
-    <p>It seems you're not connected to the internet right now. Some features of Alfanio LTD website may not be available while you're offline.</p>
-    <p>Please check your connection and try again.</p>
-    <a href="/" class="button">Try Again</a>
-  </div>
-  <script>
+<header class="container">
+<div class="icon">📶</div>
+<h1>You're Offline</h1>
+<p>It seems you're not connected to the internet right now. Some features of Alfanio LTD website may not be available while you're offline.</p>
+<p>Please check your connection and try again.</p>
+<a class="button" href="/">Try Again</a>
+</header>
+<script>
     // Check if we're back online
     window.addEventListener('online', () => {
       window.location.reload();

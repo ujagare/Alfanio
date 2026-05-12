@@ -422,7 +422,7 @@ const ProductGallery = () => {
                 <img
                   src={image.src}
                   alt={image.alt}
-                  className="w-full h-80 md:h-96 object-contain transform hover:scale-105 transition-transform duration-300"
+                  className="w-full h-80 md:h-96 object-contain transform hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300">
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -454,7 +454,7 @@ const ProductGallery = () => {
                     src={selectedImage.src}
                     alt={selectedImage.alt}
                     className="max-h-[90vh] w-auto max-w-[85vw] object-contain rounded-lg"
-                    style={{ minHeight: "70vh" }}
+                    style={{ minHeight: "70vh" }} loading="lazy" decoding="async"
                   />
                   <p className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center w-full">
                     {selectedImage.alt}
@@ -555,7 +555,7 @@ const ProductGallery = () => {
                       src={image.src}
                       alt={image.alt}
                       className="w-full h-auto object-contain rounded-lg"
-                      style={{ maxHeight: "400px" }}
+                      style={{ maxHeight: "400px" }} loading="lazy" decoding="async"
                     />
                     <p className="text-center mt-2 text-gray-600">
                       {image.alt}
@@ -749,7 +749,7 @@ const ProductGallery = () => {
               <img
                 src={selectedImage.src}
                 alt={product.name}
-                className="w-full h-auto max-h-[80vh] object-contain"
+                className="w-full h-auto max-h-[80vh] object-contain" loading="lazy" decoding="async"
               />
               <button
                 className="absolute top-4 right-4 bg-[#FECC00] text-black w-10 h-10 rounded-full flex items-center justify-center text-xl font-bold hover:bg-yellow-500 transition-colors"

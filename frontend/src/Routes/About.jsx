@@ -218,7 +218,7 @@ const About = () => {
         <img
           src={heroImage}
           alt="Alfanio manufacturing equipment"
-          className="absolute inset-0 h-full w-full object-cover object-top opacity-70"
+          className="absolute inset-0 h-full w-full object-cover object-top opacity-70" loading="eager" decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-black/25" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent" />
@@ -231,7 +231,7 @@ const About = () => {
             transition={{ duration: 0.75 }}
             className="max-w-3xl py-20"
           >
-            <img src={AlfanioLogo} alt="Alfanio" className="mb-8 h-16 w-auto" />
+            <img src={AlfanioLogo} alt="Alfanio" className="mb-8 h-16 w-auto" loading="eager" decoding="async" />
             <p className="mb-5 inline-flex border border-[#FECC00]/40 bg-[#FECC00]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[3px] text-[#FECC00]">
               Modern Construction Equipment
             </p>
@@ -398,7 +398,7 @@ const About = () => {
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                    className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105" loading="lazy" decoding="async"
                   />
                   <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/80 to-transparent" />
                   <span className="absolute right-4 top-4 bg-[#FECC00] px-3 py-2 text-xs font-bold uppercase tracking-wide text-black">

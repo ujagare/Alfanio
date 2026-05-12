@@ -61,7 +61,7 @@ const TwinShaftMixer = () => {
                   <img
                     src={mixerImage}
                     alt="Twin Shaft Concrete Mixer"
-                    className="w-full rounded-xl shadow-lg object-cover transform group-hover:scale-105 transition-transform duration-500"
+                    className="w-full rounded-xl shadow-lg object-cover transform group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-xl"></div>
                 </div>
@@ -71,7 +71,7 @@ const TwinShaftMixer = () => {
                       key={idx}
                       src={img}
                       alt={`Product view ${idx + 1}`}
-                      className="w-full h-24 object-cover rounded-lg cursor-pointer hover:ring-2 ring-[#FECC00] transition-all"
+                      className="w-full h-24 object-cover rounded-lg cursor-pointer hover:ring-2 ring-[#FECC00] transition-all" loading="lazy" decoding="async"
                     />
                   ))}
                 </div>

@@ -55,7 +55,7 @@ const AppContent = () => {
         navigator.serviceWorker
           .register("/service-worker.js")
           .then((registration) => {
-            console.log("SW registered:", registration);
+  // console.log("SW registered:", registration);  // [removed by fix script]
 
             // Check for updates every hour
             setInterval(
@@ -82,7 +82,7 @@ const AppContent = () => {
             });
           })
           .catch((error) => {
-            console.error("SW registration failed:", error);
+  // console.error("SW registration failed:", error);  // [removed by fix script]
             trackEvent({
               action: "error",
               category: "ServiceWorker",
@@ -94,7 +94,7 @@ const AppContent = () => {
       // Handle communication from service worker
       navigator.serviceWorker.addEventListener("message", (event) => {
         if (event.data && event.data.type === "CACHE_UPDATED") {
-          console.log("New content is available; please refresh.");
+  // console.log("New content is available; please refresh.");  // [removed by fix script]
         }
       });
     }

@@ -37,7 +37,7 @@ const colors = {
 
 // Helper function to print colored messages
 function print(message, color = 'reset') {
-  console.log(`${colors[color]}${message}${colors.reset}`);
+  // console.log(`${colors[color]}${message}${colors.reset}`);  // [removed by fix script]
 }
 
 // Helper function to execute shell commands

@@ -1,169 +1,249 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/x-icon" href="/assets/Favicon/favicon.ico" />
-    <link rel="icon" type="image/png" sizes="32x32" href="/assets/Favicon/favicon-32x32.png" />
-    <link rel="icon" type="image/png" sizes="16x16" href="/assets/Favicon/favicon-16x16.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/assets/Favicon/apple-touch-icon.png" />
-    <link rel="manifest" href="/assets/Favicon/site.webmanifest" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
-    <meta name="description" content="Alfanio LTD - Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery." />
-    <meta name="keywords" content="construction equipment, mixers, batch plants, construction machinery, Alfanio solutions, global construction, twin shaft mixer, planetary mixer" />
-    <meta name="author" content="Alfanio LTD" />
-    <meta name="theme-color" content="#FECC00" />
-    <meta name="robots" content="index, follow" />
-    <meta name="googlebot" content="index, follow" />
-    <meta name="revisit-after" content="7 days" />
-    <meta name="language" content="English" />
-    <meta name="geo.region" content="IN" />
-    <meta property="og:title" content="Alfanio LTD - Industrial Mixers & Construction Equipment" />
-    <meta property="og:description" content="Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery." />
-    <meta property="og:image" content="https://alfanio.com/assets/Alfanio.png" />
-    <meta property="og:url" content="https://alfanio.com" />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="Alfanio LTD" />
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Alfanio LTD - Industrial Mixers & Construction Equipment" />
-    <meta name="twitter:description" content="Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery." />
-    <meta name="twitter:image" content="https://alfanio.com/assets/Alfanio.png" />
-
+    <meta charset="utf-8" />
+    <link href="/assets/Favicon/favicon.ico" rel="icon" type="image/x-icon" />
+    <link
+      href="/assets/Favicon/favicon-32x32.png"
+      rel="icon"
+      sizes="32x32"
+      type="image/png"
+    />
+    <link
+      href="/assets/Favicon/favicon-16x16.png"
+      rel="icon"
+      sizes="16x16"
+      type="image/png"
+    />
+    <link
+      href="/assets/Favicon/apple-touch-icon.png"
+      rel="apple-touch-icon"
+      sizes="180x180"
+    />
+    <link href="/assets/Favicon/site.webmanifest" rel="manifest" />
+    <meta
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+      name="viewport"
+    />
+    <meta
+      content="Alfanio LTD - Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery."
+      name="description"
+    />
+    <meta
+      content="construction equipment, mixers, batch plants, construction machinery, Alfanio solutions, global construction, twin shaft mixer, planetary mixer"
+      name="keywords"
+    />
+    <meta content="Alfanio LTD" name="author" />
+    <meta content="#FECC00" name="theme-color" />
+    <meta content="index, follow" name="robots" />
+    <meta content="index, follow" name="googlebot" />
+    <meta content="7 days" name="revisit-after" />
+    <meta content="English" name="language" />
+    <meta content="IN" name="geo.region" />
+    <meta
+      content="Alfanio LTD - Industrial Mixers &amp; Construction Equipment"
+      property="og:title"
+    />
+    <meta
+      content="Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery."
+      property="og:description"
+    />
+    <meta
+      content="https://alfanio.com/assets/Alfanio.png"
+      property="og:image"
+    />
+    <meta content="https://alfanio.com" property="og:url" />
+    <meta content="website" property="og:type" />
+    <meta content="Alfanio LTD" property="og:site_name" />
+    <meta content="summary_large_image" name="twitter:card" />
+    <meta
+      content="Alfanio LTD - Industrial Mixers &amp; Construction Equipment"
+      name="twitter:title"
+    />
+    <meta
+      content="Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery."
+      name="twitter:description"
+    />
+    <meta
+      content="https://alfanio.com/assets/Alfanio.png"
+      name="twitter:image"
+    />
     <!-- Resource Hints -->
-    <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
-    <link rel="dns-prefetch" href="https://www.google-analytics.com" />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-
-    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
-    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
+    <link href="https://www.googletagmanager.com" rel="dns-prefetch" />
+    <link href="https://www.google-analytics.com" rel="dns-prefetch" />
+    <link href="https://fonts.googleapis.com" rel="dns-prefetch" />
+    <link href="https://fonts.gstatic.com" rel="dns-prefetch" />
+    <link
+      crossorigin=""
+      href="https://www.googletagmanager.com"
+      rel="preconnect"
+    />
+    <link
+      crossorigin=""
+      href="https://www.google-analytics.com"
+      rel="preconnect"
+    />
+    <link crossorigin="" href="https://fonts.googleapis.com" rel="preconnect" />
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect" />
     <!-- Preload critical fonts -->
-    <link rel="preload" href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCvr73w5aXx-p7K4KLg.woff" as="font" type="font/woff" crossorigin />
-
+    <link
+      as="font"
+      crossorigin=""
+      href="https://fonts.gstatic.com/s/montserrat/v25/JTUHjIg1_i6t8kCHKm4532VJOt5-QNFgpCvr73w5aXx-p7K4KLg.woff"
+      rel="preload"
+      type="font/woff"
+    />
     <!-- Preload critical scripts -->
-    <link rel="preload" href="/assets/vendor/lenis/lenis.min.js" as="script" />
-
+    <link as="script" href="/assets/vendor/lenis/lenis.min.js" rel="preload" />
     <!-- Preload critical styles -->
-    <link rel="preload" href="/assets/vendor/lenis/lenis.css" as="style" />
-    <link rel="stylesheet" href="/assets/vendor/lenis/lenis.css">
-
+    <link as="style" href="/assets/vendor/lenis/lenis.css" rel="preload" />
+    <link href="/assets/vendor/lenis/lenis.css" rel="stylesheet" />
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://alfanio.com" />
-
+    <link href="https://alfanio.com" rel="canonical" />
     <!-- Humans.txt -->
-    <link rel="author" href="/humans.txt" />
-
+    <link href="/humans.txt" rel="author" />
     <!-- PWA Meta Tags -->
-    <link rel="manifest" href="/manifest.json" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Alfanio" />
-    <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-192x192.png" />
-    <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-152x152.png" />
-
+    <meta content="yes" name="apple-mobile-web-app-capable" />
+    <meta content="yes" name="mobile-web-app-capable" />
+    <meta
+      content="black-translucent"
+      name="apple-mobile-web-app-status-bar-style"
+    />
+    <meta content="Alfanio" name="apple-mobile-web-app-title" />
+    <link href="/icons/icon-192x192.png" rel="apple-touch-icon" />
+    <link
+      href="/icons/icon-152x152.png"
+      rel="apple-touch-icon"
+      sizes="152x152"
+    />
+    <link
+      href="/icons/icon-192x192.png"
+      rel="apple-touch-icon"
+      sizes="180x180"
+    />
+    <link
+      href="/icons/icon-152x152.png"
+      rel="apple-touch-icon"
+      sizes="167x167"
+    />
     <!-- Performance optimization -->
     <!-- Removed modulepreload as it's handled by Vite build process -->
-
     <!-- Security headers -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(self), interest-cohort=()">
-
+    <meta content="nosniff" http-equiv="X-Content-Type-Options" />
+    <meta
+      content="camera=(), microphone=(), geolocation=(self), interest-cohort=()"
+      http-equiv="Permissions-Policy"
+    />
     <title>Alfanio LTD - Global Construction Equipment Solutions</title>
-
     <!-- Structured Data / JSON-LD -->
-    <script type="application/ld+json">
-      {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "name": "Alfanio LTD",
-        "url": "https://alfanio.com",
-        "logo": "https://alfanio.com/assets/Alfanio.png",
-        "description": "Your trusted partner in industrial solutions - Leading manufacturer of mixers, batch plants, and construction machinery",
-        "address": {
-          "@type": "PostalAddress",
-          "addressCountry": "India"
-        },
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+91-XXXXXXXXXX",
-          "contactType": "customer service",
-          "email": "info@alfanio.com"
-        },
-        "sameAs": [
-          "https://facebook.com/alfanio",
-          "https://instagram.com/alfanio",
-          "https://youtube.com/alfanio"
-        ]
-      }
-    </script>
 
     <!-- Google Analytics 4 - Async loading -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script
+      async=""
+      src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-XXXXXXXXXX', {
-        'anonymize_ip': true,
-        'cookie_flags': 'SameSite=None;Secure',
-        'page_title': document.title,
-        'send_page_view': true,
-        'allow_google_signals': false,
-        'allow_ad_personalization_signals': false
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-XXXXXXXXXX", {
+        anonymize_ip: true,
+        cookie_flags: "SameSite=None;Secure",
+        page_title: document.title,
+        send_page_view: true,
+        allow_google_signals: false,
+        allow_ad_personalization_signals: false,
       });
 
       // Custom event tracking helper
-      window.trackEvent = function(category, action, label, value) {
-        if (typeof gtag === 'function') {
-          gtag('event', action, {
-            'event_category': category,
-            'event_label': label,
-            'value': value
+      window.trackEvent = function (category, action, label, value) {
+        if (typeof gtag === "function") {
+          gtag("event", action, {
+            event_category: category,
+            event_label: label,
+            value: value,
           });
         }
       };
 
       // Track form submissions
-      window.trackFormSubmission = function(formType, productName) {
-        if (typeof gtag === 'function') {
-          gtag('event', 'form_submission', {
-            'event_category': 'Forms',
-            'event_label': formType,
-            'form_type': formType,
-            'product_name': productName || 'Not specified'
+      window.trackFormSubmission = function (formType, productName) {
+        if (typeof gtag === "function") {
+          gtag("event", "form_submission", {
+            event_category: "Forms",
+            event_label: formType,
+            form_type: formType,
+            product_name: productName || "Not specified",
           });
         }
       };
 
       // Track brochure downloads
-      window.trackBrochureDownload = function(productName) {
-        if (typeof gtag === 'function') {
-          gtag('event', 'brochure_download', {
-            'event_category': 'Downloads',
-            'event_label': productName || 'General Brochure',
-            'product_name': productName || 'General Brochure'
+      window.trackBrochureDownload = function (productName) {
+        if (typeof gtag === "function") {
+          gtag("event", "brochure_download", {
+            event_category: "Downloads",
+            event_label: productName || "General Brochure",
+            product_name: productName || "General Brochure",
           });
         }
       };
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "Alfanio",
+        "url": "https://www.alfanio.com",
+        "description": "Leading manufacturer of mixers, batch plants, and construction machinery.",
+        "potentialAction": {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://www.alfanio.com/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "Alfanio LTD - Global Construction Equipment Solutions",
+        "url": "https://www.alfanio.com",
+        "description": "Alfanio LTD - Your trusted partner in industrial solutions. Leading manufacturer of mixers, batch plants, and construction machinery.",
+        "inLanguage": "en",
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "Alfanio",
+          "url": "https://www.alfanio.com"
+        }
+      }
     </script>
   </head>
   <body>
     <div id="root"></div>
     <noscript>
-      <div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
-        <h1 style="color: #FECC00;">JavaScript Required</h1>
-        <p>Please enable JavaScript to view this website. Alfanio LTD requires JavaScript to provide you with the best experience.</p>
-      </div>
+      <header
+        style="
+          padding: 20px;
+          text-align: center;
+          font-family: Arial, sans-serif;
+        "
+      >
+        <h1 style="color: #fecc00">JavaScript Required</h1>
+        <p>
+          Please enable JavaScript to view this website. Alfanio LTD requires
+          JavaScript to provide you with the best experience.
+        </p>
+      </header>
     </noscript>
     <!-- Ensure proper MIME types for scripts -->
-    <script src="/assets/vendor/lenis/lenis.min.js" defer></script>
-    <script src="/js/background-sync.js" defer></script>
+    <script defer="" src="/assets/vendor/lenis/lenis.min.js"></script>
+    <script defer="" src="/js/background-sync.js"></script>
     <!-- Use standard script tag for main entry point -->
-    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

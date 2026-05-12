@@ -705,7 +705,7 @@ async function sendBrochureEmail(name, email) {
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
           <div style="text-align: center; margin-bottom: 20px;">
-            <img src="https://alfanio.com/logo.png" alt="Alfanio Logo" style="max-width: 150px;">
+            <img src="https://alfanio.com/logo.png" alt="Alfanio Logo" style="max-width: 150px;" loading="eager" decoding="async">
           </div>
           
           <h2 style="color: #333; text-align: center;">Your Requested Brochure</h2>

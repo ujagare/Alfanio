@@ -16,13 +16,13 @@ try {
         fs.mkdirSync(logsDir, { recursive: true });
     }
 } catch (error) {
-    console.error('Failed to create logs directory:', error);
+  // console.error('Failed to create logs directory:', error);  // [removed by fix script]
 }
 
 const logger = {
-  info: (message, meta = {}) => console.log('[INFO]', message, meta),
-  error: (message, meta = {}) => console.error('[ERROR]', message, meta),
-  warn: (message, meta = {}) => console.warn('[WARN]', message, meta)
+  // info: (message, meta = {}) => console.log('[INFO]', message, meta),  // [removed by fix script]
+  // error: (message, meta = {}) => console.error('[ERROR]', message, meta),  // [removed by fix script]
+  // warn: (message, meta = {}) => console.warn('[WARN]', message, meta)  // [removed by fix script]
 };
 
 export default logger;

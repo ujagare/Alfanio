@@ -28,7 +28,7 @@ const colors = {
 
 // Print colored message
 const print = (message, color = 'white') => {
-  console.log(colors[color] + message + colors.reset);
+  // console.log(colors[color] + message + colors.reset);  // [removed by fix script]
 };
 
 // Find and kill existing server processes
@@ -114,14 +114,14 @@ const startServer = async () => {
   // Handle stdout
   server.stdout.on('data', (data) => {
     const output = data.toString().trim();
-    console.log(output);
+  // console.log(output);  // [removed by fix script]
     serverLogStream.write(`${output}\n`);
   });
   
   // Handle stderr
   server.stderr.on('data', (data) => {
     const output = data.toString().trim();
-    console.error(colors.red + output + colors.reset);
+  // console.error(colors.red + output + colors.reset);  // [removed by fix script]
     errorLogStream.write(`[${new Date().toISOString()}] ${output}\n`);
   });
   
@@ -168,11 +168,11 @@ const rl = readline.createInterface({
 
 // Print header
 const printHeader = () => {
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   print('╔════════════════════════════════════════════════════════════╗', 'cyan');
   print('║                 ALFANIO SERVER MANAGER                     ║', 'cyan');
   print('╚════════════════════════════════════════════════════════════╝', 'cyan');
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
 };
 
 // Main function
@@ -184,7 +184,7 @@ const main = async () => {
   
   print(`Server configured to run on port: ${process.env.PORT || 5001}`, 'cyan');
   print('Starting server with automatic restart on failure...', 'cyan');
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   
   // Start the server
   await startServer();

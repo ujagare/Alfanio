@@ -90,7 +90,7 @@ const SmoothScroll = () => {
           lenis.destroy();
         };
       } catch (error) {
-        console.error("Error initializing Lenis:", error);
+  // console.error("Error initializing Lenis:", error);  // [removed by fix script]
       }
     }
   }, []);

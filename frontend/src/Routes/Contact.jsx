@@ -74,7 +74,7 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-      console.log("Submitting contact form with data:", {
+  // console.log("Submitting contact form with data:", {  // [removed by fix script]
         name: data.name,
         email: data.email,
         phone: `${countryCode}${data.phone}`,
@@ -100,10 +100,10 @@ const Contact = () => {
         try {
           const errorData = await response.json();
           errorMessage = errorData.message || errorMessage;
-          console.error("Server error response:", errorData);
+  // console.error("Server error response:", errorData);  // [removed by fix script]
         } catch {
           const errorText = await response.text();
-          console.error("Server error response:", errorText);
+  // console.error("Server error response:", errorText);  // [removed by fix script]
         }
         throw new Error(errorMessage);
       }
@@ -121,7 +121,7 @@ const Contact = () => {
         throw new Error(result.message || "Failed to send message");
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+  // console.error("Error sending message:", error);  // [removed by fix script]
       toast.error(
         error.message || "Failed to send message. Please try again.",
         toastStyles
@@ -156,7 +156,7 @@ const Contact = () => {
           <img
             src={heroImage}
             alt="Alfanio Contact"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover" loading="eager" decoding="async"
           />
           <div className="absolute inset-0 bg-black/50" />
         </div>

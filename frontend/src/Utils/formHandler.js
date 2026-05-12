@@ -27,10 +27,10 @@ const saveSubmission = (formData, formType) => {
     // Save back to local storage
     localStorage.setItem('formSubmissions', JSON.stringify(existingSubmissions));
 
-    console.log('Form submission saved to local storage:', submission);
+  // console.log('Form submission saved to local storage:', submission);  // [removed by fix script]
     return true;
   } catch (error) {
-    console.error('Failed to save form submission to local storage:', error);
+  // console.error('Failed to save form submission to local storage:', error);  // [removed by fix script]
     return false;
   }
 };
@@ -42,7 +42,7 @@ export const handleContactForm = async (formData) => {
     saveSubmission(formData, 'contact');
 
     // Make API call to server
-    console.log('Sending contact form to API:', formData);
+  // console.log('Sending contact form to API:', formData);  // [removed by fix script]
 
     const response = await fetch(API_ENDPOINTS.contact, {
       method: 'POST',
@@ -60,7 +60,7 @@ export const handleContactForm = async (formData) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Server error response:', errorText);
+  // console.error('Server error response:', errorText);  // [removed by fix script]
       throw new Error(`Server responded with status: ${response.status}`);
     }
 
@@ -80,7 +80,7 @@ export const handleContactForm = async (formData) => {
       throw new Error(result.message || 'Failed to send message');
     }
   } catch (error) {
-    console.error('Contact form error:', error);
+  // console.error('Contact form error:', error);  // [removed by fix script]
     toast.error('Something went wrong. Please try again later.');
     return { success: false, error: error.message };
   }
@@ -93,7 +93,7 @@ export const handleBrochureForm = async (formData) => {
     saveSubmission(formData, 'brochure');
 
     // Make API call to server
-    console.log('Sending brochure form to API:', formData);
+  // console.log('Sending brochure form to API:', formData);  // [removed by fix script]
 
     const response = await fetch(API_ENDPOINTS.brochure, {
       method: 'POST',
@@ -112,7 +112,7 @@ export const handleBrochureForm = async (formData) => {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Server error response:', errorText);
+  // console.error('Server error response:', errorText);  // [removed by fix script]
       throw new Error(`Server responded with status: ${response.status}`);
     }
 
@@ -135,7 +135,7 @@ export const handleBrochureForm = async (formData) => {
       throw new Error(result.message || 'Failed to request brochure');
     }
   } catch (error) {
-    console.error('Brochure form error:', error);
+  // console.error('Brochure form error:', error);  // [removed by fix script]
     toast.error('Something went wrong. Please try again later.');
     return { success: false, error: error.message };
   }

@@ -11,7 +11,7 @@ const router = Router();
 // Simple logger function
 const log = (level, message, data = {}) => {
   const timestamp = new Date().toISOString();
-  console.log(JSON.stringify({ timestamp, level, message, ...data }));
+  // console.log(JSON.stringify({ timestamp, level, message, ...data }));  // [removed by fix script]
 };
 
 // Contact form endpoint

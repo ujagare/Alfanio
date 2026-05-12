@@ -36,17 +36,17 @@ const checkPortAvailable = (port) => {
     
     server.once('error', (err) => {
       if (err.code === 'EADDRINUSE') {
-        console.log(`Port ${port} is already in use. Will try alternative port.`);
+  // console.log(`Port ${port} is already in use. Will try alternative port.`);  // [removed by fix script]
         resolve(false);
       } else {
-        console.log(`Error checking port: ${err.message}`);
+  // console.log(`Error checking port: ${err.message}`);  // [removed by fix script]
         resolve(false);
       }
     });
     
     server.once('listening', () => {
       server.close();
-      console.log(`Port ${port} is available`);
+  // console.log(`Port ${port} is available`);  // [removed by fix script]
       resolve(true);
     });
     
@@ -67,7 +67,7 @@ const findAvailablePort = async (startPort) => {
     maxAttempts--;
   }
   
-  console.log(`Could not find available port after ${10 - maxAttempts} attempts. Using port ${port} anyway.`);
+  // console.log(`Could not find available port after ${10 - maxAttempts} attempts. Using port ${port} anyway.`);  // [removed by fix script]
   return port;
 };
 
@@ -78,7 +78,7 @@ const startServer = async () => {
     const port = await findAvailablePort(parseInt(process.env.PORT));
     process.env.PORT = port.toString();
     
-    console.log(`Starting server on port ${port}...`);
+  // console.log(`Starting server on port ${port}...`);  // [removed by fix script]
     
     // Start the server
     const server = spawn('node', ['server.js'], {
@@ -87,16 +87,16 @@ const startServer = async () => {
     });
     
     server.on('error', (err) => {
-      console.error('Failed to start server:', err);
+  // console.error('Failed to start server:', err);  // [removed by fix script]
     });
     
     server.on('exit', (code) => {
       if (code !== 0) {
-        console.error(`Server exited with code ${code}`);
+  // console.error(`Server exited with code ${code}`);  // [removed by fix script]
       }
     });
   } catch (err) {
-    console.error('Error starting server:', err);
+  // console.error('Error starting server:', err);  // [removed by fix script]
   }
 };
 

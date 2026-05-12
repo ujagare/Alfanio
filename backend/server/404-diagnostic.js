@@ -19,7 +19,7 @@ app.use(cors({ origin: '*' }));
 
 // Log all requests to console for debugging
 app.use((req, res, next) => {
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
+  // console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);  // [removed by fix script]
   next();
 });
 
@@ -98,6 +98,6 @@ app.use(express.static(path.join(__dirname, '../dist')));
 
 // Start server
 app.listen(PORT, () => {
-  console.log(`Diagnostic server running on http://localhost:${PORT}`);
-  console.log(`Open http://localhost:${PORT} in your browser to run diagnostics`);
+  // console.log(`Diagnostic server running on http://localhost:${PORT}`);  // [removed by fix script]
+  // console.log(`Open http://localhost:${PORT} in your browser to run diagnostics`);  // [removed by fix script]
 });

@@ -9,11 +9,11 @@ export default defineConfig({
   enforce: 'pre',
   async buildStart() {
     if (process.env.SKIP_IMAGE_OPTIMIZATION === 'true') {
-      console.log('Skipping image optimization because SKIP_IMAGE_OPTIMIZATION=true');
+  // console.log('Skipping image optimization because SKIP_IMAGE_OPTIMIZATION=true');  // [removed by fix script]
       return;
     }
 
-    console.log('Starting image optimization...');
+  // console.log('Starting image optimization...');  // [removed by fix script]
     
     // Define source and destination directories
     const srcDir = path.resolve(__dirname, 'src/assets');
@@ -22,17 +22,17 @@ export default defineConfig({
     // Create destination directory if it doesn't exist
     try {
       await fs.mkdir(destDir, { recursive: true });
-      console.log(`Created directory: ${destDir}`);
+  // console.log(`Created directory: ${destDir}`);  // [removed by fix script]
     } catch (err) {
-      console.error(`Error creating directory: ${err.message}`);
+  // console.error(`Error creating directory: ${err.message}`);  // [removed by fix script]
     }
     
     // Process images
     try {
       await processImages(srcDir, destDir);
-      console.log('Image optimization completed successfully');
+  // console.log('Image optimization completed successfully');  // [removed by fix script]
     } catch (err) {
-      console.error(`Error processing images: ${err.message}`);
+  // console.error(`Error processing images: ${err.message}`);  // [removed by fix script]
     }
   }
 });
@@ -79,7 +79,7 @@ async function optimizeImage(srcPath, destDir, filename) {
     // Skip if image is already optimized (check file size)
     const stats = await fs.stat(srcPath);
     if (stats.size < 10 * 1024) { // Skip files smaller than 10KB
-      console.log(`Skipping small image: ${filename}`);
+  // console.log(`Skipping small image: ${filename}`);  // [removed by fix script]
       return;
     }
     
@@ -90,7 +90,7 @@ async function optimizeImage(srcPath, destDir, filename) {
 
     // Create WebP version
     await image.webp({ quality: 80 }).toFile(webpPath);
-    console.log(`Created WebP: ${webpPath}`);
+  // console.log(`Created WebP: ${webpPath}`);  // [removed by fix script]
     
     // Create responsive versions for larger images
     if (metadata.width > 800) {
@@ -100,7 +100,7 @@ async function optimizeImage(srcPath, destDir, filename) {
         .resize(800)
         .webp({ quality: 75 })
         .toFile(mediumPath);
-      console.log(`Created medium: ${mediumPath}`);
+  // console.log(`Created medium: ${mediumPath}`);  // [removed by fix script]
       
       // Small size (400px width)
       const smallPath = path.join(destDir, `${baseName}-400.webp`);
@@ -108,7 +108,7 @@ async function optimizeImage(srcPath, destDir, filename) {
         .resize(400)
         .webp({ quality: 70 })
         .toFile(smallPath);
-      console.log(`Created small: ${smallPath}`);
+  // console.log(`Created small: ${smallPath}`);  // [removed by fix script]
     }
     
     // Create original format optimized version
@@ -117,16 +117,16 @@ async function optimizeImage(srcPath, destDir, filename) {
       await sharp(srcPath)
         .jpeg({ quality: 85, progressive: true })
         .toFile(jpgPath);
-      console.log(`Optimized JPEG: ${jpgPath}`);
+  // console.log(`Optimized JPEG: ${jpgPath}`);  // [removed by fix script]
     } else if (ext === '.png') {
       const pngPath = path.join(destDir, filename);
       await sharp(srcPath)
         .png({ compressionLevel: 9, progressive: true })
         .toFile(pngPath);
-      console.log(`Optimized PNG: ${pngPath}`);
+  // console.log(`Optimized PNG: ${pngPath}`);  // [removed by fix script]
     }
   } catch (err) {
-    console.error(`Error optimizing ${filename}: ${err.message}`);
+  // console.error(`Error optimizing ${filename}: ${err.message}`);  // [removed by fix script]
   }
 }
 

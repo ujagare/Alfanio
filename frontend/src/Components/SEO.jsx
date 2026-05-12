@@ -9,8 +9,8 @@ const SEO = ({ title, description, keywords, image }) => {
     "Since 1963, Alfanio continues a storied history of designing, manufacturing and supplying high-quality mixers, batch plants, and equipment solutions for the global construction marketplace.";
   const defaultKeywords =
     "construction equipment, mixers, batch plants, global construction, Alfanio, manufacturing equipment";
-  const defaultImage = "/assets/Alfanio.png";
-  const siteUrl = "https://alfanio.com";
+  const defaultImage = "/Alfanio.png" /* ensure file exists in /public */;
+  const siteUrl = "https://alfanio.in";
 
   // Construct canonical URL
   const canonicalUrl = `${siteUrl}${location.pathname}`;

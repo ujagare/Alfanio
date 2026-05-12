@@ -32,7 +32,7 @@ export const setupCors = (app) => {
         if (allowedOrigins.includes(origin) || process.env.NODE_ENV !== 'production') {
           callback(null, true);
         } else {
-          console.warn(`CORS blocked request from origin: ${origin}`);
+  // console.warn(`CORS blocked request from origin: ${origin}`);  // [removed by fix script]
           callback(new Error(`Origin ${origin} not allowed by CORS policy`));
         }
       };
@@ -61,7 +61,7 @@ export const setupCors = (app) => {
   }));
 
   // Log CORS configuration
-  console.log(`CORS configured with origin: ${process.env.CORS_ORIGIN || 'dynamic origins'}`);
+  // console.log(`CORS configured with origin: ${process.env.CORS_ORIGIN || 'dynamic origins'}`);  // [removed by fix script]
 
   // Add additional CORS headers to all responses
   app.use((req, res, next) => {
@@ -74,7 +74,7 @@ export const setupCors = (app) => {
     // For preflight requests, respond immediately
     if (req.method === 'OPTIONS') {
       res.header('Access-Control-Max-Age', '86400'); // 24 hours
-      console.log(`Handling OPTIONS request from origin: ${req.headers.origin}`);
+  // console.log(`Handling OPTIONS request from origin: ${req.headers.origin}`);  // [removed by fix script]
       return res.status(204).end();
     }
 
@@ -89,7 +89,7 @@ export const setupCors = (app) => {
     res.header('Access-Control-Allow-Credentials', 'true');
     res.header('Access-Control-Max-Age', '86400'); // 24 hours
 
-    console.log(`Handling global OPTIONS request from origin: ${req.headers.origin}`);
+  // console.log(`Handling global OPTIONS request from origin: ${req.headers.origin}`);  // [removed by fix script]
     res.status(204).end();
   });
 };

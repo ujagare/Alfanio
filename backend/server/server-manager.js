@@ -28,7 +28,7 @@ const colors = {
 
 // Print colored message
 const print = (message, color = 'white') => {
-  console.log(colors[color] + message + colors.reset);
+  // console.log(colors[color] + message + colors.reset);  // [removed by fix script]
 };
 
 // Log to file and console

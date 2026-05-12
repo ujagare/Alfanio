@@ -12,7 +12,7 @@ import { API_URL } from '../config';
 export const syncOfflineSubmissions = async () => {
   // Check if online
   if (!navigator.onLine) {
-    console.log('Cannot sync offline submissions: device is offline');
+  // console.log('Cannot sync offline submissions: device is offline');  // [removed by fix script]
     return {
       success: false,
       synced: 0,
@@ -26,7 +26,7 @@ export const syncOfflineSubmissions = async () => {
   try {
     brochureRequests = JSON.parse(localStorage.getItem('brochureRequests') || '[]');
   } catch (error) {
-    console.error('Error parsing stored brochure requests:', error);
+  // console.error('Error parsing stored brochure requests:', error);  // [removed by fix script]
   }
 
   // Get stored contact form submissions
@@ -34,7 +34,7 @@ export const syncOfflineSubmissions = async () => {
   try {
     contactSubmissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
   } catch (error) {
-    console.error('Error parsing stored contact submissions:', error);
+  // console.error('Error parsing stored contact submissions:', error);  // [removed by fix script]
   }
 
   // Filter only unprocessed submissions
@@ -75,7 +75,7 @@ export const syncOfflineSubmissions = async () => {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error syncing brochure request:', error);
+  // console.error('Error syncing brochure request:', error);  // [removed by fix script]
       results.failed++;
       results.details.push({
         type: 'brochure',
@@ -113,7 +113,7 @@ export const syncOfflineSubmissions = async () => {
         timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Error syncing contact submission:', error);
+  // console.error('Error syncing contact submission:', error);  // [removed by fix script]
       results.failed++;
       results.details.push({
         type: 'contact',
@@ -130,11 +130,11 @@ export const syncOfflineSubmissions = async () => {
     localStorage.setItem('brochureRequests', JSON.stringify(brochureRequests));
     localStorage.setItem('contactSubmissions', JSON.stringify(contactSubmissions));
   } catch (error) {
-    console.error('Error updating localStorage after sync:', error);
+  // console.error('Error updating localStorage after sync:', error);  // [removed by fix script]
     results.success = false;
   }
 
-  console.log('Sync results:', results);
+  // console.log('Sync results:', results);  // [removed by fix script]
   return results;
 };
 
@@ -154,7 +154,7 @@ export const saveContactSubmission = (formData) => {
     localStorage.setItem('contactSubmissions', JSON.stringify(submissions));
     return true;
   } catch (error) {
-    console.error('Error saving contact submission to localStorage:', error);
+  // console.error('Error saving contact submission to localStorage:', error);  // [removed by fix script]
     return false;
   }
 };
@@ -175,7 +175,7 @@ export const saveBrochureRequest = (formData) => {
     localStorage.setItem('brochureRequests', JSON.stringify(requests));
     return true;
   } catch (error) {
-    console.error('Error saving brochure request to localStorage:', error);
+  // console.error('Error saving brochure request to localStorage:', error);  // [removed by fix script]
     return false;
   }
 };
@@ -192,14 +192,14 @@ export const getPendingSubmissionCounts = () => {
     const brochureRequests = JSON.parse(localStorage.getItem('brochureRequests') || '[]');
     brochureCount = brochureRequests.filter(req => !req.processed).length;
   } catch (error) {
-    console.error('Error counting pending brochure requests:', error);
+  // console.error('Error counting pending brochure requests:', error);  // [removed by fix script]
   }
 
   try {
     const contactSubmissions = JSON.parse(localStorage.getItem('contactSubmissions') || '[]');
     contactCount = contactSubmissions.filter(sub => !sub.processed).length;
   } catch (error) {
-    console.error('Error counting pending contact submissions:', error);
+  // console.error('Error counting pending contact submissions:', error);  // [removed by fix script]
   }
 
   return {
@@ -215,7 +215,7 @@ export const getPendingSubmissionCounts = () => {
 export const setupOfflineSync = () => {
   // Sync when coming back online
   window.addEventListener('online', () => {
-    console.log('Device is now online. Attempting to sync offline submissions...');
+  // console.log('Device is now online. Attempting to sync offline submissions...');  // [removed by fix script]
     syncOfflineSubmissions();
   });
 
@@ -223,7 +223,7 @@ export const setupOfflineSync = () => {
   if (navigator.onLine) {
     const pendingCounts = getPendingSubmissionCounts();
     if (pendingCounts.total > 0) {
-      console.log(`Found ${pendingCounts.total} pending submissions. Attempting to sync...`);
+  // console.log(`Found ${pendingCounts.total} pending submissions. Attempting to sync...`);  // [removed by fix script]
       syncOfflineSubmissions();
     }
   }

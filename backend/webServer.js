@@ -61,7 +61,7 @@ const createTransport = () => {
       logger: true
     });
   } catch (error) {
-    console.error('Error creating detailed transport:', error);
+  // console.error('Error creating detailed transport:', error);  // [removed by fix script]
 
     // Fall back to simple Gmail service configuration
     try {
@@ -73,7 +73,7 @@ const createTransport = () => {
         }
       });
     } catch (fallbackError) {
-      console.error('Error creating fallback transport:', fallbackError);
+  // console.error('Error creating fallback transport:', fallbackError);  // [removed by fix script]
       throw new Error('Failed to create email transport');
     }
   }
@@ -85,7 +85,7 @@ const sendEmail = async (options) => {
   const methods = [
     // Method 1: Standard SMTP
     async () => {
-      console.log('Trying email method 1: Standard SMTP...');
+  // console.log('Trying email method 1: Standard SMTP...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         host: EMAIL_CONFIG.host,
         port: EMAIL_CONFIG.port,
@@ -106,7 +106,7 @@ const sendEmail = async (options) => {
 
     // Method 2: Gmail service
     async () => {
-      console.log('Trying email method 2: Gmail service...');
+  // console.log('Trying email method 2: Gmail service...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -125,7 +125,7 @@ const sendEmail = async (options) => {
 
     // Method 3: Gmail with TLS options
     async () => {
-      console.log('Trying email method 3: Gmail with TLS options...');
+  // console.log('Trying email method 3: Gmail with TLS options...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -147,7 +147,7 @@ const sendEmail = async (options) => {
 
     // Method 4: Direct SMTP with port 587
     async () => {
-      console.log('Trying email method 4: Direct SMTP with port 587...');
+  // console.log('Trying email method 4: Direct SMTP with port 587...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
@@ -173,13 +173,13 @@ const sendEmail = async (options) => {
 
   for (let i = 0; i < methods.length; i++) {
     try {
-      console.log(`Attempting to send email using method ${i + 1}/${methods.length}...`);
-      console.log('Sending to:', options.to || EMAIL_CONFIG.to);
-      console.log('Subject:', options.subject || 'Test Email from Alfanio');
+  // console.log(`Attempting to send email using method ${i + 1}/${methods.length}...`);  // [removed by fix script]
+  // console.log('Sending to:', options.to || EMAIL_CONFIG.to);  // [removed by fix script]
+  // console.log('Subject:', options.subject || 'Test Email from Alfanio');  // [removed by fix script]
 
       const info = await methods[i]();
 
-      console.log(`Email sent successfully using method ${i + 1}:`, info.messageId);
+  // console.log(`Email sent successfully using method ${i + 1}:`, info.messageId);  // [removed by fix script]
 
       return {
         success: true,
@@ -188,13 +188,13 @@ const sendEmail = async (options) => {
         method: i + 1
       };
     } catch (error) {
-      console.error(`Method ${i + 1} failed:`, error.message);
+  // console.error(`Method ${i + 1} failed:`, error.message);  // [removed by fix script]
       lastError = error;
     }
   }
 
   // If all methods fail, return error
-  console.error('All email sending methods failed');
+  // console.error('All email sending methods failed');  // [removed by fix script]
 
   return {
     success: false,
@@ -213,7 +213,7 @@ const staticPaths = [
 // Find existing directories and serve static files from them
 staticPaths.forEach(staticPath => {
   if (fs.existsSync(staticPath)) {
-    console.log('Serving static files from:', staticPath);
+  // console.log('Serving static files from:', staticPath);  // [removed by fix script]
     app.use(express.static(staticPath));
   }
 });
@@ -245,7 +245,7 @@ app.get('/', (req, res) => {
   const indexPath = possiblePaths.find(p => fs.existsSync(p));
 
   if (indexPath) {
-    console.log('Serving frontend from root path:', indexPath);
+  // console.log('Serving frontend from root path:', indexPath);  // [removed by fix script]
     return res.sendFile(indexPath);
   }
 
@@ -332,7 +332,7 @@ app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    console.log('Received email request:', req.body);
+  // console.log('Received email request:', req.body);  // [removed by fix script]
 
     // Send email
     const emailResult = await sendEmail({
@@ -360,7 +360,7 @@ app.post('/api/send-email', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('API error:', error);
+  // console.error('API error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -375,7 +375,7 @@ app.post('/api/contact/brochure', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    console.log('Received brochure request:', req.body);
+  // console.log('Received brochure request:', req.body);  // [removed by fix script]
 
     if (!name || !email) {
       return res.status(400).json({
@@ -410,7 +410,7 @@ app.post('/api/contact/brochure', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('API error:', error);
+  // console.error('API error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -436,7 +436,7 @@ app.get('/api/brochure/download', (req, res) => {
   const brochurePath = possiblePaths.find(path => fs.existsSync(path));
 
   if (!brochurePath) {
-    console.error('Brochure file not found in any location', possiblePaths);
+  // console.error('Brochure file not found in any location', possiblePaths);  // [removed by fix script]
     return res.status(404).send('Brochure file not found');
   }
 
@@ -449,7 +449,7 @@ app.get('/api/brochure/download', (req, res) => {
   const stat = fs.statSync(brochurePath);
   res.setHeader('Content-Length', stat.size);
 
-  console.log('Serving brochure from:', brochurePath);
+  // console.log('Serving brochure from:', brochurePath);  // [removed by fix script]
 
   // Create a read stream and pipe it to the response
   const fileStream = fs.createReadStream(brochurePath);
@@ -475,7 +475,7 @@ app.get('*', (req, res) => {
   const indexPath = possiblePaths.find(path => fs.existsSync(path));
 
   if (indexPath) {
-    console.log('Serving frontend from:', indexPath);
+  // console.log('Serving frontend from:', indexPath);  // [removed by fix script]
     return res.sendFile(indexPath);
   }
 
@@ -555,12 +555,12 @@ app.get('*', (req, res) => {
 const PORT = 5005;
 
 app.listen(PORT, () => {
-  console.log(`Web server running on http://localhost:${PORT}`);
-  console.log('Email configuration:');
-  console.log('- Host:', EMAIL_CONFIG.host);
-  console.log('- Port:', EMAIL_CONFIG.port);
-  console.log('- Secure:', EMAIL_CONFIG.secure);
-  console.log('- User:', EMAIL_CONFIG.auth.user);
-  console.log('- From:', EMAIL_CONFIG.from);
-  console.log('- To:', EMAIL_CONFIG.to);
+  // console.log(`Web server running on http://localhost:${PORT}`);  // [removed by fix script]
+  // console.log('Email configuration:');  // [removed by fix script]
+  // console.log('- Host:', EMAIL_CONFIG.host);  // [removed by fix script]
+  // console.log('- Port:', EMAIL_CONFIG.port);  // [removed by fix script]
+  // console.log('- Secure:', EMAIL_CONFIG.secure);  // [removed by fix script]
+  // console.log('- User:', EMAIL_CONFIG.auth.user);  // [removed by fix script]
+  // console.log('- From:', EMAIL_CONFIG.from);  // [removed by fix script]
+  // console.log('- To:', EMAIL_CONFIG.to);  // [removed by fix script]
 });

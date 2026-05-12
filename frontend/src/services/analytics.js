@@ -18,7 +18,7 @@ export const initializeGA = () => {
 
   // Skip initialization if analytics is disabled
   if (!isAnalyticsEnabled && config.ENV.isDev) {
-    console.log('Analytics disabled in development mode');
+  // console.log('Analytics disabled in development mode');  // [removed by fix script]
     return;
   }
 
@@ -34,7 +34,7 @@ export const initializeGA = () => {
     cookie_domain: config.ENV.productionDomain || window.location.hostname
   });
 
-  console.log(`Analytics initialized with tracking ID: ${GA_TRACKING_ID}`);
+  // console.log(`Analytics initialized with tracking ID: ${GA_TRACKING_ID}`);  // [removed by fix script]
 };
 
 // Track events
@@ -46,13 +46,13 @@ export const trackEvent = ({ action, category, label, value }) => {
 
   // Skip tracking if analytics is disabled
   if (!isAnalyticsEnabled && config.ENV.isDev) {
-    console.log(`[Analytics Disabled] Event: ${action}, Category: ${category}, Label: ${label}`);
+  // console.log(`[Analytics Disabled] Event: ${action}, Category: ${category}, Label: ${label}`);  // [removed by fix script]
     return;
   }
 
   // Check if gtag is available
   if (!window.gtag) {
-    console.warn('Google Analytics not initialized');
+  // console.warn('Google Analytics not initialized');  // [removed by fix script]
     return;
   }
 
@@ -66,7 +66,7 @@ export const trackEvent = ({ action, category, label, value }) => {
 
   // Log in development mode
   if (config.ENV.isDev) {
-    console.log(`[Analytics] Event: ${action}, Category: ${category}, Label: ${label}`);
+  // console.log(`[Analytics] Event: ${action}, Category: ${category}, Label: ${label}`);  // [removed by fix script]
   }
 };
 

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Alfanio Diagnostic Page</title>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Alfanio Diagnostic Page</title>
+<style>
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
@@ -44,35 +44,71 @@
             overflow-x: auto;
         }
     </style>
-</head>
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Alfanio Diagnostic Page",
+  "url": "https://www.alfanio.com/backend/server/diagnostic.html",
+  "description": "Best website for all your needs",
+  "inLanguage": "hi",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Alfanio",
+    "url": "https://www.alfanio.com"
+  }
+}</script><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.alfanio.com/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Backend",
+      "item": "https://www.alfanio.com/backend"
+    },
+    {
+      "@type": "ListItem",
+      "position": 3,
+      "name": "Server",
+      "item": "https://www.alfanio.com/backend/server"
+    },
+    {
+      "@type": "ListItem",
+      "position": 4,
+      "name": "Alfanio Diagnostic Page",
+      "item": "https://www.alfanio.com/backend/server/diagnostic.html"
+    }
+  ]
+}</script></head>
 <body>
-    <h1>Alfanio Website Diagnostic Tool</h1>
-    
-    <div class="test-section">
-        <h2>API Health Check</h2>
-        <button id="checkHealth">Check API Health</button>
-        <div id="healthResult"></div>
-    </div>
-    
-    <div class="test-section">
-        <h2>API Test Endpoint</h2>
-        <button id="testApi">Test API</button>
-        <div id="apiResult"></div>
-    </div>
-    
-    <div class="test-section">
-        <h2>Static Assets Test</h2>
-        <button id="testAssets">Test Static Assets</button>
-        <div id="assetsResult"></div>
-    </div>
-    
-    <div class="test-section">
-        <h2>Network Requests Log</h2>
-        <button id="clearLog">Clear Log</button>
-        <pre id="networkLog"></pre>
-    </div>
-
-    <script>
+<h1>Alfanio Website Diagnostic Tool</h1>
+<section class="test-section">
+<h2>API Health Check</h2>
+<button id="checkHealth">Check API Health</button>
+<div id="healthResult"></div>
+</section>
+<section class="test-section">
+<h2>API Test Endpoint</h2>
+<button id="testApi">Test API</button>
+<div id="apiResult"></div>
+</section>
+<section class="test-section">
+<h2>Static Assets Test</h2>
+<button id="testAssets">Test Static Assets</button>
+<div id="assetsResult"></div>
+</section>
+<section class="test-section">
+<h2>Network Requests Log</h2>
+<button id="clearLog">Clear Log</button>
+<pre id="networkLog"></pre>
+</section>
+<script>
         // Function to log results
         function logResult(elementId, success, message, data) {
             const element = document.getElementById(elementId);

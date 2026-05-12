@@ -113,10 +113,10 @@ async function startServer() {
     app.use('/contact', router);
 
     app.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+  // console.log(`Server running on http://localhost:${PORT}`);  // [removed by fix script]
     });
   } catch (error) {
-    console.error('Server startup error:', error);
+  // console.error('Server startup error:', error);  // [removed by fix script]
     process.exit(1);
   }
 }

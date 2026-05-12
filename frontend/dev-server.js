@@ -22,9 +22,9 @@ async function startServer() {
     await server.listen();
 
     server.printUrls();
-    console.log('Vite server started successfully!');
+  // console.log('Vite server started successfully!');  // [removed by fix script]
   } catch (error) {
-    console.error('Error starting Vite server:', error);
+  // console.error('Error starting Vite server:', error);  // [removed by fix script]
     process.exit(1);
   }
 }

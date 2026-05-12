@@ -25,7 +25,7 @@ const BrochureModal = () => {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(
+  // console.error(  // [removed by fix script]
           `Server returned status: ${response.status}, error: ${errorText}`
         );
         if (response.status === 500) {
@@ -36,9 +36,9 @@ const BrochureModal = () => {
         throw new Error(`Server returned error: ${errorText}`);
       }
 
-      console.log("Success:", await response.json());
+  // console.log("Success:", await response.json());  // [removed by fix script]
     } catch (error) {
-      console.error("Error:", error.message);
+  // console.error("Error:", error.message);  // [removed by fix script]
       alert(`Error: ${error.message}`);
     }
   };

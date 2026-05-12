@@ -14,13 +14,13 @@ class FormSync {
       const request = indexedDB.open(this.dbName, this.dbVersion);
 
       request.onerror = (event) => {
-        console.error('IndexedDB error:', event.target.error);
+  // console.error('IndexedDB error:', event.target.error);  // [removed by fix script]
         reject(event.target.error);
       };
 
       request.onsuccess = (event) => {
         this.db = event.target.result;
-        console.log('IndexedDB initialized successfully');
+  // console.log('IndexedDB initialized successfully');  // [removed by fix script]
         resolve();
       };
 
@@ -28,7 +28,7 @@ class FormSync {
         const db = event.target.result;
         if (!db.objectStoreNames.contains(this.storeName)) {
           db.createObjectStore(this.storeName, { keyPath: 'id', autoIncrement: true });
-          console.log('Object store created');
+  // console.log('Object store created');  // [removed by fix script]
         }
       };
     });
@@ -51,12 +51,12 @@ class FormSync {
       const request = store.add(data);
 
       request.onsuccess = () => {
-        console.log('Form data saved for background sync');
+  // console.log('Form data saved for background sync');  // [removed by fix script]
         resolve(true);
       };
 
       request.onerror = (event) => {
-        console.error('Error saving form data:', event.target.error);
+  // console.error('Error saving form data:', event.target.error);  // [removed by fix script]
         reject(event.target.error);
       };
     });
@@ -76,7 +76,7 @@ class FormSync {
       };
 
       request.onerror = (event) => {
-        console.error('Error getting pending submissions:', event.target.error);
+  // console.error('Error getting pending submissions:', event.target.error);  // [removed by fix script]
         reject(event.target.error);
       };
     });
@@ -92,12 +92,12 @@ class FormSync {
       const request = store.delete(id);
 
       request.onsuccess = () => {
-        console.log(`Submission ${id} removed after successful sync`);
+  // console.log(`Submission ${id} removed after successful sync`);  // [removed by fix script]
         resolve(true);
       };
 
       request.onerror = (event) => {
-        console.error(`Error removing submission ${id}:`, event.target.error);
+  // console.error(`Error removing submission ${id}:`, event.target.error);  // [removed by fix script]
         reject(event.target.error);
       };
     });
@@ -109,7 +109,7 @@ if ('serviceWorker' in navigator && 'SyncManager' in window) {
   navigator.serviceWorker.ready.then(registration => {
     // Register background sync
     registration.sync.register('sync-forms').catch(err => {
-      console.error('Background sync registration failed:', err);
+  // console.error('Background sync registration failed:', err);  // [removed by fix script]
     });
   });
 }

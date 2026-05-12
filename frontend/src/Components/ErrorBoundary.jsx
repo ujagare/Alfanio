@@ -18,7 +18,7 @@ class ErrorBoundary extends Component {
 
   componentDidCatch(error, errorInfo) {
     // Log the error to an error reporting service
-    console.error('Error caught by ErrorBoundary:', error, errorInfo);
+  // console.error('Error caught by ErrorBoundary:', error, errorInfo);  // [removed by fix script]
     this.setState({ errorInfo });
     
     // You could also log the error to a reporting service like Sentry

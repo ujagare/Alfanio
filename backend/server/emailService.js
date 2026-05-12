@@ -23,10 +23,10 @@ const createMailTransport = () => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   // Log email configuration status
-  console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
+  // console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);  // [removed by fix script]
 
   if (!EMAIL_CONFIG.auth.user || !EMAIL_CONFIG.auth.pass) {
-    console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');
+  // console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');  // [removed by fix script]
     return null;
   }
 
@@ -43,7 +43,7 @@ const createMailTransport = () => {
     logger: process.env.NODE_ENV !== 'production'
   };
 
-  console.log('Email transport configuration:', {
+  // console.log('Email transport configuration:', {  // [removed by fix script]
     service: transportConfig.service,
     auth: {
       user: transportConfig.auth.user,
@@ -65,23 +65,23 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
   while (currentRetry < retries) {
     try {
       if (!mailTransport) {
-        console.warn('Email transport is not configured.');
+  // console.warn('Email transport is not configured.');  // [removed by fix script]
         return false;
       }
 
       await mailTransport.verify();
-      console.log('Email server is ready');
+  // console.log('Email server is ready');  // [removed by fix script]
       return true;
     } catch (error) {
       currentRetry++;
-      console.error(`Email verification failed (attempt ${currentRetry}/${retries}):`, error.message);
+  // console.error(`Email verification failed (attempt ${currentRetry}/${retries}):`, error.message);  // [removed by fix script]
 
       if (currentRetry >= retries) {
-        console.error('Maximum email verification retries reached.');
-        console.log('Continuing server operation despite email verification failure.');
+  // console.error('Maximum email verification retries reached.');  // [removed by fix script]
+  // console.log('Continuing server operation despite email verification failure.');  // [removed by fix script]
 
         // Log detailed error information for debugging
-        console.log('Email configuration:', {
+  // console.log('Email configuration:', {  // [removed by fix script]
           host: EMAIL_CONFIG.host,
           port: EMAIL_CONFIG.port,
           secure: EMAIL_CONFIG.secure,
@@ -89,17 +89,17 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
         });
 
         // Log additional troubleshooting information
-        console.log('Email troubleshooting tips:');
-        console.log('1. Check if the Gmail account has "Less secure app access" enabled');
-        console.log('2. If using 2FA, make sure to use an App Password instead of regular password');
-        console.log('3. Check if there are any network restrictions blocking SMTP connections');
-        console.log('4. Try sending a test email directly to verify credentials');
+  // console.log('Email troubleshooting tips:');  // [removed by fix script]
+  // console.log('1. Check if the Gmail account has "Less secure app access" enabled');  // [removed by fix script]
+  // console.log('2. If using 2FA, make sure to use an App Password instead of regular password');  // [removed by fix script]
+  // console.log('3. Check if there are any network restrictions blocking SMTP connections');  // [removed by fix script]
+  // console.log('4. Try sending a test email directly to verify credentials');  // [removed by fix script]
 
         return false;
       }
 
       // Wait before next retry
-      console.log(`Waiting ${delay}ms before next email verification attempt...`);
+  // console.log(`Waiting ${delay}ms before next email verification attempt...`);  // [removed by fix script]
       await new Promise(resolve => setTimeout(resolve, delay));
     }
   }
@@ -157,11 +157,11 @@ export const sendEmail = async (options) => {
     `;
   }
 
-  console.log('Attempting to send email to:', options.to);
-  console.log('Email subject:', options.subject);
+  // console.log('Attempting to send email to:', options.to);  // [removed by fix script]
+  // console.log('Email subject:', options.subject);  // [removed by fix script]
 
   try {
-    console.log('Creating direct Gmail transport...');
+  // console.log('Creating direct Gmail transport...');  // [removed by fix script]
 
     if (!EMAIL_CONFIG.auth.user || !EMAIL_CONFIG.auth.pass) {
       throw new Error('Email configuration missing: EMAIL_USER and EMAIL_PASS are required');
@@ -180,12 +180,12 @@ export const sendEmail = async (options) => {
       logger: process.env.NODE_ENV !== 'production'
     });
 
-    console.log('Verifying connection...');
+  // console.log('Verifying connection...');  // [removed by fix script]
     await transport.verify();
-    console.log('Connection verified successfully');
+  // console.log('Connection verified successfully');  // [removed by fix script]
 
-    console.log('Sending email...');
-    console.log('Mail options:', {
+  // console.log('Sending email...');  // [removed by fix script]
+  // console.log('Mail options:', {  // [removed by fix script]
       from: mailOptions.from,
       to: mailOptions.to,
       subject: mailOptions.subject
@@ -194,10 +194,10 @@ export const sendEmail = async (options) => {
     // Send email
     const info = await transport.sendMail(mailOptions);
 
-    console.log('Email sent successfully!');
-    console.log('Message ID:', info.messageId);
-    console.log('Response:', info.response);
-    console.log('Accepted:', info.accepted);
+  // console.log('Email sent successfully!');  // [removed by fix script]
+  // console.log('Message ID:', info.messageId);  // [removed by fix script]
+  // console.log('Response:', info.response);  // [removed by fix script]
+  // console.log('Accepted:', info.accepted);  // [removed by fix script]
 
     return {
       success: true,
@@ -206,18 +206,18 @@ export const sendEmail = async (options) => {
       accepted: info.accepted
     };
   } catch (error) {
-    console.error('Email sending failed:', error.message);
-    console.error('Error details:', error);
+  // console.error('Email sending failed:', error.message);  // [removed by fix script]
+  // console.error('Error details:', error);  // [removed by fix script]
 
     // Log detailed error information
-    if (error.code) console.error('Error code:', error.code);
-    if (error.command) console.error('SMTP command that failed:', error.command);
-    if (error.response) console.error('SMTP server response:', error.response);
-    if (error.responseCode) console.error('SMTP response code:', error.responseCode);
+  // if (error.code) console.error('Error code:', error.code);  // [removed by fix script]
+  // if (error.command) console.error('SMTP command that failed:', error.command);  // [removed by fix script]
+  // if (error.response) console.error('SMTP server response:', error.response);  // [removed by fix script]
+  // if (error.responseCode) console.error('SMTP response code:', error.responseCode);  // [removed by fix script]
 
     // Try with alternative configuration if first attempt fails
     try {
-      console.log('Trying alternative email configuration with port 465...');
+  // console.log('Trying alternative email configuration with port 465...');  // [removed by fix script]
 
       // Create alternative transport with different settings
       const alternativeTransport = nodemailer.createTransport({
@@ -233,19 +233,19 @@ export const sendEmail = async (options) => {
         }
       });
 
-      console.log('Verifying alternative connection...');
+  // console.log('Verifying alternative connection...');  // [removed by fix script]
       await alternativeTransport.verify();
-      console.log('Alternative connection verified successfully');
+  // console.log('Alternative connection verified successfully');  // [removed by fix script]
 
-      console.log('Sending email with alternative transport...');
+  // console.log('Sending email with alternative transport...');  // [removed by fix script]
 
       // Send email with alternative transport
       const info = await alternativeTransport.sendMail(mailOptions);
 
-      console.log('Email sent successfully with alternative configuration!');
-      console.log('Message ID:', info.messageId);
-      console.log('Response:', info.response);
-      console.log('Accepted:', info.accepted);
+  // console.log('Email sent successfully with alternative configuration!');  // [removed by fix script]
+  // console.log('Message ID:', info.messageId);  // [removed by fix script]
+  // console.log('Response:', info.response);  // [removed by fix script]
+  // console.log('Accepted:', info.accepted);  // [removed by fix script]
 
       return {
         success: true,
@@ -255,8 +255,8 @@ export const sendEmail = async (options) => {
         alternativeConfig: true
       };
     } catch (alternativeError) {
-      console.error('Alternative email configuration also failed:', alternativeError.message);
-      console.error('Alternative error details:', alternativeError);
+  // console.error('Alternative email configuration also failed:', alternativeError.message);  // [removed by fix script]
+  // console.error('Alternative error details:', alternativeError);  // [removed by fix script]
 
       // Return detailed error information
       return {

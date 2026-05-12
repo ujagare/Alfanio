@@ -28,16 +28,16 @@ const colors = {
 
 // Print colored message
 const print = (message, color = 'white') => {
-  console.log(colors[color] + message + colors.reset);
+  // console.log(colors[color] + message + colors.reset);  // [removed by fix script]
 };
 
 // Print header
 const printHeader = () => {
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   print('╔════════════════════════════════════════════════════════════╗', 'cyan');
   print('║                 ALFANIO SERVER SETUP UTILITY                ║', 'cyan');
   print('╚════════════════════════════════════════════════════════════╝', 'cyan');
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
 };
 
 // Check if .env file exists
@@ -283,7 +283,7 @@ const main = async () => {
   
   print('This utility will help you set up and diagnose your Alfanio server.', 'cyan');
   print('It will check your environment, dependencies, and connections.', 'cyan');
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   
   // Check .env file
   if (!checkEnvFile()) {
@@ -310,16 +310,16 @@ const main = async () => {
   // Check email configuration
   const emailOk = await checkEmail();
   
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   print('╔════════════════════════════════════════════════════════════╗', 'cyan');
   print('║                      SETUP SUMMARY                         ║', 'cyan');
   print('╚════════════════════════════════════════════════════════════╝', 'cyan');
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   
   print(`MongoDB Connection: ${mongodbOk ? '✅ OK' : '❌ Failed'}`, mongodbOk ? 'green' : 'red');
   print(`Email Configuration: ${emailOk ? '✅ OK' : '❌ Failed'}`, emailOk ? 'green' : 'red');
   
-  console.log('\n');
+  // console.log('\n');  // [removed by fix script]
   
   if (mongodbOk && emailOk) {
     print('🎉 All systems are ready! You can start your server now.', 'green');

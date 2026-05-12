@@ -128,7 +128,7 @@ const ContactForm = ({
       // Reset the form
       reset();
     } catch (error) {
-      console.error("Form submission error:", error);
+  // console.error("Form submission error:", error);  // [removed by fix script]
       toast.error("Something went wrong. Please try again later.");
     } finally {
       setIsSubmitting(false);

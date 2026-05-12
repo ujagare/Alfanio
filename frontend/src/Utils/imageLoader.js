@@ -6,7 +6,7 @@ const loadImageChunk = async (moduleLoader) => {
       alt: module.default.split('/').pop().split('.')[0].replace(/-/g, ' ')
     };
   } catch (error) {
-    console.error('Error loading image:', error);
+  // console.error('Error loading image:', error);  // [removed by fix script]
     return null;
   }
 };

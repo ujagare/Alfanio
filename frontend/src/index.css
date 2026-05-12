@@ -170,7 +170,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: url('/assets/Alfanio.png');
+  background-image: url("../assets/Alfanio.webp");
   background-size: 100px;
   background-repeat: repeat;
   opacity: 0.02;
@@ -179,7 +179,7 @@ body {
 
 /* Gallery Background */
 .gallery-background {
-  background-image: url('/assets/Alfanio.png');
+  background-image: url("../assets/Alfanio.webp");
   background-size: 100px auto;
   background-repeat: repeat;
   background-position: center;

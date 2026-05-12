@@ -28,7 +28,7 @@ const colors = {
 
 // Print colored message
 const print = (message, color = 'white') => {
-  console.log(colors[color] + message + colors.reset);
+  // console.log(colors[color] + message + colors.reset);  // [removed by fix script]
 };
 
 // Start the server
@@ -52,14 +52,14 @@ const startServer = () => {
   // Handle stdout
   server.stdout.on('data', (data) => {
     const output = data.toString().trim();
-    console.log(output);
+  // console.log(output);  // [removed by fix script]
     serverLogStream.write(`${output}\n`);
   });
   
   // Handle stderr
   server.stderr.on('data', (data) => {
     const output = data.toString().trim();
-    console.error(colors.red + output + colors.reset);
+  // console.error(colors.red + output + colors.reset);  // [removed by fix script]
     errorLogStream.write(`[${new Date().toISOString()}] ${output}\n`);
   });
   

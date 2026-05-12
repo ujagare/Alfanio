@@ -1,7 +1,7 @@
 // Simple script to test the brochure API endpoint
 const testBrochureAPI = async () => {
   try {
-    console.log('Testing brochure API endpoint...');
+  // console.log('Testing brochure API endpoint...');  // [removed by fix script]
 
     const response = await fetch('http://localhost:5001/api/contact/brochure', {
       method: 'POST',
@@ -17,15 +17,15 @@ const testBrochureAPI = async () => {
     });
 
     const data = await response.json();
-    console.log('Response:', data);
+  // console.log('Response:', data);  // [removed by fix script]
 
     if (response.ok) {
-      console.log('Test successful!');
+  // console.log('Test successful!');  // [removed by fix script]
     } else {
-      console.error('Test failed with status:', response.status);
+  // console.error('Test failed with status:', response.status);  // [removed by fix script]
     }
   } catch (error) {
-    console.error('Error testing API:', error);
+  // console.error('Error testing API:', error);  // [removed by fix script]
   }
 };
 

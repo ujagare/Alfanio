@@ -5,7 +5,7 @@ let BrowserTracing;
 try {
   BrowserTracing = require("@sentry/tracing").BrowserTracing;
 } catch (e) {
-  console.warn("Could not import BrowserTracing from @sentry/tracing, using fallback");
+  // console.warn("Could not import BrowserTracing from @sentry/tracing, using fallback");  // [removed by fix script]
   BrowserTracing = class BrowserTracing {
     constructor() {}
   };
@@ -44,9 +44,9 @@ export const initializeErrorTracking = () => {
 };
 
 export const trackError = (error, errorInfo = null) => {
-  console.error('Error:', error);
+  // console.error('Error:', error);  // [removed by fix script]
   if (errorInfo) {
-    console.error('Error Info:', errorInfo);
+  // console.error('Error Info:', errorInfo);  // [removed by fix script]
   }
 
   if (isProduction && SENTRY_DSN) {
@@ -60,7 +60,7 @@ export const trackEvent = (eventName, properties = {}) => {
   if (isProduction && POSTHOG_KEY) {
     posthog.capture(eventName, properties);
   } else {
-    console.log('Event Tracked:', eventName, properties);
+  // console.log('Event Tracked:', eventName, properties);  // [removed by fix script]
   }
 };
 

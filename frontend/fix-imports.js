@@ -134,20 +134,20 @@ async function fixImportsInFile(filePath) {
         const newImport = fullMatch.replace(importPath, correctPath);
         newContent = newContent.replace(fullMatch, newImport);
         hasChanges = true;
-        console.log(`Fixed import in ${filePath}: ${importPath} -> ${correctPath}`);
+  // console.log(`Fixed import in ${filePath}: ${importPath} -> ${correctPath}`);  // [removed by fix script]
       }
     }
 
     // Write the file if changes were made
     if (hasChanges) {
       await writeFile(filePath, newContent, 'utf8');
-      console.log(`Updated ${filePath}`);
+  // console.log(`Updated ${filePath}`);  // [removed by fix script]
       return true;
     }
 
     return false;
   } catch (error) {
-    console.error(`Error processing ${filePath}:`, error);
+  // console.error(`Error processing ${filePath}:`, error);  // [removed by fix script]
     return false;
   }
 }
@@ -160,7 +160,7 @@ async function main() {
     const allFiles = await getFiles(srcDir);
     const jsFiles = allFiles.filter(file => /\.(js|jsx)$/.test(file));
 
-    console.log(`Found ${jsFiles.length} JavaScript/JSX files to process`);
+  // console.log(`Found ${jsFiles.length} JavaScript/JSX files to process`);  // [removed by fix script]
 
     // Process each file
     let fixedCount = 0;
@@ -171,9 +171,9 @@ async function main() {
       }
     }
 
-    console.log(`Fixed imports in ${fixedCount} files`);
+  // console.log(`Fixed imports in ${fixedCount} files`);  // [removed by fix script]
   } catch (error) {
-    console.error('Error:', error);
+  // console.error('Error:', error);  // [removed by fix script]
   }
 }
 

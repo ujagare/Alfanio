@@ -36,7 +36,7 @@ function log(message, type = 'info') {
   const timestamp = new Date().toISOString();
   const logMessage = `[${timestamp}] ${message}`;
   
-  console.log(logMessage);
+  // console.log(logMessage);  // [removed by fix script]
   
   // Log to file
   fs.appendFileSync(
@@ -513,7 +513,7 @@ app.get('/brochures/download', (req, res) => {
 
 // Support the old download path as well for backward compatibility
 app.get('/download-brochure', (req, res) => {
-  console.log('Redirecting from old download path to new path');
+  // console.log('Redirecting from old download path to new path');  // [removed by fix script]
   res.redirect('/brochures/download');
 });
 

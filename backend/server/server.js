@@ -123,10 +123,10 @@ app.use(cors({
     if (!origin) return callback(null, true);
 
     // Check if the origin is allowed
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('alfanio')) {
+    if (allowedOrigins.indexOf(origin) !== -1 || ['https://alfanio.com','https://alfanio.in','http://localhost:3000'].includes(origin)) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+  // console.log('CORS blocked origin:', origin);  // [removed by fix script]
       // Allow all origins in development
       if (process.env.NODE_ENV !== 'production') {
         callback(null, true);
@@ -150,7 +150,7 @@ app.use((req, res, next) => {
   const origin = req.headers.origin;
 
   // Set CORS headers based on origin
-  if (origin && (allowedOrigins.includes(origin) || origin.includes('alfanio') || process.env.NODE_ENV !== 'production')) {
+  if (origin && (allowedOrigins.includes(origin) || ['https://alfanio.com','https://alfanio.in','http://localhost:3000'].includes(origin) || process.env.NODE_ENV !== 'production')) {
     res.header('Access-Control-Allow-Origin', origin);
   }
 
@@ -509,10 +509,10 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
 
   while (currentRetry < retries) {
     try {
-      console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);
+  // console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);  // [removed by fix script]
 
       const mongoURI = getMongoURI();
-      console.log(`Connecting to MongoDB ${process.env.NODE_ENV === 'production' ? 'Atlas' : 'local'} database...`);
+  // console.log(`Connecting to MongoDB ${process.env.NODE_ENV === 'production' ? 'Atlas' : 'local'} database...`);  // [removed by fix script]
 
       // Use modern MongoDB connection options
       await mongoose.connect(mongoURI, {
@@ -526,45 +526,45 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
         w: 'majority'    // Write to the primary and wait for acknowledgment from a majority of members
       });
 
-      console.log('MongoDB connected successfully');
+  // console.log('MongoDB connected successfully');  // [removed by fix script]
 
       // Add connection event listeners
       mongoose.connection.on('error', (err) => {
-        console.error('MongoDB connection error:', err);
+  // console.error('MongoDB connection error:', err);  // [removed by fix script]
         if (err.name === 'MongoNetworkError') {
-          console.log('Attempting to reconnect to MongoDB...');
+  // console.log('Attempting to reconnect to MongoDB...');  // [removed by fix script]
           setTimeout(() => connectWithRetry(retries, delay), delay);
         }
       });
 
       mongoose.connection.on('disconnected', () => {
-        console.log('MongoDB disconnected. Attempting to reconnect...');
+  // console.log('MongoDB disconnected. Attempting to reconnect...');  // [removed by fix script]
         setTimeout(() => connectWithRetry(retries, delay), delay);
       });
 
       // Add more robust connection monitoring
       mongoose.connection.on('connected', () => {
-        console.log('MongoDB connection established');
+  // console.log('MongoDB connection established');  // [removed by fix script]
       });
 
       mongoose.connection.on('reconnected', () => {
-        console.log('MongoDB reconnected successfully');
+  // console.log('MongoDB reconnected successfully');  // [removed by fix script]
       });
 
       return;
     } catch (error) {
       currentRetry++;
-      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);
+  // console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);  // [removed by fix script]
 
       if (currentRetry >= retries) {
-        console.error('Maximum MongoDB connection retries reached. Exiting retry loop.');
+  // console.error('Maximum MongoDB connection retries reached. Exiting retry loop.');  // [removed by fix script]
         // Don't exit the process, just log the error
         return;
       }
 
       // Wait before next retry with exponential backoff
       const waitTime = delay * Math.pow(1.5, currentRetry);
-      console.log(`Waiting ${waitTime}ms before next connection attempt...`);
+  // console.log(`Waiting ${waitTime}ms before next connection attempt...`);  // [removed by fix script]
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
@@ -612,13 +612,13 @@ const createMailTransport = () => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   // Log email configuration status
-  console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);
+  // console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);  // [removed by fix script]
 
   // Set up email transport configuration
   const emailSettings = getEmailSettings();
 
   if (!emailSettings.user || !emailSettings.pass) {
-    console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');
+  // console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');  // [removed by fix script]
     return null;
   }
 
@@ -701,8 +701,8 @@ const mailTransport = createMailTransport();
 
 // Start email verification but don't wait for it
 verifyEmailTransport().catch(err => {
-  console.error('Email verification process error:', err);
-  console.log('Server will continue running despite email verification issues.');
+  // console.error('Email verification process error:', err);  // [removed by fix script]
+  // console.log('Server will continue running despite email verification issues.');  // [removed by fix script]
 });
 
 // API routes
@@ -718,7 +718,7 @@ app.get('/api/health', (req, res) => {
   try {
     res.status(200).json(healthcheck);
   } catch (error) {
-    console.error('Health check failed', error.message);
+  // console.error('Health check failed', error.message);  // [removed by fix script]
     healthcheck.message = error;
     res.status(503).json(healthcheck);
   }
@@ -735,7 +735,7 @@ app.get('/healthz', (req, res) => {
   try {
     res.status(200).json(healthcheck);
   } catch (error) {
-    console.error('Health check failed', error.message);
+  // console.error('Health check failed', error.message);  // [removed by fix script]
     res.status(503).json({
       status: 'error',
       message: error.message
@@ -746,14 +746,14 @@ app.get('/healthz', (req, res) => {
 // Root endpoint to redirect to frontend
 app.get('/', (req, res) => {
   const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
-  console.log('Root endpoint accessed, redirecting to frontend URL:', frontendUrl);
+  // console.log('Root endpoint accessed, redirecting to frontend URL:', frontendUrl);  // [removed by fix script]
   res.redirect(302, frontendUrl);
 });
 
 // Contact form endpoint - both with and without /api prefix
 app.post(['/api/contact', '/contact'], async (req, res) => {
-  console.log('Received contact form submission', req.body);
-  console.log('Request origin:', req.headers.origin);
+  // console.log('Received contact form submission', req.body);  // [removed by fix script]
+  // console.log('Request origin:', req.headers.origin);  // [removed by fix script]
 
   try {
     const name = String(req.body.name || '').trim();
@@ -780,15 +780,15 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
 
       await contact.save();
       savedToDatabase = true;
-      console.log('Contact form saved to database');
+  // console.log('Contact form saved to database');  // [removed by fix script]
     } catch (databaseError) {
-      console.error('Contact form database save failed:', databaseError.message);
-      console.log('Continuing with email delivery despite database issue');
+  // console.error('Contact form database save failed:', databaseError.message);  // [removed by fix script]
+  // console.log('Continuing with email delivery despite database issue');  // [removed by fix script]
     }
 
     // Direct email sending with nodemailer
     try {
-      console.log('Setting up direct email transport for contact form...');
+  // console.log('Setting up direct email transport for contact form...');  // [removed by fix script]
 
       const transporter = createMailTransport();
       const mailDefaults = getMailDefaults();
@@ -801,7 +801,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         );
       }
 
-      console.log('Preparing contact form email content...');
+  // console.log('Preparing contact form email content...');  // [removed by fix script]
 
       // Email content
       const mailOptions = {
@@ -817,17 +817,17 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         `
       };
 
-      console.log('Sending contact form email directly...');
+  // console.log('Sending contact form email directly...');  // [removed by fix script]
 
       try {
         // Verify connection first
         await transporter.verify();
-        console.log('Email connection verified successfully for contact form');
+  // console.log('Email connection verified successfully for contact form');  // [removed by fix script]
 
         // Send email
         const info = await transporter.sendMail(mailOptions);
 
-        console.log('Contact form email sent successfully:', info.messageId);
+  // console.log('Contact form email sent successfully:', info.messageId);  // [removed by fix script]
 
         // Return success response
         res.json({
@@ -837,7 +837,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
           savedToDatabase
         });
       } catch (verifyError) {
-        console.error('Email verification or sending error for contact form:', verifyError);
+  // console.error('Email verification or sending error for contact form:', verifyError);  // [removed by fix script]
 
         // Return success anyway since data is saved to database
         res.json({
@@ -849,11 +849,11 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         });
       }
     } catch (emailError) {
-      console.error('Direct email sending error for contact form:', emailError);
+  // console.error('Direct email sending error for contact form:', emailError);  // [removed by fix script]
 
       // Try alternative method if direct method fails
       try {
-        console.log('Trying alternative email method for contact form...');
+  // console.log('Trying alternative email method for contact form...');  // [removed by fix script]
 
         const alternativeTransporter = createMailTransport();
         const mailDefaults = getMailDefaults();
@@ -883,7 +883,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         // Send email
         const info = await alternativeTransporter.sendMail(mailOptions);
 
-        console.log('Contact form email sent successfully with alternative method:', info.messageId);
+  // console.log('Contact form email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
 
         // Return success response
         res.json({
@@ -893,7 +893,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
           savedToDatabase
         });
       } catch (alternativeError) {
-        console.error('Alternative email method also failed for contact form:', alternativeError);
+  // console.error('Alternative email method also failed for contact form:', alternativeError);  // [removed by fix script]
 
         // Return success response anyway since data is saved to database
         res.json({
@@ -905,7 +905,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Contact form error:', error);
+  // console.error('Contact form error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -917,8 +917,8 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
 
 // Brochure request endpoint - both with and without /api prefix
 app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
-  console.log('Received brochure request', req.body);
-  console.log('Request origin:', req.headers.origin);
+  // console.log('Received brochure request', req.body);  // [removed by fix script]
+  // console.log('Request origin:', req.headers.origin);  // [removed by fix script]
 
   try {
     const name = String(req.body.name || '').trim();
@@ -937,11 +937,11 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
     }
 
     // Skip database operations to avoid MongoDB connection issues
-    console.log('Using direct email sending without database operations');
+  // console.log('Using direct email sending without database operations');  // [removed by fix script]
 
     // Send email using the proven working configuration
     try {
-      console.log('Setting up direct email transport...');
+  // console.log('Setting up direct email transport...');  // [removed by fix script]
 
       const transporter = createMailTransport();
       const mailDefaults = getMailDefaults();
@@ -954,7 +954,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         );
       }
 
-      console.log('Preparing email content...');
+  // console.log('Preparing email content...');  // [removed by fix script]
 
       // Email content
       const mailOptions = {
@@ -970,12 +970,12 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         `
       };
 
-      console.log('Sending email directly...');
+  // console.log('Sending email directly...');  // [removed by fix script]
 
       // Send email
       const info = await transporter.sendMail(mailOptions);
 
-      console.log('Email sent successfully:', info.messageId);
+  // console.log('Email sent successfully:', info.messageId);  // [removed by fix script]
 
       // Return success response
       res.json({
@@ -984,11 +984,11 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         emailId: info.messageId
       });
     } catch (emailError) {
-      console.error('Email sending error:', emailError);
+  // console.error('Email sending error:', emailError);  // [removed by fix script]
 
       // Try alternative method if direct method fails
       try {
-        console.log('Trying alternative email method...');
+  // console.log('Trying alternative email method...');  // [removed by fix script]
 
         const alternativeTransporter = createMailTransport();
         const mailDefaults = getMailDefaults();
@@ -1018,7 +1018,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         // Send email
         const info = await alternativeTransporter.sendMail(mailOptions);
 
-        console.log('Email sent successfully with alternative method:', info.messageId);
+  // console.log('Email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
 
         // Return success response
         res.json({
@@ -1027,7 +1027,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
           emailId: info.messageId
         });
       } catch (alternativeError) {
-        console.error('Alternative email method also failed:', alternativeError);
+  // console.error('Alternative email method also failed:', alternativeError);  // [removed by fix script]
 
         // Return error response
         res.status(500).json({
@@ -1038,7 +1038,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Brochure request error:', error);
+  // console.error('Brochure request error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -1062,14 +1062,14 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
     path.join(__dirname, '../assets/Alfanio.pdf')
   ];
 
-  console.log('Searching for brochure in the following locations:');
-  possiblePaths.forEach(p => console.log(`- ${p}`));
+  // console.log('Searching for brochure in the following locations:');  // [removed by fix script]
+  // possiblePaths.forEach(p => console.log(`- ${p}`));  // [removed by fix script]
 
   // Find the first existing file
   const brochurePath = possiblePaths.find(p => fs.existsSync(p));
 
   if (!brochurePath) {
-    console.error('Brochure file not found in any location', possiblePaths);
+  // console.error('Brochure file not found in any location', possiblePaths);  // [removed by fix script]
     return res.status(404).json({
       success: false,
       message: 'Brochure file not found',
@@ -1080,7 +1080,7 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
   // Set appropriate headers for better mobile compatibility
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Alfanio-Brochure.pdf"');
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Origin', 'https://alfanio.in');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
 
@@ -1089,13 +1089,13 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
     const stat = fs.statSync(brochurePath);
     res.setHeader('Content-Length', stat.size);
 
-    console.log('Serving brochure from:', brochurePath);
+  // console.log('Serving brochure from:', brochurePath);  // [removed by fix script]
 
     // Create a read stream and pipe it to the response
     const fileStream = fs.createReadStream(brochurePath);
 
     fileStream.on('error', (err) => {
-      console.error('Brochure download stream error:', err);
+  // console.error('Brochure download stream error:', err);  // [removed by fix script]
       if (!res.headersSent) {
         res.status(500).json({
           success: false,
@@ -1108,7 +1108,7 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
     // Pipe the file to the response
     fileStream.pipe(res);
   } catch (error) {
-    console.error('Error serving brochure file:', error);
+  // console.error('Error serving brochure file:', error);  // [removed by fix script]
     res.status(500).json({
       success: false,
       message: 'Error serving brochure file',
@@ -1132,7 +1132,7 @@ const staticPaths = [
 // Find existing directories and serve static files from them
 staticPaths.forEach(staticPath => {
   if (fs.existsSync(staticPath)) {
-    console.log('Serving static files from:', staticPath);
+  // console.log('Serving static files from:', staticPath);  // [removed by fix script]
     app.use(express.static(staticPath, {
       maxAge: '1d', // Cache for 1 day
       etag: true,
@@ -1163,12 +1163,12 @@ app.get('*', (req, res) => {
   const indexPath = possiblePaths.find(p => fs.existsSync(p));
 
   if (indexPath) {
-    console.log('Serving frontend from:', indexPath);
+  // console.log('Serving frontend from:', indexPath);  // [removed by fix script]
     return res.sendFile(indexPath);
   }
 
   // If index.html doesn't exist, redirect to the frontend URL
-  console.log('Frontend files not found, redirecting to frontend URL');
+  // console.log('Frontend files not found, redirecting to frontend URL');  // [removed by fix script]
 
   // Get the frontend URL from environment or use default
   const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
@@ -1180,7 +1180,7 @@ app.get('*', (req, res) => {
 // Error handling middleware with improved logging and security
 app.use((err, req, res, _next) => {
   // Log the error with request ID for better debugging
-  console.error(`[Error ${req.id || 'unknown'}] Global error handler:`, err);
+  // console.error(`[Error ${req.id || 'unknown'}] Global error handler:`, err);  // [removed by fix script]
 
   // Don't expose error details in production
   const isProduction = process.env.NODE_ENV === 'production';
@@ -1211,13 +1211,13 @@ const HOST = '0.0.0.0'; // Listen on all network interfaces
 
 // Create server with timeout
 const server = app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
-  console.log(`For local access: http://localhost:${PORT}`);
+  // console.log(`Server running on http://${HOST}:${PORT}`);  // [removed by fix script]
+  // console.log(`For local access: http://localhost:${PORT}`);  // [removed by fix script]
 
   // Provide a helpful message for mobile access
-  console.log('To access from mobile devices, connect to the same WiFi network and use your computer\'s IP address');
-  console.log('For example: http://<your-computer-ip>:5001');
-  console.log('You can find your IP address by running "ipconfig" in Command Prompt');
+  // console.log('To access from mobile devices, connect to the same WiFi network and use your computer\'s IP address');  // [removed by fix script]
+  // console.log('For example: http://<your-computer-ip>:5001');  // [removed by fix script]
+  // console.log('You can find your IP address by running "ipconfig" in Command Prompt');  // [removed by fix script]
 });
 
 // Set server timeouts

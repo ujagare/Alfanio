@@ -20,14 +20,14 @@ const EMAIL_CONFIG = {
 
 // Send test email function
 const sendTestEmail = async () => {
-  console.log('Sending test email...');
-  console.log('Email configuration:');
-  console.log('- Host:', EMAIL_CONFIG.host);
-  console.log('- Port:', EMAIL_CONFIG.port);
-  console.log('- Secure:', EMAIL_CONFIG.secure);
-  console.log('- User:', EMAIL_CONFIG.auth.user);
-  console.log('- From:', EMAIL_CONFIG.from);
-  console.log('- To:', EMAIL_CONFIG.to);
+  // console.log('Sending test email...');  // [removed by fix script]
+  // console.log('Email configuration:');  // [removed by fix script]
+  // console.log('- Host:', EMAIL_CONFIG.host);  // [removed by fix script]
+  // console.log('- Port:', EMAIL_CONFIG.port);  // [removed by fix script]
+  // console.log('- Secure:', EMAIL_CONFIG.secure);  // [removed by fix script]
+  // console.log('- User:', EMAIL_CONFIG.auth.user);  // [removed by fix script]
+  // console.log('- From:', EMAIL_CONFIG.from);  // [removed by fix script]
+  // console.log('- To:', EMAIL_CONFIG.to);  // [removed by fix script]
 
   try {
     // Create transporter
@@ -42,12 +42,12 @@ const sendTestEmail = async () => {
     });
 
     // Verify connection
-    console.log('Verifying email connection...');
+  // console.log('Verifying email connection...');  // [removed by fix script]
     await transporter.verify();
-    console.log('Email connection verified successfully');
+  // console.log('Email connection verified successfully');  // [removed by fix script]
 
     // Send email
-    console.log('Sending test email...');
+  // console.log('Sending test email...');  // [removed by fix script]
     const info = await transporter.sendMail({
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
@@ -60,18 +60,18 @@ const sendTestEmail = async () => {
       `
     });
 
-    console.log('Email sent successfully:', info.messageId);
+  // console.log('Email sent successfully:', info.messageId);  // [removed by fix script]
     return {
       success: true,
       messageId: info.messageId,
       response: info.response
     };
   } catch (error) {
-    console.error('Email sending error:', error);
+  // console.error('Email sending error:', error);  // [removed by fix script]
 
     // Try alternative method if direct method fails
     try {
-      console.log('Trying alternative email method...');
+  // console.log('Trying alternative email method...');  // [removed by fix script]
 
       // Create alternative transport
       const alternativeTransporter = nodemailer.createTransport({
@@ -86,7 +86,7 @@ const sendTestEmail = async () => {
       });
 
       // Send email
-      console.log('Sending test email with alternative method...');
+  // console.log('Sending test email with alternative method...');  // [removed by fix script]
       const info = await alternativeTransporter.sendMail({
         from: EMAIL_CONFIG.from,
         to: EMAIL_CONFIG.to,
@@ -99,7 +99,7 @@ const sendTestEmail = async () => {
         `
       });
 
-      console.log('Email sent successfully with alternative method:', info.messageId);
+  // console.log('Email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
       return {
         success: true,
         messageId: info.messageId,
@@ -107,7 +107,7 @@ const sendTestEmail = async () => {
         method: 'alternative'
       };
     } catch (alternativeError) {
-      console.error('Alternative email method also failed:', alternativeError);
+  // console.error('Alternative email method also failed:', alternativeError);  // [removed by fix script]
       return {
         success: false,
         error: error.message,
@@ -120,22 +120,22 @@ const sendTestEmail = async () => {
 // Main function
 const main = async () => {
   try {
-    console.log('Starting email test...');
+  // console.log('Starting email test...');  // [removed by fix script]
     const result = await sendTestEmail();
-    console.log('Email test result:', result);
+  // console.log('Email test result:', result);  // [removed by fix script]
 
     if (result.success) {
-      console.log('Email test successful! Please check your inbox.');
+  // console.log('Email test successful! Please check your inbox.');  // [removed by fix script]
     } else {
-      console.error('Email test failed. Please check the error messages above.');
+  // console.error('Email test failed. Please check the error messages above.');  // [removed by fix script]
     }
   } catch (error) {
-    console.error('Error in main function:', error);
+  // console.error('Error in main function:', error);  // [removed by fix script]
   }
 };
 
 // Run the main function
 main().catch(err => {
-  console.error('Unhandled error:', err);
+  // console.error('Unhandled error:', err);  // [removed by fix script]
   process.exit(1);
 });

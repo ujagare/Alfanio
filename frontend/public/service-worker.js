@@ -40,7 +40,7 @@ self.addEventListener('install', (event) => {
         return Promise.all(
           STATIC_ASSETS.map(url => {
             return cache.add(url).catch(error => {
-              console.error(`Failed to cache ${url}:`, error);
+  // console.error(`Failed to cache ${url}:`, error);  // [removed by fix script]
               // Continue despite the error
               return Promise.resolve();
             });
@@ -49,7 +49,7 @@ self.addEventListener('install', (event) => {
       })
       .then(() => self.skipWaiting())
       .catch(error => {
-        console.error('Service worker installation failed:', error);
+  // console.error('Service worker installation failed:', error);  // [removed by fix script]
         // Continue despite the error
         return self.skipWaiting();
       })
@@ -105,9 +105,9 @@ async function syncForms() {
 
         // Determine the endpoint based on form type
         if (submission.formType === 'contact') {
-          endpoint = 'https://alfanio-backend.onrender.com/api/contact';
+          endpoint = 'https://alfanio.in/api/contact';
         } else if (submission.formType === 'brochure') {
-          endpoint = 'https://alfanio-backend.onrender.com/api/contact/brochure';
+          endpoint = 'https://alfanio.in/api/contact/brochure';
         } else {
           continue; // Skip unknown form types
         }
@@ -117,7 +117,7 @@ async function syncForms() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Origin': 'https://alfanio.onrender.com'
+            'Origin': 'https://alfanio.in'
           },
           body: JSON.stringify(submission.formData)
         });
@@ -132,16 +132,16 @@ async function syncForms() {
             request.onsuccess = resolve;
           });
 
-          console.log(`Successfully synced submission ${submission.id}`);
+  // console.log(`Successfully synced submission ${submission.id}`);  // [removed by fix script]
         } else {
-          console.error(`Failed to sync submission ${submission.id}:`, await response.text());
+  // console.error(`Failed to sync submission ${submission.id}:`, await response.text());  // [removed by fix script]
         }
       } catch (error) {
-        console.error(`Error processing submission ${submission.id}:`, error);
+  // console.error(`Error processing submission ${submission.id}:`, error);  // [removed by fix script]
       }
     }
   } catch (error) {
-    console.error('Error in syncForms:', error);
+  // console.error('Error in syncForms:', error);  // [removed by fix script]
   }
 }
 
@@ -270,7 +270,7 @@ self.addEventListener('fetch', (event) => {
               try {
                 cache.put(event.request, responseToCache);
               } catch (error) {
-                console.error('Failed to cache response:', error);
+  // console.error('Failed to cache response:', error);  // [removed by fix script]
               }
             });
         }

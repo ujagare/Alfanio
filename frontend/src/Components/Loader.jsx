@@ -28,8 +28,8 @@ const Loader = ({ onAnimationComplete }) => {
         >
           <img 
             src={alfanioLogo} 
-            alt=""
-            className="w-full h-full object-contain"
+            alt="Alfanio company logo"
+            className="w-full h-full object-contain" loading="eager" decoding="async"
           />
         </motion.div>
         <div className="mt-6 flex">

@@ -24,7 +24,7 @@ const connectToMongoDB = async () => {
     const dbName = 'Alfanio';
 
     const mongoURI = `mongodb+srv://${username}:${password}@${cluster}/${dbName}?retryWrites=true&w=majority`;
-    console.log(`Connecting to MongoDB Atlas...`);
+  // console.log(`Connecting to MongoDB Atlas...`);  // [removed by fix script]
 
     // Connect to MongoDB with modern options
     await mongoose.connect(mongoURI, {
@@ -37,10 +37,10 @@ const connectToMongoDB = async () => {
       w: 'majority'
     });
 
-    console.log('MongoDB connected successfully');
+  // console.log('MongoDB connected successfully');  // [removed by fix script]
     return true;
   } catch (error) {
-    console.error('MongoDB connection error:', error.message);
+  // console.error('MongoDB connection error:', error.message);  // [removed by fix script]
     return false;
   }
 };
@@ -48,7 +48,7 @@ const connectToMongoDB = async () => {
 // Test contact form submission
 const testContactForm = async () => {
   try {
-    console.log('Testing contact form submission...');
+  // console.log('Testing contact form submission...');  // [removed by fix script]
 
     // Test data
     const testData = {
@@ -59,7 +59,7 @@ const testContactForm = async () => {
     };
 
     // Send request to contact endpoint
-    console.log('Sending request to /api/contact endpoint...');
+  // console.log('Sending request to /api/contact endpoint...');  // [removed by fix script]
     const contactResponse = await fetch('http://localhost:5001/api/contact', {
       method: 'POST',
       headers: {
@@ -69,19 +69,19 @@ const testContactForm = async () => {
     });
 
     const contactResult = await contactResponse.json();
-    console.log('Response from /api/contact:', contactResult);
+  // console.log('Response from /api/contact:', contactResult);  // [removed by fix script]
 
     // Check MongoDB for the test submission
     if (mongoose.connection.readyState === 1) {
-      console.log('Checking MongoDB for the test submission...');
+  // console.log('Checking MongoDB for the test submission...');  // [removed by fix script]
       const latestContact = await Contact.findOne({ email: 'test@example.com' })
         .sort({ createdAt: -1 })
         .exec();
 
       if (latestContact) {
-        console.log('Found test submission in MongoDB:', latestContact);
+  // console.log('Found test submission in MongoDB:', latestContact);  // [removed by fix script]
       } else {
-        console.log('Test submission not found in MongoDB');
+  // console.log('Test submission not found in MongoDB');  // [removed by fix script]
       }
     }
 
@@ -89,7 +89,7 @@ const testContactForm = async () => {
       contactEndpoint: contactResult
     };
   } catch (error) {
-    console.error('Test failed:', error);
+  // console.error('Test failed:', error);  // [removed by fix script]
     return { error: error.message };
   }
 };
@@ -99,24 +99,24 @@ const main = async () => {
   try {
     // Connect to MongoDB
     const isMongoConnected = await connectToMongoDB();
-    console.log(`MongoDB connection status: ${isMongoConnected ? 'Connected' : 'Failed to connect'}`);
+  // console.log(`MongoDB connection status: ${isMongoConnected ? 'Connected' : 'Failed to connect'}`);  // [removed by fix script]
 
     // Test contact form
     const testResults = await testContactForm();
-    console.log('Test results:', JSON.stringify(testResults, null, 2));
+  // console.log('Test results:', JSON.stringify(testResults, null, 2));  // [removed by fix script]
 
     // Close MongoDB connection
     if (mongoose.connection.readyState === 1) {
       await mongoose.connection.close();
-      console.log('MongoDB connection closed');
+  // console.log('MongoDB connection closed');  // [removed by fix script]
     }
   } catch (error) {
-    console.error('Error in main function:', error);
+  // console.error('Error in main function:', error);  // [removed by fix script]
   }
 };
 
 // Run the main function
 main().catch(err => {
-  console.error('Unhandled error:', err);
+  // console.error('Unhandled error:', err);  // [removed by fix script]
   process.exit(1);
 });

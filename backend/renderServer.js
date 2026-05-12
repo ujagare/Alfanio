@@ -44,7 +44,7 @@ app.use(cors({
     if (allowedOrigins.indexOf(origin) !== -1 || origin.includes('alfanio')) {
       callback(null, true);
     } else {
-      console.log('CORS blocked origin:', origin);
+  // console.log('CORS blocked origin:', origin);  // [removed by fix script]
       // Allow all origins in development
       if (process.env.NODE_ENV !== 'production') {
         callback(null, true);
@@ -137,7 +137,7 @@ const apiLimiter = (req, res, next) => {
 
   // Check if limit exceeded
   if (requestCounts[ip].count > MAX_REQUESTS_PER_IP) {
-    console.log(`Rate limit exceeded for IP: ${ip}`);
+  // console.log(`Rate limit exceeded for IP: ${ip}`);  // [removed by fix script]
     return res.status(429).json({
       success: false,
       message: 'Too many requests, please try again later.'
@@ -164,13 +164,13 @@ const EMAIL_CONFIG = {
 };
 
 // Log email configuration at startup for verification
-console.log('Email configuration loaded:');
-console.log('- Host:', EMAIL_CONFIG.host);
-console.log('- Port:', EMAIL_CONFIG.port);
-console.log('- Secure:', EMAIL_CONFIG.secure);
-console.log('- User:', EMAIL_CONFIG.auth.user);
-console.log('- From:', EMAIL_CONFIG.from);
-console.log('- To:', EMAIL_CONFIG.to);
+  // console.log('Email configuration loaded:');  // [removed by fix script]
+  // console.log('- Host:', EMAIL_CONFIG.host);  // [removed by fix script]
+  // console.log('- Port:', EMAIL_CONFIG.port);  // [removed by fix script]
+  // console.log('- Secure:', EMAIL_CONFIG.secure);  // [removed by fix script]
+  // console.log('- User:', EMAIL_CONFIG.auth.user);  // [removed by fix script]
+  // console.log('- From:', EMAIL_CONFIG.from);  // [removed by fix script]
+  // console.log('- To:', EMAIL_CONFIG.to);  // [removed by fix script]
 
 // Send email function with multiple fallback methods
 const sendEmail = async (options) => {
@@ -178,7 +178,7 @@ const sendEmail = async (options) => {
   const methods = [
     // Method 1: Standard SMTP
     async () => {
-      console.log('Trying email method 1: Standard SMTP...');
+  // console.log('Trying email method 1: Standard SMTP...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         host: EMAIL_CONFIG.host,
         port: EMAIL_CONFIG.port,
@@ -199,7 +199,7 @@ const sendEmail = async (options) => {
 
     // Method 2: Gmail service
     async () => {
-      console.log('Trying email method 2: Gmail service...');
+  // console.log('Trying email method 2: Gmail service...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -218,7 +218,7 @@ const sendEmail = async (options) => {
 
     // Method 3: Gmail with TLS options
     async () => {
-      console.log('Trying email method 3: Gmail with TLS options...');
+  // console.log('Trying email method 3: Gmail with TLS options...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         service: 'gmail',
         auth: {
@@ -240,7 +240,7 @@ const sendEmail = async (options) => {
 
     // Method 4: Direct SMTP with port 587
     async () => {
-      console.log('Trying email method 4: Direct SMTP with port 587...');
+  // console.log('Trying email method 4: Direct SMTP with port 587...');  // [removed by fix script]
       const transport = nodemailer.createTransport({
         host: 'smtp.gmail.com',
         port: 587,
@@ -266,13 +266,13 @@ const sendEmail = async (options) => {
 
   for (let i = 0; i < methods.length; i++) {
     try {
-      console.log(`Attempting to send email using method ${i + 1}/${methods.length}...`);
-      console.log('Sending to:', options.to || EMAIL_CONFIG.to);
-      console.log('Subject:', options.subject || 'Test Email from Alfanio');
+  // console.log(`Attempting to send email using method ${i + 1}/${methods.length}...`);  // [removed by fix script]
+  // console.log('Sending to:', options.to || EMAIL_CONFIG.to);  // [removed by fix script]
+  // console.log('Subject:', options.subject || 'Test Email from Alfanio');  // [removed by fix script]
 
       const info = await methods[i]();
 
-      console.log(`Email sent successfully using method ${i + 1}:`, info.messageId);
+  // console.log(`Email sent successfully using method ${i + 1}:`, info.messageId);  // [removed by fix script]
 
       return {
         success: true,
@@ -281,13 +281,13 @@ const sendEmail = async (options) => {
         method: i + 1
       };
     } catch (error) {
-      console.error(`Method ${i + 1} failed:`, error.message);
+  // console.error(`Method ${i + 1} failed:`, error.message);  // [removed by fix script]
       lastError = error;
     }
   }
 
   // If all methods fail, return error
-  console.error('All email sending methods failed');
+  // console.error('All email sending methods failed');  // [removed by fix script]
 
   return {
     success: false,
@@ -305,7 +305,7 @@ const staticPaths = [
 
 staticPaths.forEach(staticPath => {
   if (fs.existsSync(staticPath)) {
-    console.log('Serving static files from:', staticPath);
+  // console.log('Serving static files from:', staticPath);  // [removed by fix script]
     app.use(express.static(staticPath));
   }
 });
@@ -335,7 +335,7 @@ app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    console.log('Received email request:', req.body);
+  // console.log('Received email request:', req.body);  // [removed by fix script]
 
     // Save to database if MongoDB is connected
     if (mongoose.connection.readyState === 1) {
@@ -348,13 +348,13 @@ app.post('/api/send-email', async (req, res) => {
         });
 
         await contact.save();
-        console.log('Contact form saved to database');
+  // console.log('Contact form saved to database');  // [removed by fix script]
       } catch (dbError) {
-        console.error('Error saving contact form to database:', dbError.message);
+  // console.error('Error saving contact form to database:', dbError.message);  // [removed by fix script]
         // Continue with email sending even if database save fails
       }
     } else {
-      console.log('MongoDB not connected, skipping database save');
+  // console.log('MongoDB not connected, skipping database save');  // [removed by fix script]
     }
 
     // Send email
@@ -385,7 +385,7 @@ app.post('/api/send-email', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('API error:', error);
+  // console.error('API error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -400,7 +400,7 @@ app.post('/api/contact/brochure', async (req, res) => {
   try {
     const { name, email, phone, message } = req.body;
 
-    console.log('Received brochure request:', req.body);
+  // console.log('Received brochure request:', req.body);  // [removed by fix script]
 
     if (!name || !email) {
       return res.status(400).json({
@@ -421,13 +421,13 @@ app.post('/api/contact/brochure', async (req, res) => {
         });
 
         await brochureRequest.save();
-        console.log('Brochure request saved to database');
+  // console.log('Brochure request saved to database');  // [removed by fix script]
       } catch (dbError) {
-        console.error('Error saving brochure request to database:', dbError.message);
+  // console.error('Error saving brochure request to database:', dbError.message);  // [removed by fix script]
         // Continue with email sending even if database save fails
       }
     } else {
-      console.log('MongoDB not connected, skipping database save');
+  // console.log('MongoDB not connected, skipping database save');  // [removed by fix script]
     }
 
     // Send email
@@ -458,7 +458,7 @@ app.post('/api/contact/brochure', async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('API error:', error);
+  // console.error('API error:', error);  // [removed by fix script]
 
     res.status(500).json({
       success: false,
@@ -471,7 +471,7 @@ app.post('/api/contact/brochure', async (req, res) => {
 // Brochure download endpoint
 app.get('/api/brochure/download', (req, res) => {
   // Log brochure download request
-  console.log('Brochure download requested from:', req.ip, 'User-Agent:', req.headers['user-agent']);
+  // console.log('Brochure download requested from:', req.ip, 'User-Agent:', req.headers['user-agent']);  // [removed by fix script]
 
   // Try multiple locations for the brochure file
   const possiblePaths = [
@@ -487,21 +487,21 @@ app.get('/api/brochure/download', (req, res) => {
     path.join(__dirname, 'dist/Alfanio.pdf')
   ];
 
-  console.log('Searching for brochure in the following locations:');
-  possiblePaths.forEach(p => console.log(`- ${p}`));
+  // console.log('Searching for brochure in the following locations:');  // [removed by fix script]
+  // possiblePaths.forEach(p => console.log(`- ${p}`));  // [removed by fix script]
 
   // Find the first existing file
   const brochurePath = possiblePaths.find(p => {
     try {
       return fs.existsSync(p);
     } catch (error) {
-      console.error(`Error checking path ${p}:`, error);
+  // console.error(`Error checking path ${p}:`, error);  // [removed by fix script]
       return false;
     }
   });
 
   if (!brochurePath) {
-    console.error('Brochure file not found in any location');
+  // console.error('Brochure file not found in any location');  // [removed by fix script]
 
     // If no brochure file is found, return a simple HTML response
     return res.send(`
@@ -535,14 +535,14 @@ app.get('/api/brochure/download', (req, res) => {
     const stat = fs.statSync(brochurePath);
     res.setHeader('Content-Length', stat.size);
 
-    console.log('Serving brochure from:', brochurePath);
+  // console.log('Serving brochure from:', brochurePath);  // [removed by fix script]
 
     // Create a read stream and pipe it to the response
     const fileStream = fs.createReadStream(brochurePath);
 
     // Handle file stream errors
     fileStream.on('error', (error) => {
-      console.error('Error streaming brochure file:', error);
+  // console.error('Error streaming brochure file:', error);  // [removed by fix script]
       if (!res.headersSent) {
         res.status(500).send('Error streaming brochure file');
       }
@@ -550,7 +550,7 @@ app.get('/api/brochure/download', (req, res) => {
 
     // Handle successful download
     fileStream.on('end', () => {
-      console.log('Brochure download completed successfully');
+  // console.log('Brochure download completed successfully');  // [removed by fix script]
 
       // Save download record to MongoDB if connected
       if (mongoose.connection.readyState === 1) {
@@ -568,12 +568,12 @@ app.get('/api/brochure/download', (req, res) => {
             ip: req.ip,
             userAgent: req.headers['user-agent']
           }).save().then(() => {
-            console.log('Brochure download record saved to database');
+  // console.log('Brochure download record saved to database');  // [removed by fix script]
           }).catch(err => {
-            console.error('Error saving brochure download record:', err);
+  // console.error('Error saving brochure download record:', err);  // [removed by fix script]
           });
         } catch (dbError) {
-          console.error('Error saving brochure download to database:', dbError);
+  // console.error('Error saving brochure download to database:', dbError);  // [removed by fix script]
         }
       }
     });
@@ -581,7 +581,7 @@ app.get('/api/brochure/download', (req, res) => {
     // Pipe the file to the response
     fileStream.pipe(res);
   } catch (error) {
-    console.error('Error serving brochure file:', error);
+  // console.error('Error serving brochure file:', error);  // [removed by fix script]
     res.status(500).send('Error serving brochure file');
   }
 });
@@ -601,13 +601,13 @@ app.get('/', (req, res) => {
     try {
       return fs.existsSync(p);
     } catch (error) {
-      console.error(`Error checking path ${p}:`, error);
+  // console.error(`Error checking path ${p}:`, error);  // [removed by fix script]
       return false;
     }
   });
 
   if (indexPath) {
-    console.log('Serving frontend from:', indexPath);
+  // console.log('Serving frontend from:', indexPath);  // [removed by fix script]
     return res.sendFile(indexPath);
   }
 
@@ -697,7 +697,7 @@ app.get('*', (req, res) => {
 const connectToMongoDB = async (retries = 5, delay = 5000) => {
   // Skip MongoDB connection if SKIP_MONGODB is set
   if (process.env.SKIP_MONGODB === 'true') {
-    console.log('MongoDB connection skipped due to SKIP_MONGODB=true');
+  // console.log('MongoDB connection skipped due to SKIP_MONGODB=true');  // [removed by fix script]
     return false;
   }
 
@@ -720,10 +720,10 @@ const connectToMongoDB = async (retries = 5, delay = 5000) => {
 
   while (currentRetry < retries) {
     try {
-      console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);
+  // console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);  // [removed by fix script]
 
       const mongoURI = getMongoURI();
-      console.log(`Connecting to MongoDB Atlas...`);
+  // console.log(`Connecting to MongoDB Atlas...`);  // [removed by fix script]
 
       // Connect to MongoDB with modern options
       await mongoose.connect(mongoURI, {
@@ -736,35 +736,35 @@ const connectToMongoDB = async (retries = 5, delay = 5000) => {
         w: 'majority'
       });
 
-      console.log('MongoDB connected successfully');
+  // console.log('MongoDB connected successfully');  // [removed by fix script]
 
       // Set up connection event listeners
       mongoose.connection.on('error', (err) => {
-        console.error('MongoDB connection error:', err);
+  // console.error('MongoDB connection error:', err);  // [removed by fix script]
         if (err.name === 'MongoNetworkError') {
-          console.log('Attempting to reconnect to MongoDB...');
+  // console.log('Attempting to reconnect to MongoDB...');  // [removed by fix script]
           setTimeout(() => connectToMongoDB(retries, delay), delay);
         }
       });
 
       mongoose.connection.on('disconnected', () => {
-        console.log('MongoDB disconnected. Attempting to reconnect...');
+  // console.log('MongoDB disconnected. Attempting to reconnect...');  // [removed by fix script]
         setTimeout(() => connectToMongoDB(retries, delay), delay);
       });
 
       return true;
     } catch (error) {
       currentRetry++;
-      console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);
+  // console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);  // [removed by fix script]
 
       if (currentRetry >= retries) {
-        console.error('Maximum MongoDB connection retries reached.');
+  // console.error('Maximum MongoDB connection retries reached.');  // [removed by fix script]
         return false;
       }
 
       // Wait before next retry with exponential backoff
       const waitTime = delay * Math.pow(1.5, currentRetry);
-      console.log(`Waiting ${waitTime}ms before next connection attempt...`);
+  // console.log(`Waiting ${waitTime}ms before next connection attempt...`);  // [removed by fix script]
       await new Promise(resolve => setTimeout(resolve, waitTime));
     }
   }
@@ -800,33 +800,33 @@ const startServer = async () => {
   let isMongoConnected = false;
   if (process.env.SKIP_MONGODB !== 'true') {
     isMongoConnected = await connectToMongoDB();
-    console.log(`MongoDB connection status: ${isMongoConnected ? 'Connected' : 'Failed to connect'}`);
+  // console.log(`MongoDB connection status: ${isMongoConnected ? 'Connected' : 'Failed to connect'}`);  // [removed by fix script]
   } else {
-    console.log('MongoDB connection skipped');
+  // console.log('MongoDB connection skipped');  // [removed by fix script]
   }
 
   // Start the server
   app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    console.log(`Server URL: http://localhost:${PORT}`);
-    console.log(`API URL: http://localhost:${PORT}/api`);
-    console.log(`MongoDB: ${isMongoConnected ? 'Connected' : 'Not connected'}`);
+  // console.log(`Server running on port ${PORT}`);  // [removed by fix script]
+  // console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);  // [removed by fix script]
+  // console.log(`Server URL: http://localhost:${PORT}`);  // [removed by fix script]
+  // console.log(`API URL: http://localhost:${PORT}/api`);  // [removed by fix script]
+  // console.log(`MongoDB: ${isMongoConnected ? 'Connected' : 'Not connected'}`);  // [removed by fix script]
 
     // Log email configuration
-    console.log('Email configuration:');
-    console.log('- Host:', EMAIL_CONFIG.host);
-    console.log('- Port:', EMAIL_CONFIG.port);
-    console.log('- Secure:', EMAIL_CONFIG.secure);
-    console.log('- User:', EMAIL_CONFIG.auth.user);
-    console.log('- From:', EMAIL_CONFIG.from);
-    console.log('- To:', EMAIL_CONFIG.to);
+  // console.log('Email configuration:');  // [removed by fix script]
+  // console.log('- Host:', EMAIL_CONFIG.host);  // [removed by fix script]
+  // console.log('- Port:', EMAIL_CONFIG.port);  // [removed by fix script]
+  // console.log('- Secure:', EMAIL_CONFIG.secure);  // [removed by fix script]
+  // console.log('- User:', EMAIL_CONFIG.auth.user);  // [removed by fix script]
+  // console.log('- From:', EMAIL_CONFIG.from);  // [removed by fix script]
+  // console.log('- To:', EMAIL_CONFIG.to);  // [removed by fix script]
   });
 };
 
 // Global error handler middleware
 app.use((err, req, res, next) => {
-  console.error('Unhandled error:', err);
+  // console.error('Unhandled error:', err);  // [removed by fix script]
 
   // Don't expose error details in production
   const errorMessage = process.env.NODE_ENV === 'production'
@@ -842,7 +842,7 @@ app.use((err, req, res, next) => {
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION:', err);
+  // console.error('UNCAUGHT EXCEPTION:', err);  // [removed by fix script]
   // Log to file or monitoring service in production
 
   // Give the server a chance to finish current requests
@@ -853,12 +853,12 @@ process.on('uncaughtException', (err) => {
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('UNHANDLED REJECTION:', reason);
+  // console.error('UNHANDLED REJECTION:', reason);  // [removed by fix script]
   // Log to file or monitoring service in production
 });
 
 // Start the server
 startServer().catch(err => {
-  console.error('Failed to start server:', err);
+  // console.error('Failed to start server:', err);  // [removed by fix script]
   process.exit(1);
 });
