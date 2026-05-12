@@ -74,13 +74,6 @@ const Contact = () => {
     setIsSubmitting(true);
 
     try {
-  // console.log("Submitting contact form with data:", {  // [removed by fix script]
-        name: data.name,
-        email: data.email,
-        phone: `${countryCode}${data.phone}`,
-        message: data.message,
-      });
-
       const response = await fetch(API_ENDPOINTS.contact, {
         method: "POST",
         headers: {

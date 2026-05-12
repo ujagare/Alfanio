@@ -114,7 +114,7 @@ const allowedOrigins = [
   'http://192.168.31.56:5003',
   'http://192.168.31.56:5005',
   'http://192.168.31.56:5173'
-];
+].concat([process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean));
 
 // CORS configuration with specific origins
 app.use(cors({
@@ -1080,7 +1080,7 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
   // Set appropriate headers for better mobile compatibility
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Alfanio-Brochure.pdf"');
-  res.setHeader('Access-Control-Allow-Origin', 'https://alfanio.in');
+  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || 'https://alfanio.in');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
 

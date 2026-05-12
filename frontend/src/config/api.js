@@ -1,8 +1,7 @@
 import axios from 'axios';
+import { API_URL as API_BASE_URL } from '../config';
 
-export const API_URL = import.meta.env.PROD
-  ? API_BASE_URL
-  : API_BASE_URL;
+export const API_URL = import.meta.env.VITE_API_URL || API_BASE_URL;
 
 export const API_ENDPOINTS = {
   contact: `${API_URL}/api/contact`,
@@ -24,7 +23,7 @@ const apiClient = axios.create({
 apiClient.interceptors.response.use(
   response => response,
   error => {
-  // console.error('API Error:', {  // [removed by fix script]
+    console.error('API Error:', {
       status: error.response?.status,
       message: error.response?.data?.message || error.message,
       url: error.config?.url

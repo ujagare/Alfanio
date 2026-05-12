@@ -69,9 +69,6 @@ const Gallery = () => {
           return aBase.localeCompare(bBase);
         });
 
-  // console.log(  // [removed by fix script]
-          `Loaded ${filteredImages.length} images (removed ${allImages.length - filteredImages.length} duplicates)`
-        );
         setLoadedImages(filteredImages);
       } catch (error) {
   // console.error("Error loading images:", error);  // [removed by fix script]

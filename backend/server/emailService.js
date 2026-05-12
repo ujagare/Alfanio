@@ -43,14 +43,6 @@ const createMailTransport = () => {
     logger: process.env.NODE_ENV !== 'production'
   };
 
-  // console.log('Email transport configuration:', {  // [removed by fix script]
-    service: transportConfig.service,
-    auth: {
-      user: transportConfig.auth.user,
-      pass: '********' // Don't log the actual password
-    }
-  });
-
   // Create and return the transport
   return nodemailer.createTransport(transportConfig);
 };
@@ -79,14 +71,6 @@ export const verifyEmailTransport = async (retries = 3, delay = 3000) => {
       if (currentRetry >= retries) {
   // console.error('Maximum email verification retries reached.');  // [removed by fix script]
   // console.log('Continuing server operation despite email verification failure.');  // [removed by fix script]
-
-        // Log detailed error information for debugging
-  // console.log('Email configuration:', {  // [removed by fix script]
-          host: EMAIL_CONFIG.host,
-          port: EMAIL_CONFIG.port,
-          secure: EMAIL_CONFIG.secure,
-          user: EMAIL_CONFIG.auth.user
-        });
 
         // Log additional troubleshooting information
   // console.log('Email troubleshooting tips:');  // [removed by fix script]
@@ -185,12 +169,6 @@ export const sendEmail = async (options) => {
   // console.log('Connection verified successfully');  // [removed by fix script]
 
   // console.log('Sending email...');  // [removed by fix script]
-  // console.log('Mail options:', {  // [removed by fix script]
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject
-    });
-
     // Send email
     const info = await transport.sendMail(mailOptions);
 
