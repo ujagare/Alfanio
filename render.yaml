@@ -82,9 +82,11 @@ services:
         value: true
       - key: EMAIL_FROM_NAME
         value: Alfanio India
+      # Canonical public domain. Update the CNAME on the Render static site to
+      # map www.alfanio.com -> this service.
       - key: CLIENT_URL
-        value: https://alfanio.in
+        value: https://www.alfanio.com
       - key: FRONTEND_URL
-        value: https://alfanio.onrender.com
+        value: https://www.alfanio.com
     healthCheckPath: /healthz
     autoDeploy: true

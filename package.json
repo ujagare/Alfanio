@@ -4,18 +4,23 @@
   "version": "1.0.0",
   "description": "Alfanio LTD Website",
   "scripts": {
-    "frontend:dev": "cd frontend && npm run dev",
-    "frontend:build": "cd frontend && npm run build",
-    "frontend:preview": "cd frontend && npm run preview",
-    "backend:dev": "cd backend && npm run dev",
-    "backend:start": "cd backend && npm run start",
+    "frontend:dev": "npm --prefix frontend run dev",
+    "frontend:build": "npm --prefix frontend run build",
+    "frontend:preview": "npm --prefix frontend run preview",
+    "backend:dev": "npm --prefix backend run dev",
+    "backend:start": "npm --prefix backend run start",
     "dev": "concurrently \"npm run frontend:dev\" \"npm run backend:dev\"",
     "start": "concurrently \"npm run frontend:preview\" \"npm run backend:start\"",
-    "install:all": "npm install && cd frontend && npm install && cd ../backend && npm install",
-    "build": "npm run frontend:build && powershell -Command \"Copy-Item -Path ./frontend/dist/* -Destination ./backend/dist/ -Recurse -Force\""
+    "install:all": "npm install && npm --prefix frontend install && npm --prefix backend install",
+    "build": "npm run frontend:build && shx mkdir -p backend/dist && shx cp -r frontend/dist/. backend/dist/"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "shx": "^0.3.4"
   },
   "dependencies": {
     "dotenv": "^16.5.0",

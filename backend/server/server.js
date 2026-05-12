@@ -59,7 +59,13 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       "style-src-elem": ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       imgSrc: ["'self'", "data:", "https:", "http:"],
-      connectSrc: ["'self'", "https://www.google-analytics.com", process.env.CLIENT_URL || "http://localhost:5001", "data:", "blob:"],
+      connectSrc: [
+        "'self'",
+        "https://www.google-analytics.com",
+        ...(process.env.CLIENT_URL ? [process.env.CLIENT_URL] : (process.env.NODE_ENV === 'production' ? [] : ["http://localhost:5001"])),
+        "data:",
+        "blob:"
+      ],
       frameSrc: ["'self'", "https://www.google.com", "data:"],
       fontSrc: ["'self'", "data:", "https:", "https://fonts.gstatic.com"],
       objectSrc: ["'none'"],
@@ -97,13 +103,18 @@ app.use(compression({
   }
 }));
 // Configure CORS for specific origins
-const allowedOrigins = [
-  'https://alfanio.onrender.com',
-  'https://alfanio-ltd.onrender.com',
-  'https://alfanio.in',
-  'https://www.alfanio.in',
+// Production origins are strictly whitelisted. Dev/LAN origins are only
+// added when NODE_ENV is not 'production'.
+const PRODUCTION_ORIGINS = [
   'https://alfanio.com',
   'https://www.alfanio.com',
+  'https://alfanio.in',
+  'https://www.alfanio.in',
+  'https://alfanio.onrender.com',
+  'https://alfanio-ltd.onrender.com'
+];
+
+const DEVELOPMENT_ORIGINS = [
   'http://localhost:3000',
   'http://localhost:5001',
   'http://localhost:5003',
@@ -114,21 +125,28 @@ const allowedOrigins = [
   'http://192.168.31.56:5003',
   'http://192.168.31.56:5005',
   'http://192.168.31.56:5173'
-].concat([process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean));
+];
+
+const isProductionEnv = process.env.NODE_ENV === 'production';
+
+const allowedOrigins = [
+  ...PRODUCTION_ORIGINS,
+  ...(isProductionEnv ? [] : DEVELOPMENT_ORIGINS),
+  ...[process.env.CLIENT_URL, process.env.FRONTEND_URL].filter(Boolean)
+];
 
 // CORS configuration with specific origins
 app.use(cors({
   origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
+    // Allow requests with no origin (like mobile apps, curl, server-to-server, etc.)
     if (!origin) return callback(null, true);
 
     // Check if the origin is allowed
-    if (allowedOrigins.indexOf(origin) !== -1 || ['https://alfanio.com','https://alfanio.in','http://localhost:3000'].includes(origin)) {
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-  // console.log('CORS blocked origin:', origin);  // [removed by fix script]
-      // Allow all origins in development
-      if (process.env.NODE_ENV !== 'production') {
+      // In non-production environments be permissive to ease local development.
+      if (!isProductionEnv) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -149,8 +167,8 @@ app.options('*', cors());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
 
-  // Set CORS headers based on origin
-  if (origin && (allowedOrigins.includes(origin) || ['https://alfanio.com','https://alfanio.in','http://localhost:3000'].includes(origin) || process.env.NODE_ENV !== 'production')) {
+  // Echo back origin only if it is on the whitelist (or we are not in production)
+  if (origin && (allowedOrigins.includes(origin) || !isProductionEnv)) {
     res.header('Access-Control-Allow-Origin', origin);
   }
 
@@ -745,7 +763,7 @@ app.get('/healthz', (req, res) => {
 
 // Root endpoint to redirect to frontend
 app.get('/', (req, res) => {
-  const frontendUrl = process.env.FRONTEND_URL || 'https://alfanio.onrender.com';
+  const frontendUrl = process.env.FRONTEND_URL || 'https://www.alfanio.com';
   // console.log('Root endpoint accessed, redirecting to frontend URL:', frontendUrl);  // [removed by fix script]
   res.redirect(302, frontendUrl);
 });
@@ -1080,7 +1098,7 @@ app.get(['/api/brochure/download', '/brochure/download'], (_, res) => {
   // Set appropriate headers for better mobile compatibility
   res.setHeader('Content-Type', 'application/pdf');
   res.setHeader('Content-Disposition', 'attachment; filename="Alfanio-Brochure.pdf"');
-  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || 'https://alfanio.in');
+  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || 'https://www.alfanio.com');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
   res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
 
