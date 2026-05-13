@@ -117,22 +117,11 @@ export default defineConfig({
         target: 'http://localhost:5005',
         changeOrigin: true,
         secure: false
-      },
-      '/contact': {
-        target: 'http://localhost:5005',
-        changeOrigin: true,
-        secure: false
-      },
-      '/brochure': {
-        target: 'http://localhost:5005',
-        changeOrigin: true,
-        secure: false
       }
     },
     hmr: {
       protocol: 'ws',
-      host: 'localhost',
-      port: 3000
+      host: 'localhost'
     },
     https: false
   },

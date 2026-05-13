@@ -14,7 +14,7 @@ async function startServer() {
       root: __dirname,
       server: {
         port: 3000,
-        strictPort: true,
+        strictPort: false,
         open: true,
       },
     });
@@ -22,9 +22,9 @@ async function startServer() {
     await server.listen();
 
     server.printUrls();
-  // console.log('Vite server started successfully!');  // [removed by fix script]
+    console.log('Vite server started successfully!');
   } catch (error) {
-  // console.error('Error starting Vite server:', error);  // [removed by fix script]
+    console.error('Error starting Vite server:', error);
     process.exit(1);
   }
 }
