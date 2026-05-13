@@ -619,13 +619,14 @@ const saveLeadToLocalFile = async (lead) => {
   }
 };
 
-const sendLeadEmail = async ({ subject, html, replyTo }) => {
+const sendLeadEmail = async ({ subject, html, replyTo, to }) => {
   const settings = getResendSettings();
+  const recipients = Array.isArray(to) ? to : [to || settings.to];
 
-  if (!settings.apiKey || !settings.to) {
+  if (!settings.apiKey || !recipients.filter(Boolean).length) {
     const missing = [
       !settings.apiKey && 'RESEND_API_KEY',
-      !settings.to && 'EMAIL_TO'
+      !recipients.filter(Boolean).length && 'EMAIL_TO'
     ].filter(Boolean);
 
     const error = new Error(`Resend email service is not configured. Missing: ${missing.join(', ')}`);
@@ -637,7 +638,7 @@ const sendLeadEmail = async ({ subject, html, replyTo }) => {
   const resend = new Resend(settings.apiKey);
   const { data, error } = await resend.emails.send({
     from: settings.from,
-    to: [settings.to],
+    to: recipients.filter(Boolean),
     subject,
     html,
     replyTo
@@ -677,6 +678,8 @@ const sendLeadReceivedResponse = (res, {
   localResult,
   emailInfo = null,
   emailError = null,
+  customerEmailInfo = null,
+  customerEmailError = null,
   downloadUrl
 }) =>
   res.json({
@@ -686,6 +689,9 @@ const sendLeadReceivedResponse = (res, {
     emailId: emailInfo?.id,
     emailProvider: 'resend',
     emailWarning: emailError?.message,
+    customerEmailSent: Boolean(customerEmailInfo),
+    customerEmailId: customerEmailInfo?.id,
+    customerEmailWarning: customerEmailError?.message,
     savedToSupabase: supabaseResult.success,
     supabaseConfigured: supabaseResult.configured,
     supabaseLeadId: supabaseResult.id,
@@ -830,6 +836,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
     const email = String(req.body.email || '').trim();
     const phone = String(req.body.phone || '').trim();
     const message = String(req.body.message || '').trim();
+    const product = String(req.body.product || 'General Brochure').trim();
 
     // Extract phone number with or without country code
     const phoneNumber = phone || '';
@@ -846,7 +853,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       name,
       email,
       phone: phoneNumber || null,
-      message: message || null,
+      message: [message, product ? `Product: ${product}` : ''].filter(Boolean).join('\n') || null,
       email_sent: false,
       email_provider: 'resend',
       source: req.headers.origin || req.headers.referer || null,
@@ -869,10 +876,30 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
           <p><strong>Name:</strong> ${escapeHtml(name)}</p>
           <p><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p><strong>Phone:</strong> ${escapeHtml(phoneNumber)}</p>
+          <p><strong>Product:</strong> ${escapeHtml(product)}</p>
           ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
         `,
         replyTo: email
       });
+
+      let customerEmailInfo = null;
+      let customerEmailError = null;
+
+      try {
+        customerEmailInfo = await sendLeadEmail({
+          to: email,
+          subject: 'Your Alfanio Brochure Request',
+          html: `
+            <h2>Thank you for requesting the Alfanio brochure</h2>
+            <p>Hello ${escapeHtml(name)},</p>
+            <p>Your brochure request for <strong>${escapeHtml(product)}</strong> has been received.</p>
+            <p>You can download the brochure here: <a href="https://alfanio.vercel.app/api/brochure/download">Download Alfanio Brochure</a></p>
+            <p>Our team will contact you shortly if you requested any additional information.</p>
+          `
+        });
+      } catch (error) {
+        customerEmailError = error;
+      }
 
       await markLeadEmailSent(supabaseResult.id, info);
 
@@ -881,6 +908,8 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         supabaseResult,
         localResult,
         emailInfo: info,
+        customerEmailInfo,
+        customerEmailError,
         downloadUrl: '/api/brochure/download'
       });
     } catch (emailError) {
