@@ -64,22 +64,18 @@ services:
         value: production
       - key: RENDER
         value: "true"
-      - key: MONGODB_URI
-        sync: false
-      - key: EMAIL_USER
-        sync: false
-      - key: EMAIL_PASS
-        sync: false
       - key: EMAIL_TO
         sync: false
-      - key: EMAIL_SERVICE
-        value: gmail
-      - key: EMAIL_HOST
-        value: smtp.gmail.com
-      - key: EMAIL_PORT
-        value: 465
-      - key: EMAIL_SECURE
-        value: true
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_LEADS_TABLE
+        value: lead_submissions
       - key: EMAIL_FROM_NAME
         value: Alfanio India
       # Canonical public domain. Update the CNAME on the Render static site to

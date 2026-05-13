@@ -1,7 +1,6 @@
 import express from 'express';
-import mongoose from 'mongoose';
-import nodemailer from 'nodemailer';
 import { Resend } from 'resend';
+import { createClient } from '@supabase/supabase-js';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -14,7 +13,6 @@ import fs from 'fs';
 import cookieParser from 'cookie-parser';
 import crypto from 'crypto';
 import mime from 'mime-types';
-import { sendEmail, verifyEmailTransport, initEmailService } from './emailService.js';
 
 dotenv.config();
 
@@ -495,142 +493,93 @@ app.use(express.static(path.join(__dirname, '../dist'), {
   }
 }));
 
-// MongoDB connection with improved retry logic and production readiness
-const connectWithRetry = async (retries = 5, delay = 5000) => {
-  let currentRetry = 0;
-
-  // Determine MongoDB URI based on environment
-  const getMongoURI = () => {
-    // Always use the MONGODB_URI from .env if available
-    if (process.env.MONGODB_URI) {
-      return process.env.MONGODB_URI;
-    }
-
-    // For production, use MongoDB Atlas
-    if (process.env.NODE_ENV === 'production') {
-      // Make sure to set these environment variables in production
-      const username = process.env.MONGO_USERNAME;
-      const password = process.env.MONGO_PASSWORD;
-      const cluster = process.env.MONGO_CLUSTER || 'cluster0.0wbdp.mongodb.net';
-      const dbName = process.env.MONGO_DB_NAME || 'Alfanio';
-
-      if (!username || !password) {
-        throw new Error('MongoDB credentials missing. Set MONGODB_URI or MONGO_USERNAME/MONGO_PASSWORD.');
-      }
-
-      // MongoDB Atlas connection string
-      return `mongodb+srv://${encodeURIComponent(username)}:${encodeURIComponent(password)}@${cluster}/${dbName}?retryWrites=true&w=majority`;
-    }
-
-    // For development, use local MongoDB as fallback
-    return 'mongodb://localhost:27017/alfanio';
-  };
-
-  while (currentRetry < retries) {
-    try {
-  // console.log(`MongoDB connection attempt ${currentRetry + 1}/${retries}`);  // [removed by fix script]
-
-      const mongoURI = getMongoURI();
-  // console.log(`Connecting to MongoDB ${process.env.NODE_ENV === 'production' ? 'Atlas' : 'local'} database...`);  // [removed by fix script]
-
-      // Use modern MongoDB connection options
-      await mongoose.connect(mongoURI, {
-        serverSelectionTimeoutMS: 10000, // 10 seconds timeout
-        connectTimeoutMS: 10000,
-        socketTimeoutMS: 45000,
-        // Modern options for better performance and reliability
-        maxPoolSize: 10, // Maintain up to 10 socket connections
-        minPoolSize: 5,  // Maintain at least 5 socket connections
-        retryWrites: true,
-        w: 'majority'    // Write to the primary and wait for acknowledgment from a majority of members
-      });
-
-  // console.log('MongoDB connected successfully');  // [removed by fix script]
-
-      // Add connection event listeners
-      mongoose.connection.on('error', (err) => {
-  // console.error('MongoDB connection error:', err);  // [removed by fix script]
-        if (err.name === 'MongoNetworkError') {
-  // console.log('Attempting to reconnect to MongoDB...');  // [removed by fix script]
-          setTimeout(() => connectWithRetry(retries, delay), delay);
-        }
-      });
-
-      mongoose.connection.on('disconnected', () => {
-  // console.log('MongoDB disconnected. Attempting to reconnect...');  // [removed by fix script]
-        setTimeout(() => connectWithRetry(retries, delay), delay);
-      });
-
-      // Add more robust connection monitoring
-      mongoose.connection.on('connected', () => {
-  // console.log('MongoDB connection established');  // [removed by fix script]
-      });
-
-      mongoose.connection.on('reconnected', () => {
-  // console.log('MongoDB reconnected successfully');  // [removed by fix script]
-      });
-
-      return;
-    } catch (error) {
-      currentRetry++;
-  // console.error(`MongoDB connection error (attempt ${currentRetry}/${retries}):`, error.message);  // [removed by fix script]
-
-      if (currentRetry >= retries) {
-  // console.error('Maximum MongoDB connection retries reached. Exiting retry loop.');  // [removed by fix script]
-        // Don't exit the process, just log the error
-        return;
-      }
-
-      // Wait before next retry with exponential backoff
-      const waitTime = delay * Math.pow(1.5, currentRetry);
-  // console.log(`Waiting ${waitTime}ms before next connection attempt...`);  // [removed by fix script]
-      await new Promise(resolve => setTimeout(resolve, waitTime));
-    }
-  }
-};
-
-// MongoDB is intentionally disabled for Render deployment. Lead capture now
-// delivers email through Resend without blocking on database availability.
-
-// Contact schema
-const contactSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  message: { type: String, default: '' },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Contact = mongoose.model('Contact', contactSchema);
-
-// Brochure request schema
-const brochureRequestSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  email: { type: String, required: true },
-  phone: { type: String, required: true },
-  message: String,
-  type: { type: String, default: 'brochure' },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const BrochureRequest = mongoose.model('BrochureRequest', brochureRequestSchema);
-
-// Enhanced email configuration for production readiness
-const getEmailSettings = () => ({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-  port: parseInt(process.env.EMAIL_PORT || '465', 10),
-  secure: String(process.env.EMAIL_SECURE ?? 'true') === 'true',
-  user: process.env.EMAIL_USER,
-  pass: process.env.EMAIL_PASS,
-  fromName: process.env.EMAIL_FROM_NAME || 'Alfanio India',
-  to: process.env.EMAIL_TO || process.env.EMAIL_USER
-});
-
 const getResendSettings = () => ({
   apiKey: process.env.RESEND_API_KEY,
   from: process.env.RESEND_FROM || `"${escapeHtml(process.env.EMAIL_FROM_NAME || 'Alfanio India')}" <onboarding@resend.dev>`,
   to: process.env.EMAIL_TO || process.env.EMAIL_USER || 'alfanioindia@gmail.com'
 });
+
+const getSupabaseSettings = () => ({
+  url: process.env.SUPABASE_URL,
+  serviceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY,
+  leadsTable: process.env.SUPABASE_LEADS_TABLE || 'lead_submissions'
+});
+
+let supabaseClient;
+
+const getSupabaseClient = () => {
+  const settings = getSupabaseSettings();
+
+  if (!settings.url || !settings.serviceRoleKey) {
+    return null;
+  }
+
+  if (!supabaseClient) {
+    supabaseClient = createClient(settings.url, settings.serviceRoleKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    });
+  }
+
+  return supabaseClient;
+};
+
+const saveLeadToSupabase = async (lead) => {
+  const client = getSupabaseClient();
+  const settings = getSupabaseSettings();
+
+  if (!client) {
+    return {
+      success: false,
+      configured: false,
+      message: 'Supabase is not configured'
+    };
+  }
+
+  const { data, error } = await client
+    .from(settings.leadsTable)
+    .insert(lead)
+    .select('id')
+    .single();
+
+  if (error) {
+    return {
+      success: false,
+      configured: true,
+      message: error.message
+    };
+  }
+
+  return {
+    success: true,
+    configured: true,
+    id: data?.id
+  };
+};
+
+const markLeadEmailSent = async (leadId, emailInfo) => {
+  if (!leadId) {
+    return;
+  }
+
+  const client = getSupabaseClient();
+  const settings = getSupabaseSettings();
+
+  if (!client) {
+    return;
+  }
+
+  await client
+    .from(settings.leadsTable)
+    .update({
+      email_sent: true,
+      email_provider: 'resend',
+      email_id: emailInfo?.id || null
+    })
+    .eq('id', leadId);
+};
 
 const sendLeadEmail = async ({ subject, html, replyTo }) => {
   const settings = getResendSettings();
@@ -666,55 +615,6 @@ const sendLeadEmail = async ({ subject, html, replyTo }) => {
   return data;
 };
 
-const createMailTransport = () => {
-  // Determine if we're in production
-  const isProduction = process.env.NODE_ENV === 'production';
-
-  // Log email configuration status
-  // console.log(`Configuring email transport for ${isProduction ? 'production' : 'development'} environment`);  // [removed by fix script]
-
-  // Set up email transport configuration
-  const emailSettings = getEmailSettings();
-
-  if (!emailSettings.user || !emailSettings.pass) {
-  // console.warn('Email credentials missing. Set EMAIL_USER and EMAIL_PASS to enable email delivery.');  // [removed by fix script]
-    return null;
-  }
-
-  const transportConfig = {
-    host: emailSettings.host,
-    port: emailSettings.port,
-    secure: emailSettings.secure,
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
-    socketTimeout: 20000,
-    auth: {
-      user: emailSettings.user,
-      pass: emailSettings.pass
-    }
-  };
-
-  // Add production-specific settings
-  if (isProduction) {
-    // Add connection pool for better performance in production
-    transportConfig.pool = true;
-    transportConfig.maxConnections = 5;
-    transportConfig.maxMessages = 100;
-
-    // Add TLS options for better security
-    transportConfig.tls = {
-      rejectUnauthorized: false, // Set to false to avoid certificate validation issues
-      minVersion: 'TLSv1.2'
-    };
-
-    // Check if credentials are properly set
-    transportConfig.debug = false;
-    transportConfig.logger = false;
-  }
-
-  return nodemailer.createTransport(transportConfig);
-};
-
 const escapeHtml = (value = '') =>
   String(value)
     .replace(/&/g, '&amp;')
@@ -722,41 +622,6 @@ const escapeHtml = (value = '') =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-
-const getMailDefaults = () => {
-  const settings = getEmailSettings();
-  return {
-    from: `"${escapeHtml(settings.fromName)}" <${settings.user || 'no-reply@alfanio.in'}>`,
-    to: settings.to || settings.user
-  };
-};
-
-const getMissingEmailConfig = () => {
-  const settings = getEmailSettings();
-  return [
-    !settings.user && 'EMAIL_USER',
-    !settings.pass && 'EMAIL_PASS',
-    !settings.to && 'EMAIL_TO'
-  ].filter(Boolean);
-};
-
-const sendEmailConfigError = (res) => {
-  const missing = getMissingEmailConfig();
-  return res.status(503).json({
-    success: false,
-    code: 'EMAIL_CONFIG_MISSING',
-    message: `Email service is not configured. Missing: ${missing.join(', ')}`,
-    missing
-  });
-};
-
-const sendAcceptedWithoutEmail = (res, message, extra = {}) =>
-  res.json({
-    success: true,
-    message,
-    emailSent: false,
-    ...extra
-  });
 
 const sendEmailDeliveryError = (res, error, extra = {}) =>
   res.status(502).json({
@@ -768,18 +633,15 @@ const sendEmailDeliveryError = (res, error, extra = {}) =>
     ...extra
   });
 
-// SMTP verification is disabled because Render free instances block outbound
-// SMTP ports. Email delivery uses the Resend HTTPS API instead.
-
 // API routes
 app.get('/api/health', (req, res) => {
   const healthcheck = {
     uptime: process.uptime(),
     message: 'OK',
     timestamp: Date.now(),
-    mongoConnection: 'disabled',
     emailService: getResendSettings().apiKey ? 'connected' : 'disconnected',
-    emailProvider: 'resend'
+    emailProvider: 'resend',
+    supabase: getSupabaseClient() ? 'connected' : 'disconnected'
   };
 
   try {
@@ -835,6 +697,19 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       });
     }
 
+    const supabaseResult = await saveLeadToSupabase({
+      type: 'contact',
+      name,
+      email,
+      phone,
+      message: message || null,
+      email_sent: false,
+      email_provider: 'resend',
+      source: req.headers.origin || req.headers.referer || null,
+      user_agent: req.headers['user-agent'] || null,
+      ip_address: req.ip || null
+    });
+
     try {
       const info = await sendLeadEmail({
         subject: 'New Contact Form Submission',
@@ -848,15 +723,26 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         replyTo: email
       });
 
+      await markLeadEmailSent(supabaseResult.id, info);
+
       return res.json({
         success: true,
         message: 'Message sent successfully',
         emailId: info?.id,
-        savedToDatabase: false,
+        savedToSupabase: supabaseResult.success,
+        supabaseConfigured: supabaseResult.configured,
+        supabaseLeadId: supabaseResult.id,
+        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
         emailProvider: 'resend'
       });
     } catch (emailError) {
-      return sendEmailDeliveryError(res, emailError, { savedToDatabase: false, emailProvider: 'resend' });
+      return sendEmailDeliveryError(res, emailError, {
+        savedToSupabase: supabaseResult.success,
+        supabaseConfigured: supabaseResult.configured,
+        supabaseLeadId: supabaseResult.id,
+        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
+        emailProvider: 'resend'
+      });
     }
   } catch (error) {
   // console.error('Contact form error:', error);  // [removed by fix script]
@@ -890,6 +776,19 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       });
     }
 
+    const supabaseResult = await saveLeadToSupabase({
+      type: 'brochure',
+      name,
+      email,
+      phone: phoneNumber || null,
+      message: message || null,
+      email_sent: false,
+      email_provider: 'resend',
+      source: req.headers.origin || req.headers.referer || null,
+      user_agent: req.headers['user-agent'] || null,
+      ip_address: req.ip || null
+    });
+
     try {
       const info = await sendLeadEmail({
         subject: 'New Brochure Request',
@@ -903,14 +802,26 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
         replyTo: email
       });
 
+      await markLeadEmailSent(supabaseResult.id, info);
+
       return res.json({
         success: true,
         message: 'Brochure request received and email sent successfully',
         emailId: info?.id,
+        savedToSupabase: supabaseResult.success,
+        supabaseConfigured: supabaseResult.configured,
+        supabaseLeadId: supabaseResult.id,
+        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
         emailProvider: 'resend'
       });
     } catch (emailError) {
-      return sendEmailDeliveryError(res, emailError, { emailProvider: 'resend' });
+      return sendEmailDeliveryError(res, emailError, {
+        savedToSupabase: supabaseResult.success,
+        supabaseConfigured: supabaseResult.configured,
+        supabaseLeadId: supabaseResult.id,
+        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
+        emailProvider: 'resend'
+      });
     }
   } catch (error) {
   // console.error('Brochure request error:', error);  // [removed by fix script]
