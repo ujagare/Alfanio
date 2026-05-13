@@ -113,7 +113,7 @@ const News = () => {
                 Latest News & Events
               </div>
 
-              <h1 className="max-w-3xl text-4xl font-black leading-tight sm:text-5xl md:text-6xl lg:text-7xl">
+              <h1 className="max-w-3xl text-4xl font-black leading-tight text-[#FECC00] sm:text-5xl md:text-6xl lg:text-7xl">
                 News, launches, and global milestones.
               </h1>
 
@@ -205,7 +205,7 @@ const News = () => {
                         {news.category}
                       </span>
                     </div>
-                    <h2 className="max-w-4xl text-2xl font-black leading-tight text-[#202024] sm:text-3xl md:text-5xl">
+                    <h2 className="max-w-4xl text-2xl font-black leading-tight text-[#FECC00] sm:text-3xl md:text-5xl">
                       {news.title}
                     </h2>
                   </div>
@@ -274,7 +274,7 @@ const News = () => {
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                       <div className="absolute bottom-0 left-0 right-0 translate-y-full bg-gradient-to-t from-black/80 to-transparent p-4 transition-transform duration-300 group-hover:translate-y-0">
-                        <h3 className="text-sm font-semibold text-white sm:text-base">
+                        <h3 className="text-sm font-semibold text-[#FECC00] sm:text-base">
                           {news.title}
                         </h3>
                       </div>

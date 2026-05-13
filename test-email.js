@@ -1,35 +1,54 @@
 // Test script to send email using nodemailer
-const nodemailer = require('nodemailer');
-const dotenv = require('dotenv');
+const { createRequire } = require('module');
+const backendRequire = createRequire(`${process.cwd()}/backend/package.json`);
+
+let dotenv;
+try {
+  dotenv = require('dotenv');
+} catch {
+  dotenv = backendRequire('dotenv');
+}
+
+let nodemailer;
+try {
+  nodemailer = require('nodemailer');
+} catch {
+  nodemailer = backendRequire('nodemailer');
+}
 
 // Load environment variables
 dotenv.config();
+dotenv.config({ path: 'backend/.env' });
 
 // Email configuration
 const EMAIL_CONFIG = {
-  host: 'smtp.gmail.com',
-  port: 465,
-  secure: true,
+  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  port: parseInt(process.env.EMAIL_PORT || '465', 10),
+  secure: String(process.env.EMAIL_SECURE ?? 'true') === 'true',
   auth: {
-    user: 'alfanioindia@gmail.com',
-    pass: 'ogwoqwpovqfcgacz' // App password from 2-step verification
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
   },
-  from: 'Alfanio India <alfanioindia@gmail.com>',
-  to: 'alfanioindia@gmail.com'
+  from: `${process.env.EMAIL_FROM_NAME || 'Alfanio India'} <${process.env.EMAIL_USER || 'no-reply@alfanio.in'}>`,
+  to: process.env.EMAIL_TO || process.env.EMAIL_USER
 };
+
+const maskEmail = (email = '') => email.replace(/^(.{2}).*(@.*)$/, '$1***$2');
 
 // Send test email function
 const sendTestEmail = async () => {
-  // console.log('Sending test email...');  // [removed by fix script]
-  // console.log('Email configuration:');  // [removed by fix script]
-  // console.log('- Host:', EMAIL_CONFIG.host);  // [removed by fix script]
-  // console.log('- Port:', EMAIL_CONFIG.port);  // [removed by fix script]
-  // console.log('- Secure:', EMAIL_CONFIG.secure);  // [removed by fix script]
-  // console.log('- User:', EMAIL_CONFIG.auth.user);  // [removed by fix script]
-  // console.log('- From:', EMAIL_CONFIG.from);  // [removed by fix script]
-  // console.log('- To:', EMAIL_CONFIG.to);  // [removed by fix script]
+  console.log('Email configuration:');
+  console.log('- Host:', EMAIL_CONFIG.host);
+  console.log('- Port:', EMAIL_CONFIG.port);
+  console.log('- Secure:', EMAIL_CONFIG.secure);
+  console.log('- User:', maskEmail(EMAIL_CONFIG.auth.user));
+  console.log('- To:', maskEmail(EMAIL_CONFIG.to));
 
   try {
+    if (!EMAIL_CONFIG.auth.user || !EMAIL_CONFIG.auth.pass || !EMAIL_CONFIG.to) {
+      throw new Error('Missing EMAIL_USER, EMAIL_PASS, or EMAIL_TO in environment');
+    }
+
     // Create transporter
     const transporter = nodemailer.createTransport({
       host: EMAIL_CONFIG.host,
@@ -41,13 +60,11 @@ const sendTestEmail = async () => {
       }
     });
 
-    // Verify connection
-  // console.log('Verifying email connection...');  // [removed by fix script]
+    console.log('Verifying SMTP connection...');
     await transporter.verify();
-  // console.log('Email connection verified successfully');  // [removed by fix script]
+    console.log('SMTP connection verified.');
 
-    // Send email
-  // console.log('Sending test email...');  // [removed by fix script]
+    console.log('Sending test email...');
     const info = await transporter.sendMail({
       from: EMAIL_CONFIG.from,
       to: EMAIL_CONFIG.to,
@@ -60,18 +77,18 @@ const sendTestEmail = async () => {
       `
     });
 
-  // console.log('Email sent successfully:', info.messageId);  // [removed by fix script]
+    console.log('Email sent successfully:', info.messageId);
     return {
       success: true,
       messageId: info.messageId,
       response: info.response
     };
   } catch (error) {
-  // console.error('Email sending error:', error);  // [removed by fix script]
+    console.error('Primary email method failed:', error.message);
 
     // Try alternative method if direct method fails
     try {
-  // console.log('Trying alternative email method...');  // [removed by fix script]
+      console.log('Trying alternative Gmail transport...');
 
       // Create alternative transport
       const alternativeTransporter = nodemailer.createTransport({
@@ -86,7 +103,7 @@ const sendTestEmail = async () => {
       });
 
       // Send email
-  // console.log('Sending test email with alternative method...');  // [removed by fix script]
+      console.log('Sending test email with alternative method...');
       const info = await alternativeTransporter.sendMail({
         from: EMAIL_CONFIG.from,
         to: EMAIL_CONFIG.to,
@@ -99,7 +116,7 @@ const sendTestEmail = async () => {
         `
       });
 
-  // console.log('Email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
+      console.log('Email sent successfully with alternative method:', info.messageId);
       return {
         success: true,
         messageId: info.messageId,
@@ -107,7 +124,7 @@ const sendTestEmail = async () => {
         method: 'alternative'
       };
     } catch (alternativeError) {
-  // console.error('Alternative email method also failed:', alternativeError);  // [removed by fix script]
+      console.error('Alternative email method failed:', alternativeError.message);
       return {
         success: false,
         error: error.message,
@@ -120,22 +137,22 @@ const sendTestEmail = async () => {
 // Main function
 const main = async () => {
   try {
-  // console.log('Starting email test...');  // [removed by fix script]
     const result = await sendTestEmail();
-  // console.log('Email test result:', result);  // [removed by fix script]
 
     if (result.success) {
-  // console.log('Email test successful! Please check your inbox.');  // [removed by fix script]
+      console.log('Email test successful. Check Inbox, Spam, Promotions, Sent, and All Mail.');
     } else {
-  // console.error('Email test failed. Please check the error messages above.');  // [removed by fix script]
+      console.error('Email test failed:', result);
+      process.exitCode = 1;
     }
   } catch (error) {
-  // console.error('Error in main function:', error);  // [removed by fix script]
+    console.error('Email test crashed:', error.message);
+    process.exitCode = 1;
   }
 };
 
 // Run the main function
 main().catch(err => {
-  // console.error('Unhandled error:', err);  // [removed by fix script]
+  console.error('Unhandled error:', err.message);
   process.exit(1);
 });

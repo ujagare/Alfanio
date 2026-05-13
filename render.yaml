@@ -39,31 +39,29 @@ services:
     routes:
       - type: proxy
         source: /api/*
-        destination: https://alfanio-ltd.onrender.com/api/:splat
+        destination: https://alfanio-backend.onrender.com/api/:splat
       - type: proxy
         source: /contact/*
-        destination: https://alfanio-ltd.onrender.com/contact/:splat
+        destination: https://alfanio-backend.onrender.com/contact/:splat
       - type: proxy
         source: /brochure/*
-        destination: https://alfanio-ltd.onrender.com/brochure/:splat
+        destination: https://alfanio-backend.onrender.com/brochure/:splat
       - type: rewrite
         source: /*
         destination: /index.html
     autoDeploy: true
 
   - type: web
-    name: Alfanio ltd
+    name: alfanio-backend
     env: node
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm ci --omit=dev
     startCommand: npm start
     envVars:
       - key: NODE_VERSION
-        value: 18.x
+        value: 20
       - key: NODE_ENV
         value: production
-      - key: PORT
-        value: 5001
       - key: RENDER
         value: "true"
       - key: MONGODB_URI
@@ -71,6 +69,8 @@ services:
       - key: EMAIL_USER
         sync: false
       - key: EMAIL_PASS
+        sync: false
+      - key: EMAIL_TO
         sync: false
       - key: EMAIL_SERVICE
         value: gmail
@@ -88,5 +88,9 @@ services:
         value: https://www.alfanio.com
       - key: FRONTEND_URL
         value: https://www.alfanio.com
+      - key: JWT_SECRET
+        sync: false
+      - key: COOKIE_SECRET
+        sync: false
     healthCheckPath: /healthz
     autoDeploy: true

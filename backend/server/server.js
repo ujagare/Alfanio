@@ -714,6 +714,16 @@ const sendAcceptedWithoutEmail = (res, message, extra = {}) =>
     ...extra
   });
 
+const sendEmailDeliveryError = (res, error, extra = {}) =>
+  res.status(502).json({
+    success: false,
+    code: 'EMAIL_DELIVERY_FAILED',
+    message: 'Message was received, but email delivery failed. Please check SMTP settings.',
+    emailSent: false,
+    error: error.message,
+    ...extra
+  });
+
 // Create mail transport
 const mailTransport = createMailTransport();
 
@@ -812,11 +822,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       const mailDefaults = getMailDefaults();
 
       if (!transporter || !mailDefaults.to) {
-        return sendAcceptedWithoutEmail(
-          res,
-          'Your message has been received. We will contact you shortly.',
-          { savedToDatabase }
-        );
+        return sendEmailConfigError(res);
       }
 
   // console.log('Preparing contact form email content...');  // [removed by fix script]
@@ -825,6 +831,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       const mailOptions = {
         from: mailDefaults.from,
         to: mailDefaults.to,
+        replyTo: email,
         subject: 'New Contact Form Submission',
         html: `
           <h2>New Contact Form Submission</h2>
@@ -856,15 +863,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         });
       } catch (verifyError) {
   // console.error('Email verification or sending error for contact form:', verifyError);  // [removed by fix script]
-
-        // Return success anyway since data is saved to database
-        res.json({
-          success: true,
-          message: 'Your message has been received. We will contact you shortly.',
-          emailSent: false,
-          savedToDatabase,
-          error: verifyError.message
-        });
+        throw verifyError;
       }
     } catch (emailError) {
   // console.error('Direct email sending error for contact form:', emailError);  // [removed by fix script]
@@ -877,17 +876,14 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         const mailDefaults = getMailDefaults();
 
         if (!alternativeTransporter || !mailDefaults.to) {
-          return sendAcceptedWithoutEmail(
-            res,
-            'Your message has been received. We will contact you shortly.',
-            { savedToDatabase }
-          );
+          return sendEmailConfigError(res);
         }
 
         // Email content
         const mailOptions = {
           from: mailDefaults.from,
           to: mailDefaults.to,
+          replyTo: email,
           subject: 'New Contact Form Submission (Alternative Method)',
           html: `
             <h2>New Contact Form Submission</h2>
@@ -912,14 +908,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
         });
       } catch (alternativeError) {
   // console.error('Alternative email method also failed for contact form:', alternativeError);  // [removed by fix script]
-
-        // Return success response anyway since data is saved to database
-        res.json({
-          success: true,
-          message: 'Your message has been received. We will contact you shortly.',
-          emailSent: false,
-          savedToDatabase
-        });
+        return sendEmailDeliveryError(res, alternativeError, { savedToDatabase });
       }
     }
   } catch (error) {
@@ -1224,7 +1213,7 @@ app.use((err, req, res, _next) => {
   res.status(statusCode).json(errorResponse);
 });
 
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || (process.env.NODE_ENV === 'production' ? 10000 : 5005);
 const HOST = '0.0.0.0'; // Listen on all network interfaces
 
 // Create server with timeout
