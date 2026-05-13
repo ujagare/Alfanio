@@ -581,6 +581,44 @@ const markLeadEmailSent = async (leadId, emailInfo) => {
     .eq('id', leadId);
 };
 
+const saveLeadToLocalFile = async (lead) => {
+  const leadDir = path.join(__dirname, 'data');
+  const leadFile = path.join(leadDir, 'lead-submissions.json');
+  const entry = {
+    ...lead,
+    id: crypto.randomBytes(8).toString('hex'),
+    created_at: new Date().toISOString()
+  };
+
+  try {
+    await fs.promises.mkdir(leadDir, { recursive: true });
+
+    let leads = [];
+    try {
+      const existing = await fs.promises.readFile(leadFile, 'utf8');
+      leads = JSON.parse(existing);
+      if (!Array.isArray(leads)) {
+        leads = [];
+      }
+    } catch {
+      leads = [];
+    }
+
+    leads.push(entry);
+    await fs.promises.writeFile(leadFile, JSON.stringify(leads, null, 2));
+
+    return {
+      success: true,
+      id: entry.id
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: error.message
+    };
+  }
+};
+
 const sendLeadEmail = async ({ subject, html, replyTo }) => {
   const settings = getResendSettings();
 
@@ -631,6 +669,31 @@ const sendEmailDeliveryError = (res, error, extra = {}) =>
     emailSent: false,
     error: error.message,
     ...extra
+  });
+
+const sendLeadReceivedResponse = (res, {
+  message,
+  supabaseResult,
+  localResult,
+  emailInfo = null,
+  emailError = null,
+  downloadUrl
+}) =>
+  res.json({
+    success: true,
+    message,
+    emailSent: Boolean(emailInfo),
+    emailId: emailInfo?.id,
+    emailProvider: 'resend',
+    emailWarning: emailError?.message,
+    savedToSupabase: supabaseResult.success,
+    supabaseConfigured: supabaseResult.configured,
+    supabaseLeadId: supabaseResult.id,
+    supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
+    savedLocally: localResult.success,
+    localLeadId: localResult.id,
+    localError: localResult.success ? undefined : localResult.message,
+    ...(downloadUrl ? { downloadUrl } : {})
   });
 
 // API routes
@@ -697,7 +760,7 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       });
     }
 
-    const supabaseResult = await saveLeadToSupabase({
+    const lead = {
       type: 'contact',
       name,
       email,
@@ -708,6 +771,13 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       source: req.headers.origin || req.headers.referer || null,
       user_agent: req.headers['user-agent'] || null,
       ip_address: req.ip || null
+    };
+
+    const supabaseResult = await saveLeadToSupabase(lead);
+    const localResult = await saveLeadToLocalFile({
+      ...lead,
+      supabaseLeadId: supabaseResult.id || null,
+      supabaseSaved: supabaseResult.success
     });
 
     try {
@@ -725,23 +795,18 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
 
       await markLeadEmailSent(supabaseResult.id, info);
 
-      return res.json({
-        success: true,
-        message: 'Message sent successfully',
-        emailId: info?.id,
-        savedToSupabase: supabaseResult.success,
-        supabaseConfigured: supabaseResult.configured,
-        supabaseLeadId: supabaseResult.id,
-        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
-        emailProvider: 'resend'
+      return sendLeadReceivedResponse(res, {
+        message: 'Message sent successfully. We will contact you shortly.',
+        supabaseResult,
+        localResult,
+        emailInfo: info
       });
     } catch (emailError) {
-      return sendEmailDeliveryError(res, emailError, {
-        savedToSupabase: supabaseResult.success,
-        supabaseConfigured: supabaseResult.configured,
-        supabaseLeadId: supabaseResult.id,
-        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
-        emailProvider: 'resend'
+      return sendLeadReceivedResponse(res, {
+        message: 'Your message has been received. We will contact you shortly.',
+        supabaseResult,
+        localResult,
+        emailError
       });
     }
   } catch (error) {
@@ -776,7 +841,7 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       });
     }
 
-    const supabaseResult = await saveLeadToSupabase({
+    const lead = {
       type: 'brochure',
       name,
       email,
@@ -787,6 +852,13 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       source: req.headers.origin || req.headers.referer || null,
       user_agent: req.headers['user-agent'] || null,
       ip_address: req.ip || null
+    };
+
+    const supabaseResult = await saveLeadToSupabase(lead);
+    const localResult = await saveLeadToLocalFile({
+      ...lead,
+      supabaseLeadId: supabaseResult.id || null,
+      supabaseSaved: supabaseResult.success
     });
 
     try {
@@ -804,23 +876,20 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
 
       await markLeadEmailSent(supabaseResult.id, info);
 
-      return res.json({
-        success: true,
-        message: 'Brochure request received and email sent successfully',
-        emailId: info?.id,
-        savedToSupabase: supabaseResult.success,
-        supabaseConfigured: supabaseResult.configured,
-        supabaseLeadId: supabaseResult.id,
-        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
-        emailProvider: 'resend'
+      return sendLeadReceivedResponse(res, {
+        message: 'Brochure request received successfully. Your download is ready.',
+        supabaseResult,
+        localResult,
+        emailInfo: info,
+        downloadUrl: '/api/brochure/download'
       });
     } catch (emailError) {
-      return sendEmailDeliveryError(res, emailError, {
-        savedToSupabase: supabaseResult.success,
-        supabaseConfigured: supabaseResult.configured,
-        supabaseLeadId: supabaseResult.id,
-        supabaseError: supabaseResult.success ? undefined : supabaseResult.message,
-        emailProvider: 'resend'
+      return sendLeadReceivedResponse(res, {
+        message: 'Brochure request received successfully. Your download is ready.',
+        supabaseResult,
+        localResult,
+        emailError,
+        downloadUrl: '/api/brochure/download'
       });
     }
   } catch (error) {

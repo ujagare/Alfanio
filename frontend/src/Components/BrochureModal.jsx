@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { API_URL, API_ENDPOINTS } from "../config";
+import { API_ENDPOINTS } from "../config";
+import { downloadBrochureFile } from "../Utils/formHandler";
 
 // Country codes list
 const countryCodes = [
@@ -111,16 +111,9 @@ const BrochureModal = ({ isOpen, onClose }) => {
       )
     : countryCodes;
 
-  const downloadBrochure = () => {
-    // Simple direct download approach
+  const downloadBrochure = (downloadUrl) => {
     try {
-      // Create a link to download the brochure
-      const link = document.createElement("a");
-      link.href = API_ENDPOINTS.brochureDownload;
-      link.setAttribute("download", "Alfanio-Brochure.pdf");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      downloadBrochureFile(downloadUrl);
     } catch (error) {
   // console.error("Error downloading brochure:", error);  // [removed by fix script]
       alert("Failed to download brochure. Please try again.");
@@ -148,7 +141,7 @@ const BrochureModal = ({ isOpen, onClose }) => {
         // Only show success and download brochure if server submission was successful
   // console.log("Email sent successfully!");  // [removed by fix script]
         setIsSuccess(true);
-        downloadBrochure();
+        downloadBrochure(result.data?.downloadUrl);
 
         // Close the modal after a delay
         setTimeout(() => {

@@ -7,6 +7,27 @@ import { toast } from 'react-toastify';
 import { saveContactSubmission, saveBrochureRequest } from './offlineSync';
 import { API_ENDPOINTS } from '../config';
 
+const resolveApiUrl = (url) => {
+  if (!url) {
+    return API_ENDPOINTS.brochureDownload;
+  }
+
+  if (/^https?:\/\//i.test(url)) {
+    return url;
+  }
+
+  return url;
+};
+
+export const downloadBrochureFile = (downloadUrl = API_ENDPOINTS.brochureDownload) => {
+  const link = document.createElement('a');
+  link.href = resolveApiUrl(downloadUrl);
+  link.setAttribute('download', 'Alfanio-Brochure.pdf');
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
+
 // Store form submissions in local storage
 const saveSubmission = (formData, formType) => {
   try {
@@ -127,10 +148,9 @@ export const handleBrochureForm = async (formData) => {
         window.trackBrochureDownload(formData.product || 'General Brochure');
       }
 
-      // Open brochure in new tab
-      window.open(API_ENDPOINTS.brochureDownload, '_blank');
+      downloadBrochureFile(result.downloadUrl);
 
-      return { success: true };
+      return { success: true, downloadUrl: result.downloadUrl };
     } else {
       throw new Error(result.message || 'Failed to request brochure');
     }

@@ -1,7 +1,7 @@
 // API Configuration
-export const API_URL = ''; // Empty string for relative URLs (proxy support)
+export const API_URL = import.meta.env.VITE_API_URL || ''; // Empty string keeps local proxy support.
 export const API_BASE_URL = API_URL;
-export const BROCHURE_URL = '/api/contact/brochure'; // Using /api prefix for direct backend access
+export const BROCHURE_URL = `${API_URL}/api/contact/brochure`;
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
 
 // Company Information
@@ -21,10 +21,10 @@ export const COMPANY_INFO = {
 
 // API Endpoints
 export const API_ENDPOINTS = {
-  contact: `/api/contact`,  // Using /api prefix for direct backend access
-  brochure: `/api/contact/brochure`,  // Using /api prefix for direct backend access
-  brochureDownload: `/api/brochure/download`,  // Using /api prefix for direct backend access
-  health: `/api/health`  // Relative URL for proxy support
+  contact: `${API_URL}/api/contact`,
+  brochure: `${API_URL}/api/contact/brochure`,
+  brochureDownload: `${API_URL}/api/brochure/download`,
+  health: `${API_URL}/api/health`
 };
 
 // Environment settings
