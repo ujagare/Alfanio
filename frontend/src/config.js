@@ -1,5 +1,21 @@
 // API Configuration
-export const API_URL = import.meta.env.VITE_API_URL || ''; // Empty string keeps local proxy support.
+const getApiUrl = () => {
+  const configuredUrl = import.meta.env.VITE_API_URL || '';
+
+  if (typeof window === 'undefined' || !configuredUrl) {
+    return configuredUrl;
+  }
+
+  const currentHost = window.location.hostname;
+
+  if (currentHost.endsWith('vercel.app')) {
+    return '';
+  }
+
+  return configuredUrl;
+};
+
+export const API_URL = getApiUrl(); // Empty string keeps local/proxy rewrite support.
 export const API_BASE_URL = API_URL;
 export const BROCHURE_URL = `${API_URL}/api/contact/brochure`;
 export const API_TIMEOUT = parseInt(import.meta.env.VITE_API_TIMEOUT || '30000', 10);
