@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -588,8 +589,8 @@ const connectWithRetry = async (retries = 5, delay = 5000) => {
   }
 };
 
-// Start the connection process
-connectWithRetry();
+// MongoDB is intentionally disabled for Render deployment. Lead capture now
+// delivers email through Resend without blocking on database availability.
 
 // Contact schema
 const contactSchema = new mongoose.Schema({
@@ -624,6 +625,46 @@ const getEmailSettings = () => ({
   fromName: process.env.EMAIL_FROM_NAME || 'Alfanio India',
   to: process.env.EMAIL_TO || process.env.EMAIL_USER
 });
+
+const getResendSettings = () => ({
+  apiKey: process.env.RESEND_API_KEY,
+  from: process.env.RESEND_FROM || `"${escapeHtml(process.env.EMAIL_FROM_NAME || 'Alfanio India')}" <onboarding@resend.dev>`,
+  to: process.env.EMAIL_TO || process.env.EMAIL_USER || 'alfanioindia@gmail.com'
+});
+
+const sendLeadEmail = async ({ subject, html, replyTo }) => {
+  const settings = getResendSettings();
+
+  if (!settings.apiKey || !settings.to) {
+    const missing = [
+      !settings.apiKey && 'RESEND_API_KEY',
+      !settings.to && 'EMAIL_TO'
+    ].filter(Boolean);
+
+    const error = new Error(`Resend email service is not configured. Missing: ${missing.join(', ')}`);
+    error.code = 'EMAIL_CONFIG_MISSING';
+    error.missing = missing;
+    throw error;
+  }
+
+  const resend = new Resend(settings.apiKey);
+  const { data, error } = await resend.emails.send({
+    from: settings.from,
+    to: [settings.to],
+    subject,
+    html,
+    replyTo
+  });
+
+  if (error) {
+    const resendError = new Error(error.message || 'Resend email delivery failed');
+    resendError.code = 'RESEND_DELIVERY_FAILED';
+    resendError.details = error;
+    throw resendError;
+  }
+
+  return data;
+};
 
 const createMailTransport = () => {
   // Determine if we're in production
@@ -721,20 +762,14 @@ const sendEmailDeliveryError = (res, error, extra = {}) =>
   res.status(502).json({
     success: false,
     code: 'EMAIL_DELIVERY_FAILED',
-    message: 'Message was received, but email delivery failed. Please check SMTP settings.',
+    message: 'Message was received, but email delivery failed. Please check Resend settings.',
     emailSent: false,
     error: error.message,
     ...extra
   });
 
-// Create mail transport
-const mailTransport = createMailTransport();
-
-// Start email verification but don't wait for it
-verifyEmailTransport().catch(err => {
-  // console.error('Email verification process error:', err);  // [removed by fix script]
-  // console.log('Server will continue running despite email verification issues.');  // [removed by fix script]
-});
+// SMTP verification is disabled because Render free instances block outbound
+// SMTP ports. Email delivery uses the Resend HTTPS API instead.
 
 // API routes
 app.get('/api/health', (req, res) => {
@@ -742,8 +777,9 @@ app.get('/api/health', (req, res) => {
     uptime: process.uptime(),
     message: 'OK',
     timestamp: Date.now(),
-    mongoConnection: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
-    emailService: mailTransport !== null ? 'connected' : 'disconnected'
+    mongoConnection: 'disabled',
+    emailService: getResendSettings().apiKey ? 'connected' : 'disconnected',
+    emailProvider: 'resend'
   };
 
   try {
@@ -799,46 +835,8 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
       });
     }
 
-    let savedToDatabase = false;
-
     try {
-      if (mongoose.connection.readyState !== 1) {
-        throw new Error('MongoDB is not connected');
-      }
-
-      const contact = new Contact({
-        name,
-        email,
-        phone,
-        message
-      });
-
-      await contact.save();
-      savedToDatabase = true;
-  // console.log('Contact form saved to database');  // [removed by fix script]
-    } catch (databaseError) {
-  // console.error('Contact form database save failed:', databaseError.message);  // [removed by fix script]
-  // console.log('Continuing with email delivery despite database issue');  // [removed by fix script]
-    }
-
-    // Direct email sending with nodemailer
-    try {
-  // console.log('Setting up direct email transport for contact form...');  // [removed by fix script]
-
-      const transporter = createMailTransport();
-      const mailDefaults = getMailDefaults();
-
-      if (!transporter || !mailDefaults.to) {
-        return sendEmailConfigError(res);
-      }
-
-  // console.log('Preparing contact form email content...');  // [removed by fix script]
-
-      // Email content
-      const mailOptions = {
-        from: mailDefaults.from,
-        to: mailDefaults.to,
-        replyTo: email,
+      const info = await sendLeadEmail({
         subject: 'New Contact Form Submission',
         html: `
           <h2>New Contact Form Submission</h2>
@@ -846,77 +844,19 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
           <p><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
           <p><strong>Message:</strong> ${escapeHtml(message || 'Not provided')}</p>
-        `
-      };
+        `,
+        replyTo: email
+      });
 
-  // console.log('Sending contact form email directly...');  // [removed by fix script]
-
-      try {
-        // Verify connection first
-        await transporter.verify();
-  // console.log('Email connection verified successfully for contact form');  // [removed by fix script]
-
-        // Send email
-        const info = await transporter.sendMail(mailOptions);
-
-  // console.log('Contact form email sent successfully:', info.messageId);  // [removed by fix script]
-
-        // Return success response
-        res.json({
-          success: true,
-          message: 'Message sent successfully',
-          emailId: info.messageId,
-          savedToDatabase
-        });
-      } catch (verifyError) {
-  // console.error('Email verification or sending error for contact form:', verifyError);  // [removed by fix script]
-        throw verifyError;
-      }
+      return res.json({
+        success: true,
+        message: 'Message sent successfully',
+        emailId: info?.id,
+        savedToDatabase: false,
+        emailProvider: 'resend'
+      });
     } catch (emailError) {
-  // console.error('Direct email sending error for contact form:', emailError);  // [removed by fix script]
-
-      // Try alternative method if direct method fails
-      try {
-  // console.log('Trying alternative email method for contact form...');  // [removed by fix script]
-
-        const alternativeTransporter = createMailTransport();
-        const mailDefaults = getMailDefaults();
-
-        if (!alternativeTransporter || !mailDefaults.to) {
-          return sendEmailConfigError(res);
-        }
-
-        // Email content
-        const mailOptions = {
-          from: mailDefaults.from,
-          to: mailDefaults.to,
-          replyTo: email,
-          subject: 'New Contact Form Submission (Alternative Method)',
-          html: `
-            <h2>New Contact Form Submission</h2>
-            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-            <p><strong>Phone:</strong> ${escapeHtml(phone)}</p>
-            <p><strong>Message:</strong> ${escapeHtml(message || 'Not provided')}</p>
-          `
-        };
-
-        // Send email
-        const info = await alternativeTransporter.sendMail(mailOptions);
-
-  // console.log('Contact form email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
-
-        // Return success response
-        res.json({
-          success: true,
-          message: 'Message sent successfully (alternative method)',
-          emailId: info.messageId,
-          savedToDatabase
-        });
-      } catch (alternativeError) {
-  // console.error('Alternative email method also failed for contact form:', alternativeError);  // [removed by fix script]
-        return sendEmailDeliveryError(res, alternativeError, { savedToDatabase });
-      }
+      return sendEmailDeliveryError(res, emailError, { savedToDatabase: false, emailProvider: 'resend' });
     }
   } catch (error) {
   // console.error('Contact form error:', error);  // [removed by fix script]
@@ -950,30 +890,8 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
       });
     }
 
-    // Skip database operations to avoid MongoDB connection issues
-  // console.log('Using direct email sending without database operations');  // [removed by fix script]
-
-    // Send email using the proven working configuration
     try {
-  // console.log('Setting up direct email transport...');  // [removed by fix script]
-
-      const transporter = createMailTransport();
-      const mailDefaults = getMailDefaults();
-
-      if (!transporter || !mailDefaults.to) {
-        return sendAcceptedWithoutEmail(
-          res,
-          'Brochure request received. Email delivery is not configured.',
-          { code: 'EMAIL_CONFIG_MISSING' }
-        );
-      }
-
-  // console.log('Preparing email content...');  // [removed by fix script]
-
-      // Email content
-      const mailOptions = {
-        from: mailDefaults.from,
-        to: mailDefaults.to,
+      const info = await sendLeadEmail({
         subject: 'New Brochure Request',
         html: `
           <h2>New Brochure Request</h2>
@@ -981,75 +899,18 @@ app.post(['/api/contact/brochure', '/contact/brochure'], async (req, res) => {
           <p><strong>Email:</strong> ${escapeHtml(email)}</p>
           <p><strong>Phone:</strong> ${escapeHtml(phoneNumber)}</p>
           ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
-        `
-      };
+        `,
+        replyTo: email
+      });
 
-  // console.log('Sending email directly...');  // [removed by fix script]
-
-      // Send email
-      const info = await transporter.sendMail(mailOptions);
-
-  // console.log('Email sent successfully:', info.messageId);  // [removed by fix script]
-
-      // Return success response
-      res.json({
+      return res.json({
         success: true,
         message: 'Brochure request received and email sent successfully',
-        emailId: info.messageId
+        emailId: info?.id,
+        emailProvider: 'resend'
       });
     } catch (emailError) {
-  // console.error('Email sending error:', emailError);  // [removed by fix script]
-
-      // Try alternative method if direct method fails
-      try {
-  // console.log('Trying alternative email method...');  // [removed by fix script]
-
-        const alternativeTransporter = createMailTransport();
-        const mailDefaults = getMailDefaults();
-
-        if (!alternativeTransporter || !mailDefaults.to) {
-          return sendAcceptedWithoutEmail(
-            res,
-            'Brochure request received. Email delivery is not configured.',
-            { code: 'EMAIL_CONFIG_MISSING' }
-          );
-        }
-
-        // Email content
-        const mailOptions = {
-          from: mailDefaults.from,
-          to: mailDefaults.to,
-          subject: 'New Brochure Request (Alternative Method)',
-          html: `
-            <h2>New Brochure Request</h2>
-            <p><strong>Name:</strong> ${escapeHtml(name)}</p>
-            <p><strong>Email:</strong> ${escapeHtml(email)}</p>
-            <p><strong>Phone:</strong> ${escapeHtml(phoneNumber)}</p>
-            ${message ? `<p><strong>Message:</strong> ${escapeHtml(message)}</p>` : ''}
-          `
-        };
-
-        // Send email
-        const info = await alternativeTransporter.sendMail(mailOptions);
-
-  // console.log('Email sent successfully with alternative method:', info.messageId);  // [removed by fix script]
-
-        // Return success response
-        res.json({
-          success: true,
-          message: 'Brochure request received and email sent successfully (alternative method)',
-          emailId: info.messageId
-        });
-      } catch (alternativeError) {
-  // console.error('Alternative email method also failed:', alternativeError);  // [removed by fix script]
-
-        // Return error response
-        res.status(500).json({
-          success: false,
-          message: 'Failed to send email. Please try again later.',
-          error: alternativeError.message
-        });
-      }
+      return sendEmailDeliveryError(res, emailError, { emailProvider: 'resend' });
     }
   } catch (error) {
   // console.error('Brochure request error:', error);  // [removed by fix script]
