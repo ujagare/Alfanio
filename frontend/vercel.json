@@ -5,15 +5,15 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://alfanio-ltd.onrender.com/api/:path*"
+      "destination": "https://alfanio-ltd-nqqi.onrender.com/api/:path*"
     },
     {
       "source": "/contact/:path*",
-      "destination": "https://alfanio-ltd.onrender.com/contact/:path*"
+      "destination": "https://alfanio-ltd-nqqi.onrender.com/contact/:path*"
     },
     {
       "source": "/brochure/:path*",
-      "destination": "https://alfanio-ltd.onrender.com/brochure/:path*"
+      "destination": "https://alfanio-ltd-nqqi.onrender.com/brochure/:path*"
     },
     {
       "source": "/(.*)",
