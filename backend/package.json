@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node server/server.js",
+    "build": "npm run check",
     "dev": "nodemon server/server.js",
     "test:mongodb": "node test-mongodb-connection.js",
     "check": "node --check server/server.js && node --check test-mongodb-connection.js"
