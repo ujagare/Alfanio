@@ -49,53 +49,25 @@ const AppContent = () => {
       });
     }
 
-    // Register service worker
+    // Disable service worker caching so production deploys and form endpoints
+    // are never held back by stale cached JavaScript.
     if ("serviceWorker" in navigator && isProduction) {
       window.addEventListener("load", () => {
-        navigator.serviceWorker
-          .register("/service-worker.js")
-          .then((registration) => {
-  // console.log("SW registered:", registration);  // [removed by fix script]
-
-            // Check for updates every hour
-            setInterval(
-              () => {
-                registration.update();
-              },
-              60 * 60 * 1000
-            );
-
-            // Handle updates
-            registration.addEventListener("updatefound", () => {
-              const newWorker = registration.installing;
-              newWorker.addEventListener("statechange", () => {
-                if (
-                  newWorker.state === "installed" &&
-                  navigator.serviceWorker.controller
-                ) {
-                  // New content is available, show notification to user
-                  if (confirm("New version available! Reload to update?")) {
-                    window.location.reload();
-                  }
-                }
-              });
-            });
-          })
+        navigator.serviceWorker.getRegistrations()
+          .then((registrations) =>
+            Promise.all(registrations.map((registration) => registration.unregister()))
+          )
+          .then(() => ("caches" in window ? caches.keys() : []))
+          .then((cacheNames) =>
+            Promise.all(cacheNames.map((cacheName) => caches.delete(cacheName)))
+          )
           .catch((error) => {
-  // console.error("SW registration failed:", error);  // [removed by fix script]
             trackEvent({
               action: "error",
               category: "ServiceWorker",
               label: error.message,
             });
           });
-      });
-
-      // Handle communication from service worker
-      navigator.serviceWorker.addEventListener("message", (event) => {
-        if (event.data && event.data.type === "CACHE_UPDATED") {
-  // console.log("New content is available; please refresh.");  // [removed by fix script]
-        }
       });
     }
   }, [trackEvent]);
