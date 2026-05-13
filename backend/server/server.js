@@ -644,6 +644,9 @@ const createMailTransport = () => {
     host: emailSettings.host,
     port: emailSettings.port,
     secure: emailSettings.secure,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 20000,
     auth: {
       user: emailSettings.user,
       pass: emailSettings.pass
@@ -799,6 +802,10 @@ app.post(['/api/contact', '/contact'], async (req, res) => {
     let savedToDatabase = false;
 
     try {
+      if (mongoose.connection.readyState !== 1) {
+        throw new Error('MongoDB is not connected');
+      }
+
       const contact = new Contact({
         name,
         email,
