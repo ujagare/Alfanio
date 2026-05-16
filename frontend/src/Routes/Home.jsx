@@ -19,7 +19,7 @@ import slide5 from "../assets/alafa-images/97843  (15).webp";
 import slide6 from "../assets/alafa-images/(22).jpg";
 
 // Import mobile images
-import mobileSlide1 from "../assets/mobile/First.png";
+import mobileSlide1 from "../assets/mobile/Yellow.png";
 import mobileSlide2 from "../assets/mobile/Second.png";
 import mobileSlide3 from "../assets/mobile/third.png";
 import mobileSlide4 from "../assets/mobile/fourth.png";
@@ -145,7 +145,7 @@ const Home = () => {
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
         id="home"
-        className="relative h-[calc(100vh-80px)] overflow-hidden"
+        className="relative h-[calc(82vh-80px)] sm:h-[calc(100vh-80px)] overflow-hidden"
       >
         <Swiper
           onSwiper={setSwiper}

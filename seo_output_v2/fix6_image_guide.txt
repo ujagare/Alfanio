@@ -1,0 +1,46 @@
+
+╔══════════════════════════════════════════════════════╗
+║   IMAGE COMPRESSION GUIDE — alfanio.com              ║
+║   Current: 17.12MB | Target: <2MB                    ║
+╚══════════════════════════════════════════════════════╝
+
+STEP 1: Free Tools Se Compress Karo
+────────────────────────────────────
+• https://squoosh.app       (Google ka free tool — best!)
+• https://tinypng.com       (PNG/JPG compress)
+• https://compressor.io     (Multiple formats)
+
+STEP 2: Format Change Karo (MOST IMPORTANT)
+────────────────────────────────────────────
+JPG/PNG → WebP format mein convert karo
+WebP = same quality, 30-50% less size
+
+HTML mein use karo:
+  <picture>
+    <source srcset="image.webp" type="image/webp">
+    <img src="image.jpg" alt="Twin Shaft Mixer by Alfanio" loading="lazy">
+  </picture>
+
+STEP 3: Lazy Loading Add Karo
+──────────────────────────────
+Har img tag mein yeh add karo:
+  loading="lazy"
+
+Example:
+  <img src="mixer.webp" alt="Industrial Mixer" loading="lazy" width="800" height="600">
+
+STEP 4: Max Dimensions Set Karo
+─────────────────────────────────
+• Hero images   : max 1920×1080px
+• Product images: max 800×600px
+• Thumbnails    : max 400×300px
+
+STEP 5: Vercel Image Optimization
+───────────────────────────────────
+Next.js use karo to automatic optimization:
+  import Image from 'next/image'
+  <Image src="/mixer.jpg" width={800} height={600} alt="..." />
+
+EXPECTED RESULTS AFTER FIX:
+  Before: 17.12MB, LCP 14s
+  After:  ~1.5MB,  LCP <3s  ✅

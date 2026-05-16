@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import Masonry from "react-masonry-css";
 import alfanioPng from "../assets/Alfanio.png";
 import heroImage from "../assets/alafa-images/20211116_114205 (2).webp";
+import mobileHeroImage from "../assets/mobile/Blue.png";
 import { FiX, FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 // Simple loading spinner component
@@ -164,7 +165,18 @@ const Gallery = () => {
           <img
             src={heroImage}
             alt="Alfanio Industrial Equipment"
-            className="w-full h-full object-cover object-top"
+            className="hidden w-full h-full object-cover object-top sm:block"
+            style={{
+              imageRendering: "crisp-edges",
+              WebkitBackfaceVisibility: "hidden",
+              backfaceVisibility: "hidden",
+            }}
+            loading="eager"
+          />
+          <img
+            src={mobileHeroImage}
+            alt="Alfanio Industrial Equipment"
+            className="w-full h-full object-cover object-top sm:hidden"
             style={{
               imageRendering: "crisp-edges",
               WebkitBackfaceVisibility: "hidden",

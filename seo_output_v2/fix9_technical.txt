@@ -1,0 +1,56 @@
+
+═══ TECHNICAL FIXES GUIDE ═══
+
+FIX 9A: HTTP/2 Enable Karo
+───────────────────────────
+Current: HTTP/1.1 (outdated)
+Target:  HTTP/2 or HTTP/3
+
+Since Vercel use ho raha hai:
+  ✅ Vercel automatically HTTP/2 support karta hai!
+  Check karo: https://tools.keycdn.com/http2-test?url=alfanio.com
+  Agar nahi aa raha → Vercel dashboard → Settings → check domain config
+
+FIX 9B: Multiple Redirects Hatao
+──────────────────────────────────
+Problem: alfanio.com → alfanio.in → www.alfanio.com (3 redirects!)
+Fix: vercel.json mein add karo:
+
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "alfanio.in"}],
+      "destination": "https://www.alfanio.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path*",
+      "has": [{"type": "host", "value": "alfanio.com"}],
+      "destination": "https://www.alfanio.com/:path*",
+      "permanent": true
+    }
+  ]
+}
+
+FIX 9C: Inline Styles Remove Karo
+────────────────────────────────────
+Problem: style="..." attributes direct HTML mein hain
+Fix: CSS file mein move karo
+
+BAD (current):
+  <div style="background:#FECC00; padding:20px; font-size:16px">
+
+GOOD (fix):
+  <div class="hero-banner">
+  /* CSS file mein: */
+  .hero-banner { background:#FECC00; padding:20px; font-size:16px; }
+
+Benefit: Page load 10-15% faster, better maintainability
+
+FIX 9D: Hreflang Add Karo (Future - if multilingual)
+──────────────────────────────────────────────────────
+Agar alag regions ke liye alag versions banao:
+  <link rel="alternate" hreflang="en-in" href="https://www.alfanio.com/">
+  <link rel="alternate" hreflang="hi"    href="https://www.alfanio.com/hi/">
+  <link rel="alternate" hreflang="x-default" href="https://www.alfanio.com/">

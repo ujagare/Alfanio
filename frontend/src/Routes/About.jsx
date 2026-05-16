@@ -14,6 +14,7 @@ import {
   FaWrench,
 } from "react-icons/fa";
 import heroImage from "../assets/alafa-images/CPH50-3 (16).webp";
+import mobileHeroImage from "../assets/mobile/Yellow.png";
 import factoryImage from "../assets/alafa-images/97843  (11).webp";
 import machineImage1 from "../assets/alafa-images/20211116_114205 (2).webp";
 import mixerImage from "../assets/alafa-images/Planetary-Concrete-Mixer.jpg";
@@ -218,7 +219,12 @@ const About = () => {
         <img
           src={heroImage}
           alt="Alfanio manufacturing equipment"
-          className="absolute inset-0 h-full w-full object-cover object-top opacity-70" loading="eager" decoding="async"
+          className="absolute inset-0 hidden h-full w-full object-cover object-top opacity-70 sm:block" loading="eager" decoding="async"
+        />
+        <img
+          src={mobileHeroImage}
+          alt="Alfanio manufacturing equipment"
+          className="absolute inset-0 h-full w-full object-cover object-top opacity-70 sm:hidden" loading="eager" decoding="async"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black via-black/75 to-black/25" />
         <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black to-transparent" />

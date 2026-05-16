@@ -57,6 +57,10 @@ const SEO = ({ title, description, keywords, image }) => {
       <meta name="language" content="English" />
       <meta name="revisit-after" content="7 days" />
       <meta name="author" content="Alfanio LTD" />
+      <meta
+        name="google-site-verification"
+        content="77j4uUgT-uQzL6oJV6F7BKW6J_vxO-9cNZCYMqrROZ4"
+      />
 
       {/* Structured data for better SEO */}
       <script type="application/ld+json">
