@@ -148,7 +148,12 @@ export const handleBrochureForm = async (formData) => {
         window.trackBrochureDownload(formData.product || 'General Brochure');
       }
 
-      downloadBrochureFile(result.downloadUrl);
+      // For the LIMO concrete pump, download the dedicated LIMO brochure file
+      if ((formData.product || '').toLowerCase().includes('limo')) {
+        downloadBrochureFile('/brochures/Alfanio-LIMO-brochure.pdf');
+      } else {
+        downloadBrochureFile(result.downloadUrl);
+      }
 
       return { success: true, downloadUrl: result.downloadUrl };
     } else {

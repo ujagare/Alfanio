@@ -755,16 +755,6 @@ const ProductGallery = () => {
                   type="brochure"
                   productName={product.name}
                   className="bg-white p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100"
-                  onSuccess={() => {
-                    if (productId !== "limo-concrete-pump") return;
-                    // After successful form submit, download the LIMO brochure
-                    const link = document.createElement("a");
-                    link.href = "/brochures/Alfanio-LIMO-brochure.pdf";
-                    link.download = "Alfanio-LIMO-brochure.pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  }}
                 />
               </div>
             </motion.div>
