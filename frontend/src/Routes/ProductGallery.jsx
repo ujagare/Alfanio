@@ -427,7 +427,19 @@ const ProductGallery = () => {
                 Contact Us
               </button>
               <button
-                onClick={() => setShowBrochureForm(true)}
+                onClick={() => {
+                  if (productId === "limo-concrete-pump") {
+                    // Download the LIMO brochure directly
+                    const link = document.createElement("a");
+                    link.href = "/brochures/Alfanio-LIMO-brochure.pdf";
+                    link.download = "Alfanio-LIMO-brochure.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  } else {
+                    setShowBrochureForm(true);
+                  }
+                }}
                 className="flex-1 bg-white text-[#FECC00] border-2 border-[#FECC00] px-6 py-3 rounded-lg hover:bg-yellow-50 transition-colors duration-200 font-semibold"
               >
                 Request Brochure

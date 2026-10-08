@@ -55,6 +55,8 @@ dist-ssr
 *.exe
 *.dll
 *.pdf
+!frontend/public/brochures/
+!frontend/public/brochures/*.pdf
 *.db
 *.sqlite
 *.sqlite3
