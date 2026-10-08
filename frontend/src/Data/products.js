@@ -8,7 +8,7 @@ import twinShaftImage3 from '../assets/product Reang/Twine shaft Mixer/20211127_
 import pumpImg1 from '../assets/alafa-images/(16).webp';
 import pumpImg2 from '../assets/alafa-images/(21).webp';
 import pumpImg3 from '../assets/alafa-images/White-Pump.webp';
-import limoMain from '../assets/limo/limo-concrete-pump.jpg';
+import limoMain from '../assets/limo/limo-banner.png';
 import limoImg2 from '../assets/limo/limo-pump-2.jpg';
 
 const products = [

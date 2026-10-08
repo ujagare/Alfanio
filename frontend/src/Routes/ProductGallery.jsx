@@ -24,7 +24,7 @@ import twinShaftMixer2 from "../assets/product Reang/Twine shaft Mixer/Twin-Shaf
 import pumpImg1 from "../assets/alafa-images/IMG_20211119_115836 (8).webp";
 import pumpImg2 from "../assets/alafa-images/20211116_114205 (2) - Copy.webp";
 import pumpImg3 from "../assets/alafa-images/IMG_20211119_115836 (3).webp";
-import limoMain from "../assets/limo/limo-concrete-pump.jpg";
+import limoMain from "../assets/limo/limo-banner.png";
 import limoImg2 from "../assets/limo/limo-pump-2.jpg";
 import twinShaftImg1 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
 import twinShaftImg2 from "../assets/alafa-images/20211127_151512 (7).webp";

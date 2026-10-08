@@ -5,7 +5,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { FaArrowRight, FaBolt, FaCogs, FaIndustry } from "react-icons/fa";
 import ConcretePump from "../assets/alafa-images/(16).webp";
-import LimoPump from "../assets/limo/limo-concrete-pump.jpg";
+import LimoPump from "../assets/limo/limo-banner.png";
 import TwinShaftMixer from "../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg";
 import PlanetaryMixer from "../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg";
 

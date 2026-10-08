@@ -17,6 +17,7 @@ import slide3 from "../assets/alafa-images/97843.webp";
 import slide4 from "../assets/alafa-images/97843  (16).webp";
 import slide5 from "../assets/alafa-images/97843  (15).webp";
 import slide6 from "../assets/alafa-images/(22).jpg";
+import limoBanner from "../assets/limo/limo-banner.png";
 
 // Import mobile images
 import mobileSlide1 from "../assets/mobile/Yellow.png";
@@ -27,6 +28,14 @@ import mobileSlide5 from "../assets/mobile/Fifth.png";
 import mobileSlide6 from "../assets/mobile/Six.png";
 
 const slides = [
+  {
+    bgImage: limoBanner,
+    mobileImage: limoBanner,
+    subtitle: "QGREEN ALFANIO",
+    title: "LIMO Construction Machine",
+    description:
+      "High-output trailer mounted concrete pump – CPH50, CPH70 and CPH70 HRX – engineered for demanding construction sites with high-pressure capability and long service life.",
+  },
   {
     bgImage: slide1,
     mobileImage: mobileSlide1,
