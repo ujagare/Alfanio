@@ -5,6 +5,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import { FaArrowRight, FaBolt, FaCogs, FaIndustry } from "react-icons/fa";
 import ConcretePump from "../assets/alafa-images/(16).webp";
+import LimoPump from "../assets/limo/limo-concrete-pump.jpg";
 import TwinShaftMixer from "../assets/product Reang/Twine shaft Mixer/Twin-Shaft-Concrete-Mixer.jpg";
 import PlanetaryMixer from "../assets/product Reang/Planetary-Concrete-Mixer/APM-Series-Planetary-Concrete-Mixer.jpg";
 
@@ -22,6 +23,19 @@ const ProductRange = () => {
         material: "Steel",
         automation: "Automatic",
         powerSource: "Electric",
+      },
+    },
+    {
+      id: "limo-concrete-pump",
+      title: "LIMO Concrete Pumps",
+      image: LimoPump,
+      description: ["Models : CPH50 / CPH70 / CPH70 HRX"],
+      eyebrow: "High Pressure Pumping",
+      specs: {
+        usage: "Industrial",
+        material: "Steel",
+        automation: "Automatic",
+        powerSource: "Diesel",
       },
     },
     {
@@ -112,7 +126,7 @@ const ProductRange = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: "-100px" }}
-          className="mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3 lg:gap-8"
+          className="mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4 lg:gap-8"
         >
           {products.map((product, index) => (
             <motion.div

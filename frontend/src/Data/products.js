@@ -8,6 +8,8 @@ import twinShaftImage3 from '../assets/product Reang/Twine shaft Mixer/20211127_
 import pumpImg1 from '../assets/alafa-images/(16).webp';
 import pumpImg2 from '../assets/alafa-images/(21).webp';
 import pumpImg3 from '../assets/alafa-images/White-Pump.webp';
+import limoMain from '../assets/limo/limo-concrete-pump.jpg';
+import limoImg2 from '../assets/limo/limo-pump-2.jpg';
 
 const products = [
   {
@@ -722,6 +724,204 @@ const products = [
       "Supply Ability": "100 Piece Per Month",
       "Delivery Time": "7 Days",
       "Main Domestic Market": "All India",
+    }
+  },
+  {
+    id: 'limo-concrete-pump',
+    name: "LIMO Trailer Mounted Concrete Pump",
+    image: limoMain,
+    images: [limoMain, limoImg2],
+    description: "The LIMO series trailer mounted concrete pump, engineered and manufactured by QGREEN ALFANIO, delivers reliable high-output concrete pumping for demanding construction sites. Available in three models – CPH50, CPH70 and CPH70 HRX – the LIMO range is built to handle harsh working conditions with specialized wear parts for longer life.\n\nThe series features large 200mm diameter hard chrome plated concrete pumping cylinders ensuring effective suction with reduced wear and tear (23% more piston area than a 180mm cylinder). A hardfaced S-Valve of 200mm inlet diameter with Tungsten Carbide wear parts provides longer service life.\n\nThe LIMO pumps offer both rod-side feeding for normal working conditions with maximum output efficiency and head-side feeding which converts existing concrete pumps into high-pressure models. A cable remote is provided as standard for safe and convenient operation.",
+    technicalDetails: "Powered by reliable diesel (and diesel/electric on CPH50) prime movers, the LIMO series uses a hardfaced 200mm S-Valve concrete pump with large hard chrome plated pumping cylinders. Hydraulic outriggers provide machine stability and a fully hydraulic signalling system enables trouble-free operation independent of electricity. A semi-automatic centralized lubrication system ensures proper greasing and enhances machine life. Heavy-duty metallic agitator motor cover and a long flap straight design ensure longer service life with reduced choking. Optional air compressor and 100% hydraulic hose system offer easier on-site maintenance and replacement compared to steel piping.",
+    features: [
+      "Large 200mm hard chrome plated concrete pumping cylinders (23% more area for effective suction)",
+      "Hardfaced S-Valve of 200mm inlet dia with Tungsten Carbide wear parts for longer life",
+      "Rod-side feeding for maximum output efficiency in normal working conditions",
+      "Head-side feeding to convert the pump into a high-pressure model",
+      "Heavy Duty Metallic Agitator Motor Cover",
+      "Long flap straight design for longer service life and reduced choking",
+      "Operator-friendly control panel with MCB (No Fuses)",
+      "UV protected harness for electric wiring",
+      "Service lamp provision for night operations and maintenance",
+      "Fully Hydraulic Signalling system for trouble-free machine operation",
+      "Heavy Duty hydraulic outrigger for better machine stability (independent of electricity)",
+      "Semi-automatic centralized lubrication system",
+      "Cable remote standard provision",
+      "Optional Air Compressor and Water Pumping for cleaning and on-site maintenance"
+    ],
+    applications: [
+      "High-rise and deep foundation concrete pumping",
+      "Large infrastructure and construction projects",
+      "RMC (Ready-mix concrete) applications",
+      "Sites requiring high pressure concrete placement"
+    ],
+    modelSpecs: [
+      {
+        name: "Prime Mover",
+        unit: "",
+        values: {
+          "CPH50": "DIESEL/ELECTRIC",
+          "CPH70": "DIESEL",
+          "CPH70 HRX": "DIESEL"
+        }
+      },
+      {
+        name: "Power",
+        unit: "HP",
+        values: {
+          "CPH50": "65",
+          "CPH70": "110",
+          "CPH70 HRX": "169"
+        }
+      },
+      {
+        name: "Speed",
+        unit: "RPM",
+        values: {
+          "CPH50": "2300",
+          "CPH70": "2400",
+          "CPH70 HRX": "2000"
+        }
+      },
+      {
+        name: "Output (Rod Side)",
+        unit: "m³/hr",
+        values: {
+          "CPH50": "50",
+          "CPH70": "71",
+          "CPH70 HRX": "71"
+        }
+      },
+      {
+        name: "Output (Head Side)",
+        unit: "m³/hr",
+        values: {
+          "CPH50": "34",
+          "CPH70": "48",
+          "CPH70 HRX": "48"
+        }
+      },
+      {
+        name: "Strokes/Min (Rod Side)",
+        unit: "Nos",
+        values: {
+          "CPH50": "27",
+          "CPH70": "27",
+          "CPH70 HRX": "27"
+        }
+      },
+      {
+        name: "Strokes/Min (Head Side)",
+        unit: "Nos",
+        values: {
+          "CPH50": "18",
+          "CPH70": "18",
+          "CPH70 HRX": "18"
+        }
+      },
+      {
+        name: "Concrete Pressure (Rod Side)",
+        unit: "bar",
+        values: {
+          "CPH50": "61",
+          "CPH70": "71",
+          "CPH70 HRX": "71"
+        }
+      },
+      {
+        name: "Concrete Pressure (Head Side)",
+        unit: "bar",
+        values: {
+          "CPH50": "91",
+          "CPH70": "106",
+          "CPH70 HRX": "106"
+        }
+      },
+      {
+        name: "Pumping Cylinder (Diameter)",
+        unit: "mm",
+        values: {
+          "CPH50": "200",
+          "CPH70": "200",
+          "CPH70 HRX": "200"
+        }
+      },
+      {
+        name: "Pumping Cylinder (Stroke Length)",
+        unit: "mm",
+        values: {
+          "CPH50": "1000",
+          "CPH70": "1400",
+          "CPH70 HRX": "1400"
+        }
+      },
+      {
+        name: "Hydraulic Pressure",
+        unit: "Bar",
+        values: {
+          "CPH50": "300",
+          "CPH70": "350",
+          "CPH70 HRX": "350"
+        }
+      },
+      {
+        name: "Hopper Capacity",
+        unit: "Litres",
+        values: {
+          "CPH50": "500",
+          "CPH70": "600",
+          "CPH70 HRX": "600"
+        }
+      },
+      {
+        name: "Max Length/Height",
+        unit: "Meter",
+        values: {
+          "CPH50": "450/120",
+          "CPH70": "600/150",
+          "CPH70 HRX": "800/200"
+        }
+      }
+    ],
+    specifications: {
+      "Product Type": "Concrete Pump",
+      "Series": "LIMO (CPH Series)",
+      "Prime Mover": "Diesel / Electric",
+      "Cylinder": "200mm Hard Chrome Plated",
+      "S-Valve": "Hardfaced 200mm, Tungsten Carbide wear parts",
+      "Control": "Cable Remote (standard)",
+      "Lubrication": "Semi-automatic centralized system",
+      "Warranty": "Yes"
+    },
+    tradeBenefits: [
+      {
+        title: "High Output Efficiency",
+        description: "Up to 71 m³/hr output with large capacity pumping cylinders"
+      },
+      {
+        title: "Longer Service Life",
+        description: "Tungsten Carbide wear parts and hard chrome plated cylinders reduce wear and tear"
+      },
+      {
+        title: "High-Pressure Versatility",
+        description: "Head-side feeding converts the pump into a high-pressure model"
+      },
+      {
+        title: "Trouble-Free Operation",
+        description: "Fully hydraulic operation independent of electricity with cable remote control"
+      }
+    ],
+    standards: [
+      "CE Certified",
+      "ISO 9001:2015 Certified",
+      "International Safety Standards Compliant",
+      "Quality Control Standards"
+    ],
+    tradeInfo: {
+      "Payment Terms": " Cash in Advance (CID)",
+      "Supply Ability": "20 Piece Per Month",
+      "Delivery Time": "7-10 Days",
+      "Main Domestic Market": "All India"
     }
   }
 ];

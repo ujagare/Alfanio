@@ -24,6 +24,8 @@ import twinShaftMixer2 from "../assets/product Reang/Twine shaft Mixer/Twin-Shaf
 import pumpImg1 from "../assets/alafa-images/IMG_20211119_115836 (8).webp";
 import pumpImg2 from "../assets/alafa-images/20211116_114205 (2) - Copy.webp";
 import pumpImg3 from "../assets/alafa-images/IMG_20211119_115836 (3).webp";
+import limoMain from "../assets/limo/limo-concrete-pump.jpg";
+import limoImg2 from "../assets/limo/limo-pump-2.jpg";
 import twinShaftImg1 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
 import twinShaftImg2 from "../assets/alafa-images/20211127_151512 (7).webp";
 import twinShaftImg3 from "../assets/alafa-images/20211127_151512 (12).webp";
@@ -38,6 +40,10 @@ const productImages = {
     { src: pumpImg1, alt: "Concrete Pump View 1" },
     { src: pumpImg2, alt: "Concrete Pump View 2" },
     { src: pumpImg3, alt: "Concrete Pump View 3" },
+  ],
+  "limo-concrete-pump": [
+    { src: limoMain, alt: "LIMO Concrete Pump Main View" },
+    { src: limoImg2, alt: "LIMO Concrete Pump View 2" },
   ],
   "_twin-shaft-mixer": [
     { src: twinShaftImg1, alt: "Twin Shaft Mixer Main View" },
@@ -65,6 +71,20 @@ const productImages = {
 };
 
 const pumpDescriptions = {
+  "limo-concrete-pump": {
+    intro: `The LIMO series trailer mounted concrete pump, engineered and manufactured by QGREEN ALFANIO, delivers reliable high-output concrete pumping for demanding construction sites. Available in three models – CPH50, CPH70 and CPH70 HRX – the LIMO range is built to handle harsh working conditions with specialized wear parts for longer life.`,
+    features: [
+      `❖ Large 200mm hard chrome plated concrete pumping cylinders – effective suction with reduced wear and tear (23% more piston area than a 180mm cylinder).`,
+      `❖ Hardfaced S-Valve of 200mm inlet dia with Tungsten Carbide wear parts for longer life.`,
+      `❖ Rod-side feeding for maximum output efficiency in normal working conditions; Head-side feeding converts the pump into a high-pressure model.`,
+      `❖ Heavy Duty Metallic Agitator Motor Cover and long flap straight design for longer service life with reduced choking.`,
+      `❖ Operator-friendly control panel with MCB (no fuses) and UV protected wiring harness.`,
+      `❖ Fully Hydraulic Signalling system and Heavy Duty hydraulic outriggers for better stability and trouble-free operation independent of electricity.`,
+      `❖ Semi-automatic centralized lubrication system enhances machine life; Cable Remote provided as standard.`,
+    ],
+    description: `All LIMO pumps are manufactured to handle harsh working conditions and can be supplied with specialized wear parts for longer life in regions with a history of high wear and tear. Optional air compressor and 100% hydraulic hose system provide easier on-site maintenance and replacement compared to steel piping. Models: CPH50 (up to 50 m³/hr), CPH70 (up to 71 m³/hr), CPH70 HRX (up to 71 m³/hr, high pressure up to 200m).`,
+  },
+
   "concrete-pump": {
     intro: `The CPH series concrete pumps, include:`,
     features: [
