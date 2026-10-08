@@ -26,6 +26,10 @@ import pumpImg2 from "../assets/alafa-images/20211116_114205 (2) - Copy.webp";
 import pumpImg3 from "../assets/alafa-images/IMG_20211119_115836 (3).webp";
 import limoMain from "../assets/limo/limo-banner.png";
 import limoImg2 from "../assets/limo/limo-pump-2.jpg";
+import limoValveControl from "../assets/limo/limo-valve-control.png";
+import limoValveCoupler from "../assets/limo/limo-valve-coupler.png";
+import limoCompressor from "../assets/limo/limo-compressor.png";
+import limoPumpCloseup from "../assets/limo/limo-pump-closeup.png";
 import twinShaftImg1 from "../assets/alafa-images/Twin-Shaft-Concrete-Mixer.jpg";
 import twinShaftImg2 from "../assets/alafa-images/20211127_151512 (7).webp";
 import twinShaftImg3 from "../assets/alafa-images/20211127_151512 (12).webp";
@@ -44,6 +48,10 @@ const productImages = {
   "limo-concrete-pump": [
     { src: limoMain, alt: "LIMO Concrete Pump Main View" },
     { src: limoImg2, alt: "LIMO Concrete Pump View 2" },
+    { src: limoValveControl, alt: "LIMO Blue Hydraulic Valve Control Assembly" },
+    { src: limoValveCoupler, alt: "LIMO Brass Hydraulic Valve Coupler Assembly" },
+    { src: limoCompressor, alt: "LIMO Orange Industrial Compressor Compartment" },
+    { src: limoPumpCloseup, alt: "LIMO Orange Industrial Pump Machinery Close-Up" },
   ],
   "_twin-shaft-mixer": [
     { src: twinShaftImg1, alt: "Twin Shaft Mixer Main View" },
