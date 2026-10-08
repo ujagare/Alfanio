@@ -18,6 +18,7 @@ import slide4 from "../assets/alafa-images/97843  (16).webp";
 import slide5 from "../assets/alafa-images/97843  (15).webp";
 import slide6 from "../assets/alafa-images/(22).jpg";
 import limoBanner from "../assets/limo/limo-banner.png";
+import limoMobileBanner from "../assets/limo/limo-mobile-banner.png";
 
 // Import mobile images
 import mobileSlide1 from "../assets/mobile/Yellow.png";
@@ -30,7 +31,7 @@ import mobileSlide6 from "../assets/mobile/Six.png";
 const slides = [
   {
     bgImage: limoBanner,
-    mobileImage: limoBanner,
+    mobileImage: limoMobileBanner,
     subtitle: "QGREEN ALFANIO",
     title: "LIMO Construction Machine",
     description:
