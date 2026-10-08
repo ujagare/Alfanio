@@ -80,7 +80,7 @@ const AppContent = () => {
         <SmoothScroll /> {/* Make sure this is before Navbar */}
         <Navbar />
         <AnimatePresence mode="wait">
-          <main className="flex-grow pt-20">
+          <main className="flex-grow pt-20 min-h-[100vh]">
             <Routes location={location} key={location.pathname}>
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />

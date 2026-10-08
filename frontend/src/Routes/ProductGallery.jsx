@@ -427,19 +427,7 @@ const ProductGallery = () => {
                 Contact Us
               </button>
               <button
-                onClick={() => {
-                  if (productId === "limo-concrete-pump") {
-                    // Download the LIMO brochure directly
-                    const link = document.createElement("a");
-                    link.href = "/brochures/Alfanio-LIMO-brochure.pdf";
-                    link.download = "Alfanio-LIMO-brochure.pdf";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                  } else {
-                    setShowBrochureForm(true);
-                  }
-                }}
+                onClick={() => setShowBrochureForm(true)}
                 className="flex-1 bg-white text-[#FECC00] border-2 border-[#FECC00] px-6 py-3 rounded-lg hover:bg-yellow-50 transition-colors duration-200 font-semibold"
               >
                 Request Brochure
@@ -767,6 +755,16 @@ const ProductGallery = () => {
                   type="brochure"
                   productName={product.name}
                   className="bg-white p-3 sm:p-6 rounded-xl shadow-sm border border-gray-100"
+                  onSuccess={() => {
+                    if (productId !== "limo-concrete-pump") return;
+                    // After successful form submit, download the LIMO brochure
+                    const link = document.createElement("a");
+                    link.href = "/brochures/Alfanio-LIMO-brochure.pdf";
+                    link.download = "Alfanio-LIMO-brochure.pdf";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
                 />
               </div>
             </motion.div>

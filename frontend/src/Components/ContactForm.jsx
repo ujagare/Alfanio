@@ -87,6 +87,7 @@ const ContactForm = ({
   type = "contact",
   productName = "",
   className = "",
+  onSuccess = null,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -127,6 +128,11 @@ const ContactForm = ({
 
       // Reset the form
       reset();
+
+      // Trigger optional success callback (e.g. download brochure after submit)
+      if (onSuccess) {
+        onSuccess();
+      }
     } catch (error) {
   // console.error("Form submission error:", error);  // [removed by fix script]
       toast.error("Something went wrong. Please try again later.");
