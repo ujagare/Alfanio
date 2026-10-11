@@ -21,6 +21,14 @@ const galleryImages = import.meta.glob(
   "../assets/alafa-images/*.(webp|jpg|jpeg|png)",
   { eager: true }
 );
+const newGalleryImages = import.meta.glob(
+  "../assets/gallery-alfanio/*.(webp|jpg|jpeg|png)",
+  { eager: true }
+);
+const newGalleryVideos = import.meta.glob(
+  "../assets/gallery-alfanio/*.(mp4|webm|mov)",
+  { eager: true }
+);
 
 const Gallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -35,24 +43,35 @@ const Gallery = () => {
       try {
         setIsLoading(true);
 
-        // Get all images
-        const allImages = Object.entries(galleryImages).map(
-          ([path, module]) => ({
+        const createMedia = (collection, priority) =>
+          Object.entries(collection).map(([path, module]) => ({
             src: module.default,
             alt: path.split("/").pop().split(".")[0].replace(/-/g, " "),
             path: path, // Keep the original path for filtering
-          })
-        );
+            type: /\.(mp4|webm|mov)$/i.test(path) ? "video" : "image",
+            priority,
+          }));
+
+        // New images always appear first, followed by the new video and legacy media.
+        const allMedia = [
+          ...createMedia(newGalleryImages, 0),
+          ...createMedia(newGalleryVideos, 1),
+          ...createMedia(galleryImages, 2),
+        ];
 
         // Only filter out exact duplicates with "Copy" in the name
         // This is a more conservative approach to ensure we don't lose images
-        const filteredImages = allImages.filter((image) => {
+        const filteredImages = allMedia.filter((image) => {
           // Skip files with "Copy" in the name
           return !image.path.includes("Copy");
         });
 
         // Sort images to ensure consistent order
         filteredImages.sort((a, b) => {
+          if (a.priority !== b.priority) {
+            return a.priority - b.priority;
+          }
+
           // Extract base names (without numbers in parentheses)
           const aBase = a.alt.replace(/\s*\(\d+\)\s*$/, "");
           const bBase = b.alt.replace(/\s*\(\d+\)\s*$/, "");
@@ -325,12 +344,23 @@ const Gallery = () => {
                       onClick={() => openLightbox(image, index)}
                     >
                       <div className="aspect-w-4 aspect-h-3 bg-gray-50">
-                        <img
-                          src={image.src}
-                          alt={image.alt}
-                          className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
-                          loading={index < 12 ? "eager" : "lazy"}
-                        />
+                        {image.type === "video" ? (
+                          <video
+                            src={image.src}
+                            aria-label={image.alt}
+                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
+                            muted
+                            playsInline
+                            preload="metadata"
+                          />
+                        ) : (
+                          <img
+                            src={image.src}
+                            alt={image.alt}
+                            className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-500 ease-out"
+                            loading={index < 12 ? "eager" : "lazy"}
+                          />
+                        )}
                         {/* Yellow accent corner */}
                         <div className="absolute top-0 right-0 w-12 h-12 bg-gradient-to-bl from-[#FECC00] to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -346,7 +376,7 @@ const Gallery = () => {
                                 {image.alt.replace(/\s*\(\d+\)\s*$/, "")}
                               </h3>
                               <p className="text-white/70 text-xs">
-                                Alfanio Project
+                                {image.type === "video" ? "Alfanio Video" : "Alfanio Project"}
                               </p>
                             </div>
                           </div>
@@ -365,13 +395,7 @@ const Gallery = () => {
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
                                 strokeWidth={2}
-                                d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                              />
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                d={image.type === "video" ? "M8 5v14l11-7z" : "M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"}
                               />
                             </svg>
                           </div>
@@ -399,7 +423,7 @@ const Gallery = () => {
                           onClick={() => setCurrentPage((prev) => prev + 1)}
                           className="bg-zinc-800 hover:bg-[#FECC00] hover:text-zinc-900 text-white font-semibold py-3 px-8 rounded-lg transition-all duration-300 shadow-md hover:shadow-lg flex items-center gap-3 mx-auto transform hover:-translate-y-1 active:translate-y-0"
                         >
-                          <span>Load More Images</span>
+                          <span>Load More Media</span>
                           <span className="relative w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
                             <svg
                               className="w-4 h-4"
@@ -421,7 +445,7 @@ const Gallery = () => {
                           className="bg-[#FECC00] text-zinc-900 font-semibold py-3 px-8 rounded-lg shadow-md flex items-center gap-3 mx-auto cursor-default"
                           disabled
                         >
-                          <span>All Images Loaded</span>
+                          <span>All Media Loaded</span>
                           <span className="relative w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
                             <svg
                               className="w-4 h-4"
@@ -443,7 +467,7 @@ const Gallery = () => {
                       {/* Image count indicator */}
                       <div className="mt-4 text-sm text-gray-500">
                         Showing {visibleImages.length} of {loadedImages.length}{" "}
-                        images
+                        items
                       </div>
                     </div>
                   </motion.div>
@@ -515,16 +539,32 @@ const Gallery = () => {
               {/* Main image area */}
               <div className="h-full pt-16 pb-12 px-6 flex items-center justify-center">
                 <div className="relative max-w-full max-h-full">
-                  <motion.img
-                    key={selectedImage.src}
-                    src={selectedImage.src}
-                    alt={selectedImage.alt}
-                    className="max-h-[calc(95vh-7rem)] max-w-full object-contain rounded-lg shadow-2xl border border-zinc-700/20"
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.4 }}
-                  />
+                  {selectedImage.type === "video" ? (
+                    <motion.video
+                      key={selectedImage.src}
+                      src={selectedImage.src}
+                      aria-label={selectedImage.alt}
+                      className="max-h-[calc(95vh-7rem)] max-w-full object-contain rounded-lg shadow-2xl border border-zinc-700/20"
+                      controls
+                      autoPlay
+                      playsInline
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  ) : (
+                    <motion.img
+                      key={selectedImage.src}
+                      src={selectedImage.src}
+                      alt={selectedImage.alt}
+                      className="max-h-[calc(95vh-7rem)] max-w-full object-contain rounded-lg shadow-2xl border border-zinc-700/20"
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ duration: 0.4 }}
+                    />
+                  )}
 
                   {/* Image decorative elements */}
                   <div className="absolute -top-4 -right-4 w-16 h-16 border-t-2 border-r-2 border-[#FECC00]/30 rounded-tr-xl opacity-70"></div>

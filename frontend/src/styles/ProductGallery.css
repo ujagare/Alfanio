@@ -50,11 +50,11 @@
   background: white;
 }
 
-.product-gallery-swiper .swiper-slide img {
+.product-gallery-swiper .swiper-slide img,
+.product-gallery-swiper .swiper-slide video {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  background-color: white;
 }
 
 .product-gallery-swiper img {

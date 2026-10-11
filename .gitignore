@@ -39,6 +39,8 @@ dist-ssr
 
 # Large files
 *.mp4
+!frontend/src/assets/limo/limo-site-video.mp4
+!frontend/src/assets/gallery-alfanio/*.mp4
 *.mov
 *.avi
 *.wmv

@@ -24,6 +24,12 @@ import twinShaftMixer2 from "../assets/product Reang/Twine shaft Mixer/Twin-Shaf
 import pumpImg1 from "../assets/alafa-images/IMG_20211119_115836 (8).webp";
 import pumpImg2 from "../assets/alafa-images/20211116_114205 (2) - Copy.webp";
 import pumpImg3 from "../assets/alafa-images/IMG_20211119_115836 (3).webp";
+import limoVideo from "../assets/limo/limo-site-video.mp4";
+import limoGallery1 from "../assets/limo/limo-gallery-1.jpeg";
+import limoGallery2 from "../assets/limo/limo-gallery-2.jpeg";
+import limoGallery3 from "../assets/limo/limo-gallery-3.jpeg";
+import limoGallery4 from "../assets/limo/limo-gallery-4.jpeg";
+import limoGallery5 from "../assets/limo/limo-gallery-5.jpeg";
 import limoMain from "../assets/limo/limo-banner.png";
 import limoImg2 from "../assets/limo/limo-pump-2.jpg";
 import limoValveControl from "../assets/limo/limo-valve-control.png";
@@ -46,12 +52,18 @@ const productImages = {
     { src: pumpImg3, alt: "Concrete Pump View 3" },
   ],
   "limo-concrete-pump": [
-    { src: limoMain, alt: "LIMO Concrete Pump Main View" },
-    { src: limoImg2, alt: "LIMO Concrete Pump View 2" },
-    { src: limoValveControl, alt: "LIMO Blue Hydraulic Valve Control Assembly" },
-    { src: limoValveCoupler, alt: "LIMO Brass Hydraulic Valve Coupler Assembly" },
-    { src: limoCompressor, alt: "LIMO Orange Industrial Compressor Compartment" },
-    { src: limoPumpCloseup, alt: "LIMO Orange Industrial Pump Machinery Close-Up" },
+    { src: limoVideo, alt: "LIMO Concrete Pump in operation", type: "video" },
+    { src: limoGallery1, alt: "LIMO Concrete Pump View 1", type: "image" },
+    { src: limoGallery2, alt: "LIMO Concrete Pump View 2", type: "image" },
+    { src: limoGallery3, alt: "LIMO Concrete Pump View 3", type: "image" },
+    { src: limoGallery4, alt: "LIMO Concrete Pump View 4", type: "image" },
+    { src: limoGallery5, alt: "LIMO Concrete Pump View 5", type: "image" },
+    { src: limoMain, alt: "LIMO Concrete Pump Main View", type: "image" },
+    { src: limoImg2, alt: "LIMO Concrete Pump View 7", type: "image" },
+    { src: limoValveControl, alt: "LIMO Blue Hydraulic Valve Control Assembly", type: "image" },
+    { src: limoValveCoupler, alt: "LIMO Brass Hydraulic Valve Coupler Assembly", type: "image" },
+    { src: limoCompressor, alt: "LIMO Orange Industrial Compressor Compartment", type: "image" },
+    { src: limoPumpCloseup, alt: "LIMO Orange Industrial Pump Machinery Close-Up", type: "image" },
   ],
   "_twin-shaft-mixer": [
     { src: twinShaftImg1, alt: "Twin Shaft Mixer Main View" },
@@ -212,13 +224,14 @@ const ProductGallery = () => {
     productId === "concrete-pump"
       ? [...images, ...productImages["concrete-mixer"]]
       : images;
+  const galleryMedia = allImages.filter((media) => media.type !== "video");
 
   const handleBackClick = () => {
     navigate("/#product-range");
   };
 
   const openModal = (index) => {
-    setSelectedImage(allImages[index]);
+    setSelectedImage(galleryMedia[index]);
     setCurrentImageIndex(index);
     document.body.style.overflow = "hidden";
   };
@@ -230,17 +243,17 @@ const ProductGallery = () => {
 
   const nextImage = (e) => {
     e?.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % allImages.length);
-    setSelectedImage(allImages[(currentImageIndex + 1) % allImages.length]);
+    setCurrentImageIndex((prev) => (prev + 1) % galleryMedia.length);
+    setSelectedImage(galleryMedia[(currentImageIndex + 1) % galleryMedia.length]);
   };
 
   const prevImage = (e) => {
     e?.stopPropagation();
     setCurrentImageIndex(
-      (prev) => (prev - 1 + allImages.length) % allImages.length
+      (prev) => (prev - 1 + galleryMedia.length) % galleryMedia.length
     );
     setSelectedImage(
-      allImages[(currentImageIndex - 1 + allImages.length) % allImages.length]
+      galleryMedia[(currentImageIndex - 1 + galleryMedia.length) % galleryMedia.length]
     );
   };
 
@@ -394,15 +407,31 @@ const ProductGallery = () => {
                 loop={true}
                 className="product-gallery-swiper rounded-lg overflow-hidden shadow-lg"
               >
-                {images.map((image, index) => (
-                  <SwiperSlide key={index}>
+                {images.map((media, index) => (
+                  <SwiperSlide
+                    key={media.src}
+                    data-swiper-autoplay={index === 0 && media.type === "video" ? 12000 : 5000}
+                  >
                     <div className="aspect-w-4 aspect-h-3">
-                      <img
-                        src={image.src}
-                        alt={image.alt}
-                        className="w-full h-full object-contain bg-white"
-                        loading={index === 0 ? "eager" : "lazy"}
-                      />
+                      {media.type === "video" ? (
+                        <video
+                          src={media.src}
+                          aria-label={media.alt}
+                          className="w-full h-full object-contain bg-black"
+                          autoPlay
+                          muted
+                          loop
+                          playsInline
+                          preload="metadata"
+                        />
+                      ) : (
+                        <img
+                          src={media.src}
+                          alt={media.alt}
+                          className="w-full h-full object-contain bg-white"
+                          loading={index === 0 ? "eager" : "lazy"}
+                        />
+                      )}
                     </div>
                   </SwiperSlide>
                 ))}
@@ -441,20 +470,35 @@ const ProductGallery = () => {
             Product Gallery
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {allImages.map((image, index) => (
+            {galleryMedia.map((media, index) => (
               <div
-                key={index}
+                key={media.src}
                 className="relative group cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300"
                 onClick={() => openModal(index)}
               >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-80 md:h-96 object-contain transform hover:scale-105 transition-transform duration-300" loading="lazy" decoding="async"
-                />
+                {media.type === "video" ? (
+                  <video
+                    src={media.src}
+                    aria-label={media.alt}
+                    className="w-full h-80 md:h-96 object-contain bg-black transform group-hover:scale-105 transition-transform duration-300"
+                    muted
+                    playsInline
+                    preload="metadata"
+                  />
+                ) : (
+                  <img
+                    src={media.src}
+                    alt={media.alt}
+                    className="w-full h-80 md:h-96 object-contain transform group-hover:scale-105 transition-transform duration-300"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                )}
                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-300">
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <span className="text-white text-xl">Click to view</span>
+                    <span className="text-white text-xl">
+                      {media.type === "video" ? "Play video" : "Click to view"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -478,12 +522,25 @@ const ProductGallery = () => {
                   className="relative w-full h-full flex items-center justify-center"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <img
-                    src={selectedImage.src}
-                    alt={selectedImage.alt}
-                    className="max-h-[90vh] w-auto max-w-[85vw] object-contain rounded-lg"
-                    style={{ minHeight: "70vh" }} loading="lazy" decoding="async"
-                  />
+                  {selectedImage.type === "video" ? (
+                    <video
+                      src={selectedImage.src}
+                      aria-label={selectedImage.alt}
+                      className="max-h-[90vh] w-auto max-w-[85vw] object-contain rounded-lg"
+                      controls
+                      autoPlay
+                      playsInline
+                    />
+                  ) : (
+                    <img
+                      src={selectedImage.src}
+                      alt={selectedImage.alt}
+                      className="max-h-[90vh] w-auto max-w-[85vw] object-contain rounded-lg"
+                      style={{ minHeight: "70vh" }}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                   <p className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 text-white text-center w-full">
                     {selectedImage.alt}
                   </p>

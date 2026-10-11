@@ -112,6 +112,10 @@ export default defineConfig({
 
   server: {
     port: 3000,
+    // OneDrive locks large binary files (EBUSY on .mp4) — exclude them from the watcher
+    watch: {
+      ignored: ['**/*.mp4', '**/*.mov', '**/*.wmv'],
+    },
     proxy: {
       '/api': {
         target: 'http://localhost:5005',
